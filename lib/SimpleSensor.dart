@@ -1,7 +1,7 @@
 import 'Component.dart';
 import 'Widget.dart';
 
-class SimpleSensor extends Component{
+class SimpleSensor extends Component with Widget{
 
 
 
@@ -21,6 +21,8 @@ class SimpleSensor extends Component{
   void getWebSocketStream() {
     // TODO: implement getWebSocketStream
   }
+
+
 
 
 //  Sensor.unlaunched(String name) : super.unlaunched(name);
