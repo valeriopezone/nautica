@@ -1,3 +1,5 @@
+//DA RIMUOVERE
+
 abstract class Component {
   String wssURL;
   String httpURL;

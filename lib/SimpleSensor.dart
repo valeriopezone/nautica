@@ -1,27 +1,9 @@
 import 'Component.dart';
 import 'Widget.dart';
 
-class SimpleSensor extends Component with Widget{
-
-
+class SimpleSensor extends  UIWidget{
 
   String name;
-
-  @override
-  void getHTTPStream() {
-    // TODO: implement getHTTPStream
-  }
-
-  @override
-  void getLocation() {
-    // TODO: implement getLocation
-  }
-
-  @override
-  void getWebSocketStream() {
-    // TODO: implement getWebSocketStream
-  }
-
 
 
 

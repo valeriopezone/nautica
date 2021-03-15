@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:nautica/SignalKClient.dart';
 import 'dart:developer';
+import 'Configuration.dart';
+import 'StreamSubscriber.dart';
 
 import 'package:websocket_manager/websocket_manager.dart';
 
@@ -24,10 +26,34 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     _future = Future.value(DateTime.now().second);
 
-    final signalK = SignalKClient("192.168.1.180",3000);
+    Authentication loginData = null;
+    print("INIT ONCE!");
 
-    print("initx");
+    final signalK = SignalKClient("192.168.1.180",3000,loginData);
 
+    signalK.loadSignalKData().then((serverLoaded) {
+    print("[MAIN] LOADED SK: " + serverLoaded.toString());
+
+    if(serverLoaded){
+      StreamSubscriber stream = StreamSubscriber(signalK);
+      //stream.WSConnect().then(
+      // subscribe every widget to his data
+      // )....
+    }else{
+      //error...
+    }
+       //
+
+    });
+
+
+/*
+
+    print("INIT STATE");
+
+    SubscriptionMap.forEach((k,v) => print('${k}: ${v}'));
+
+*/
 
 
     super.initState();
@@ -163,7 +189,7 @@ class _MyAppState2 extends State<MyApp> {
   Widget build(BuildContext context) {
 
 
-    final signalK = SignalKClient("192.168.1.180",3000);
+   // final signalK = SignalKClient("192.168.1.180",3000);
 
     print("initx");
 

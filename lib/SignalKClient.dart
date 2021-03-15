@@ -3,94 +3,119 @@ import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
 import 'Configuration.dart';
 
-
-class SignalKClient{
+class SignalKClient {
+  bool loaded = false, wsConnected = false;
   String ip;
   int port;
+  String apiVersion;
+  String serverId, serverVersion;
+  String wsURL, httpURL, tcpURL;
+  Function onWSCloseCallBack = (){}, onWSMessageCallBack = (){};
+
   WebsocketManager socket;
 
-  String serverId,serverVersion;
 
-
-  String wssURL;
-  String httpURL;
+  String getWSUrl() => this.wsURL;
 
 
 
-  SignalKClient(this.ip,this.port){
-    print("load signalk");
-    this.loadSignalKData();
-    /*if(this.loadSignalKData()){
 
-    }*/
+  SignalKClient(this.ip, this.port, Authentication loginData) {
+    this.apiVersion = NAUTICA['signalK']['APIVersion'];
+    print("[SignalKClient] Launch");
+
+
   }
 
-  void WSconnect(String username, String password){
-    this.socket.connect();
+
+  void initialize(){
+     this.loadSignalKData().then((v){
+      this.loaded = v;
+      print("[SignalKClient] LOADED : " + this.loaded.toString());
+    });
+  }
+  Future<bool> WSconnect( Function closeCallback, Function messageCallback) {
+//login data?
+
+// Listen to close message
+    this.socket.onClose((dynamic message) {
+      print('close');
+      closeCallback();
+    });
+// Listen to server messages
+    this.socket.onMessage((dynamic message) {
+      print('recv: $message');
+      messageCallback();
+    });
+// Connect to server
+
+    this.socket.connect().whenComplete(() {
+      print("ciaoo");
+    });
   }
 
-  void WSdisconnect(){
+
+
+
+  void WSdisconnect() {
     this.socket.close();
   }
 
-  void getWSStream(){
-
-  }
-
-  void sendData(){
-
-  }
 
 
-  void executeHTTPRequest(){
 
-  }
 
-  Future<bool> loadSignalKData(){
+  void getWSStream() {}
+
+  void sendData() {}
+
+    bool isLoaded(){
+    return this.loaded;
+    }
+  void executeHTTPRequest() {}
+
+  Future<bool> loadSignalKData() async {
     //launch first request
-  execHTTPRequest(path:'signalk').then((r) {
-    print("res : ");
-  print(r.toString());
+   dynamic response =  await this.execHTTPRequest(path: 'signalk');
+    //.then((response) {
+      print("[loadSignalKData] RECEIVED : " + response.toString());
+      this.serverId = response['server']['id'];
+      this.serverVersion = response['endpoints'][this.apiVersion]['version'];
 
-    var jsonResponse = convert.jsonDecode(r);
+      if (this.serverId == null || this.serverVersion == null) {
+        //error....
+        print("[loadSignalKData] UNABLE TO READ JSON - PROBABLY WRONG API_VERSION");
 
-  print(jsonResponse['v1']['version']);
+        return Future.value(false);
+      }
+      this.httpURL = response['endpoints'][this.apiVersion]['signalk-http'];
+      this.wsURL = response['endpoints'][this.apiVersion]['signalk-ws'];
+      this.tcpURL = response['endpoints'][this.apiVersion]['signalk-tcp'];
 
-  });
+      print("[loadSignalKData] serverID : " + this.serverId);
+      print("[loadSignalKData] serverVersion : " + this.serverVersion);
+      print("[loadSignalKData] configuration done");
+     this.loaded = true;
+      return Future.value(true);
+  //  });
 
 
-  return Future.value(true);
-    //preload ws and http url
   }
 
-
-
-  Future<dynamic> execHTTPRequest({String path = '/',Map<String,String> data = null }) async {
+  Future<dynamic> execHTTPRequest({String path = '/', Map<String, String> data = null}) async {
     if (data == null) data = {};
-    print("connecting to "  + '${this.ip}:${this.port}');
+    print("[execHTTPRequest] http request to ${this.ip}:${this.port}");
     var url = Uri.http('${this.ip}:${this.port}', path, data);
-    print('http launcyhed');
 
     // Await the http get response, then decode the json-formatted response.
     var response = await http.get(url);
     if (response.statusCode == 200) {
-      return response.body;
-
-      var jsonResponse = convert.jsonDecode(response.body);
-
-      print('Number of books');
-
-      return jsonResponse;
+      print('[execHTTPRequest] response obtained');
+      return convert.jsonDecode(response.body);
     } else {
-      print('Request failed with status: ${response.statusCode}.');
+      print('[execHTTPRequest] Request failed with status: ${response.statusCode}.');
       return {};
-
     }
   }
-
-
-
-
-
 
 }
