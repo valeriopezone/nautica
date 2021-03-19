@@ -34,23 +34,28 @@ class SignalKClient {
       print("[SignalKClient] LOADED : " + this.loaded.toString());
     });
   }
-  Future<bool> WSconnect( Function closeCallback, Function messageCallback) {
+  Future<bool> WSconnect( Function closeCallback, Function messageCallback) async {
 //login data?
-
+  if(this.wsURL.isEmpty){
+    return Future.value(false);
+  }
+   this.socket = WebsocketManager(this.wsURL);
 // Listen to close message
     this.socket.onClose((dynamic message) {
-      print('close');
+      print('[SignalKClient] close');
       closeCallback();
     });
 // Listen to server messages
     this.socket.onMessage((dynamic message) {
-      print('recv: $message');
-      messageCallback();
+      messageCallback(message);
     });
 // Connect to server
 
-    this.socket.connect().whenComplete(() {
-      print("ciaoo");
+    await this.socket.connect().whenComplete(() {
+     this.wsConnected = true;
+     print("[SignalKClient] connected to websocket");
+     return Future.value(true);
+
     });
   }
 
@@ -69,9 +74,9 @@ class SignalKClient {
 
   void sendData() {}
 
-    bool isLoaded(){
+  bool isLoaded(){
     return this.loaded;
-    }
+  }
   void executeHTTPRequest() {}
 
   Future<bool> loadSignalKData() async {
