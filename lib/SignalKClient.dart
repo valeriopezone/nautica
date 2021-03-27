@@ -28,13 +28,8 @@ class SignalKClient {
   }
 
 
-  void initialize(){
-     this.loadSignalKData().then((v){
-      this.loaded = v;
-      print("[SignalKClient] LOADED : " + this.loaded.toString());
-    });
-  }
-  Future<bool> WSconnect( Function closeCallback, Function messageCallback) async {
+
+  Future<void> WSconnect( Function closeCallback, Function messageCallback) async {
 //login data?
   if(this.wsURL.isEmpty){
     return Future.value(false);
@@ -50,13 +45,15 @@ class SignalKClient {
       messageCallback(message);
     });
 // Connect to server
-
-    await this.socket.connect().whenComplete(() {
+   return await this.socket.connect().then((v){
      this.wsConnected = true;
      print("[SignalKClient] connected to websocket");
-     return Future.value(true);
+    }).catchError((Object onError){
+      print('[SignalKClient] Unable to connect -- on error : $onError');
+      return Future.error('Unable to connect -- on error : $onError');
 
     });
+
   }
 
 
@@ -79,7 +76,7 @@ class SignalKClient {
   }
   void executeHTTPRequest() {}
 
-  Future<bool> loadSignalKData() async {
+  Future<void> loadSignalKData() async {
     //launch first request
    dynamic response =  await this.execHTTPRequest(path: 'signalk');
     //.then((response) {
@@ -91,7 +88,7 @@ class SignalKClient {
         //error....
         print("[loadSignalKData] UNABLE TO READ JSON - PROBABLY WRONG API_VERSION");
 
-        return Future.value(false);
+        return Future.error("UNABLE TO READ JSON - PROBABLY WRONG API_VERSION");
       }
       this.httpURL = response['endpoints'][this.apiVersion]['signalk-http'];
       this.wsURL = response['endpoints'][this.apiVersion]['signalk-ws'];
@@ -101,7 +98,7 @@ class SignalKClient {
       print("[loadSignalKData] serverVersion : " + this.serverVersion);
       print("[loadSignalKData] configuration done");
      this.loaded = true;
-      return Future.value(true);
+     // return Future.value(true);
   //  });
 
 

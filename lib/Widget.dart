@@ -31,9 +31,9 @@ abstract class UIWidget{
   String getDescription() => this.description;
   List<String> getSubscriptionList() => this.subscriptionList;
 
-  set setTitle(String t) => this.title = t;
-  set setIcon(String t) => this.icon = t;
-  set setDescription(String t) => this.description = t;
+  void setTitle(String t){ this.title = t;}
+  void setIcon(String t) { this.icon = t;}
+  void setDescription(String t) { this.description = t;}
 
 
   void setStreamsSubscription(List<String> subscriptions){

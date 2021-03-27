@@ -7,7 +7,12 @@ class Authentication {
 
 const Map NAUTICA =  {
   'application':  {'debug': true},
-  'signalK':  {'APIVersion': 'v1'}
+  'signalK':  {'APIVersion': 'v1'},
+  'configuration' : {
+    'widget' : {
+      'refreshRate' : 500 //ms
+    }
+  }
 };
 
 const Map WidgetSubscriptionMap = {
@@ -31,13 +36,9 @@ const Map WidgetSubscriptionMap = {
     "fullname" : "navigation.courseRhumbline.crossTrackError",
     "path" : {"navigation","courseRhumbline","crossTrackError","value"}
   },
-  "nav.longitude" : {
+  "nav.position" : {
     "fullname" : "navigation.position",
-    "path" : {"navigation","position","value","longitude"}
-  },
-  "nav.latitude" : {
-    "fullname" : "navigation.position",
-    "path" : {"navigation", "position","value","latitude"}
+    "path" : {"navigation","position","value"}
   },
   "per.velocityMadeGood" : {
     "fullname" : "performance.velocityMadeGood",
