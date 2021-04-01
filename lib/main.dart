@@ -1,14 +1,37 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:nautica/SignalKClient.dart';
+import 'package:nautica/widgets/ApparentWind.dart';
 import 'package:nautica/widgets/GPS.dart';
+import 'package:nautica/widgets/PositionIndicator.dart';
+import 'package:nautica/widgets/SpeedOverGroundIndicator.dart';
 import 'package:syncfusion_flutter_charts/sparkcharts.dart';
 import 'dart:developer';
 import 'Configuration.dart';
 import 'StreamSubscriber.dart';
-
+import 'package:flutter/services.dart';
 import 'package:websocket_manager/websocket_manager.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-void main() => runApp(MyApp());
+
+
+void main() {
+
+WidgetsFlutterBinding.ensureInitialized();
+SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft])
+    .then((_) {
+
+  SystemChrome.setEnabledSystemUIOverlays([]).then((_) {
+    runApp(new MyApp());
+
+  });
+
+
+});
+
+
+// runApp(MyApp());
+}
 
 class MyApp extends StatefulWidget {
   @override
@@ -17,16 +40,15 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   Future<int> _future;
-  final TextEditingController _urlController =
-      TextEditingController(text: 'ws://192.168.1.180:3000/');
-  final TextEditingController _messageController = TextEditingController();
+
+
   WebsocketManager socket;
   String _message = '';
   String _closeMessage = '';
 
   bool goForIt = true;
   GPSWidget gps = GPSWidget();
-  GPSWidget gps2 = GPSWidget();
+  ApparentWindIndicator appWind = ApparentWindIndicator();
   StreamSubscriber stream;
 
   @override
@@ -37,12 +59,13 @@ class _MyAppState extends State<MyApp> {
     print("INIT ONCE!");
 
     if (goForIt) {
-      final signalK = SignalKClient("192.168.1.180", 3000, loginData);
+      final signalK = SignalKClient("192.168.1.179", 3000, loginData);
       this.stream = StreamSubscriber(signalK);
 
       gps.setTitle("ciao");
       gps.subscribePosition(this.stream.getStream("nav.position").asBroadcastStream());
-      gps2.subscribePosition(this.stream.getStream("nav.position").asBroadcastStream());
+      appWind.subscribeApparentWind(this.stream.getStream("env.wind.speedApparent").asBroadcastStream());
+      appWind.subscribeRealWindSpeed(this.stream.getStream("env.wind.speedTrue").asBroadcastStream());
 
       signalK.loadSignalKData().then((x) {
         this.stream.startListening().then((isListening) {
@@ -62,13 +85,13 @@ class _MyAppState extends State<MyApp> {
     } else {
       // test functions....
 
-      final signalK = SignalKClient("192.168.1.180", 3000, loginData);
+      final signalK = SignalKClient("192.168.1.179", 3000, loginData);
       this.stream = StreamSubscriber(signalK);
 
       gps.setTitle("ciao");
       gps.subscribePosition(this.stream.getStream("nav.position").asBroadcastStream());
-      gps2.subscribePosition(this.stream.getStream("nav.position").asBroadcastStream());
-
+      appWind.subscribeApparentWind(this.stream.getStream("env.wind.speedApparent").asBroadcastStream());
+      appWind.subscribeRealWindSpeed(this.stream.getStream("env.wind.speedTrue").asBroadcastStream());
 
     }
 
@@ -83,14 +106,30 @@ class _MyAppState extends State<MyApp> {
     super.initState();
   }
 
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+
+
+  }
+
   @override
   Widget build(context) {
+
+    //SystemChrome.setPreferredOrientations([
+    //  DeviceOrientation.landscapeLeft,
+    //  DeviceOrientation.landscapeRight,
+    //]);
+
+
     return FutureBuilder<int>(
         future: _future,
         builder: (context, snapshot) {
           //return Text(snapshot.data.toString());
           print("hello!");
-
+        return getMainApplication();
           return getMaterialApp();
         });
     return FutureBuilder<int>(
@@ -105,23 +144,77 @@ class _MyAppState extends State<MyApp> {
 
   /***********APP DESIGN***********/
 
-  MaterialApp getMaterialApp() {
+
+  MaterialApp getMainApplication(){
     return MaterialApp(
       home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Websocket Manager Example'),
-        ),
+        //appBar: AppBar(
+        //  title: const Text('Websocket Manager Example'),
+        //),
+          body:
+          Center(
+           child: Container(
+             child: Column(
+               children : [
+                 SpeedOverGroundIndicator(
+                   SOG_Stream: this.stream.getStream("env.wind.speedTrue").asBroadcastStream(),
+                   text : "vel",
+                 ),
+                 PositionIndicator(
+                   Position_Stream: this.stream.getStream("nav.position").asBroadcastStream(),
+                   text : "vel",
+                 ),
+                 SpeedOverGroundIndicator(
+                   SOG_Stream: this.stream.getStream("env.wind.speedTrue").asBroadcastStream(),
+                   text : "vel",
+                 ),
+               ]
+             )
+           )
+          )
+
+
+      ),
+    );
+
+  }
+
+
+  MaterialApp getMaterialApp() {
+
+
+
+    return MaterialApp(
+      home: Scaffold(
+       //appBar: AppBar(
+       //  title: const Text('Websocket Manager Example'),
+       //),
         body:
+Center(
+    child : LayoutBuilder(
+      builder : (context,constraints){
+        if(constraints.maxWidth > 500){
+          return     ListView(
+            children: <Widget>[
+              this.appWind.buildWidget(),
+              this.gps.getBuildStream(),
 
-        Column(
-          children: <Widget>[
-            this.gps.getBuildStream(),
-            this.gps2.getBuildStream(),
+            ],
+          );
 
+      }else{
+          //narrow
+          return     ListView(
+            children: <Widget>[
+              this.gps.getBuildStream(),
+              this.appWind.buildWidget(),
 
-          ],
-        ),
-
+            ],
+          );
+        }
+      }
+    )
+)
 
 
       ),
