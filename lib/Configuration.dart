@@ -40,6 +40,10 @@ const Map WidgetSubscriptionMap = {
     "fullname" : "navigation.position",
     "path" : {"navigation","position","value"}
   },
+  "nav.headingTrue" : {
+    "fullname" : "navigation.headingTrue",
+    "path" : {"navigation","headingTrue","value"}
+  },
   "per.velocityMadeGood" : {
     "fullname" : "performance.velocityMadeGood",
     "path" : {"performance","velocityMadeGood","value"}
@@ -77,6 +81,7 @@ const Map WidgetSubscriptionMap = {
     "path" : {"environment","current","drift","value"}
   },
 };
+
 
 
 //Reversed widget map :

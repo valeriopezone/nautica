@@ -9,7 +9,7 @@ class SignalKClient {
   int port;
   String apiVersion;
   String serverId, serverVersion;
-  String wsURL, httpURL, tcpURL;
+  String wsURL = "ws://192.168.1.162:3000/signalk/v1/stream", httpURL, tcpURL;
   Function onWSCloseCallBack = (){}, onWSMessageCallBack = (){};
 
   WebsocketManager socket;

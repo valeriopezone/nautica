@@ -2,9 +2,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:nautica/SignalKClient.dart';
 import 'package:nautica/widgets/ApparentWind.dart';
+import 'package:nautica/widgets/BoatVectorsIndicator.dart';
 import 'package:nautica/widgets/GPS.dart';
 import 'package:nautica/widgets/PositionIndicator.dart';
 import 'package:nautica/widgets/SpeedOverGroundIndicator.dart';
+import 'package:nautica/widgets/SpeedThroughWaterIndicator.dart';
 import 'package:syncfusion_flutter_charts/sparkcharts.dart';
 import 'dart:developer';
 import 'Configuration.dart';
@@ -13,22 +15,14 @@ import 'package:flutter/services.dart';
 import 'package:websocket_manager/websocket_manager.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-
-
 void main() {
-
-WidgetsFlutterBinding.ensureInitialized();
-SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft])
-    .then((_) {
-
-  SystemChrome.setEnabledSystemUIOverlays([]).then((_) {
-    runApp(new MyApp());
-
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft])
+      .then((_) {
+    SystemChrome.setEnabledSystemUIOverlays([]).then((_) {
+      runApp(new MyApp());
+    });
   });
-
-
-});
-
 
 // runApp(MyApp());
 }
@@ -40,7 +34,6 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   Future<int> _future;
-
 
   WebsocketManager socket;
   String _message = '';
@@ -63,9 +56,12 @@ class _MyAppState extends State<MyApp> {
       this.stream = StreamSubscriber(signalK);
 
       gps.setTitle("ciao");
-      gps.subscribePosition(this.stream.getStream("nav.position").asBroadcastStream());
-      appWind.subscribeApparentWind(this.stream.getStream("env.wind.speedApparent").asBroadcastStream());
-      appWind.subscribeRealWindSpeed(this.stream.getStream("env.wind.speedTrue").asBroadcastStream());
+      gps.subscribePosition(
+          this.stream.getStream("nav.position").asBroadcastStream());
+      appWind.subscribeApparentWind(
+          this.stream.getStream("env.wind.speedApparent").asBroadcastStream());
+      appWind.subscribeRealWindSpeed(
+          this.stream.getStream("env.wind.speedTrue").asBroadcastStream());
 
       signalK.loadSignalKData().then((x) {
         this.stream.startListening().then((isListening) {
@@ -89,10 +85,12 @@ class _MyAppState extends State<MyApp> {
       this.stream = StreamSubscriber(signalK);
 
       gps.setTitle("ciao");
-      gps.subscribePosition(this.stream.getStream("nav.position").asBroadcastStream());
-      appWind.subscribeApparentWind(this.stream.getStream("env.wind.speedApparent").asBroadcastStream());
-      appWind.subscribeRealWindSpeed(this.stream.getStream("env.wind.speedTrue").asBroadcastStream());
-
+      gps.subscribePosition(
+          this.stream.getStream("nav.position").asBroadcastStream());
+      appWind.subscribeApparentWind(
+          this.stream.getStream("env.wind.speedApparent").asBroadcastStream());
+      appWind.subscribeRealWindSpeed(
+          this.stream.getStream("env.wind.speedTrue").asBroadcastStream());
     }
 
 /*
@@ -106,30 +104,25 @@ class _MyAppState extends State<MyApp> {
     super.initState();
   }
 
-
   @override
   void dispose() {
     // TODO: implement dispose
     super.dispose();
-
-
   }
 
   @override
   Widget build(context) {
-
     //SystemChrome.setPreferredOrientations([
     //  DeviceOrientation.landscapeLeft,
     //  DeviceOrientation.landscapeRight,
     //]);
-
 
     return FutureBuilder<int>(
         future: _future,
         builder: (context, snapshot) {
           //return Text(snapshot.data.toString());
           print("hello!");
-        return getMainApplication();
+          return getMainApplication();
           return getMaterialApp();
         });
     return FutureBuilder<int>(
@@ -144,80 +137,229 @@ class _MyAppState extends State<MyApp> {
 
   /***********APP DESIGN***********/
 
-
-  MaterialApp getMainApplication(){
+  MaterialApp getMainApplication() {
     return MaterialApp(
       home: Scaffold(
-        //appBar: AppBar(
-        //  title: const Text('Websocket Manager Example'),
-        //),
-          body:
-          Center(
-           child: Container(
-             child: Column(
-               children : [
-                 SpeedOverGroundIndicator(
-                   SOG_Stream: this.stream.getStream("env.wind.speedTrue").asBroadcastStream(),
-                   text : "vel",
-                 ),
-                 PositionIndicator(
-                   Position_Stream: this.stream.getStream("nav.position").asBroadcastStream(),
-                   text : "vel",
-                 ),
-                 SpeedOverGroundIndicator(
-                   SOG_Stream: this.stream.getStream("env.wind.speedTrue").asBroadcastStream(),
-                   text : "vel",
-                 ),
-               ]
-             )
-           )
-          )
+          resizeToAvoidBottomInset: false,
+          appBar: AppBar(
+            title: Text("Hello Appbar"),
+            leading: GestureDetector(
+              onTap: () {
+                /* Write listener code here */
+              },
+              child: Icon(
+                Icons.menu, // add custom icons also
+              ),
+            ),
+            actions: <Widget>[
+              Padding(
+                  padding: EdgeInsets.only(right: 20.0),
+                  child: GestureDetector(
+                    onTap: () {},
+                    child: Icon(
+                      Icons.search,
+                      size: 26.0,
+                    ),
+                  )),
+              Padding(
+                  padding: EdgeInsets.only(right: 20.0),
+                  child: GestureDetector(
+                    onTap: () {},
+                    child: Icon(Icons.more_vert),
+                  )),
+            ],
+          ),
+          body:  Container(
+            decoration: BoxDecoration(
+                border: Border.all(color: Colors.black)
+            ),
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
 
 
-      ),
+                  Expanded (
+                      flex:1,
+                      child:
+                      Row(
+                        children: [
+                          Expanded(
+                              flex: 5, // 20%
+                              child:
+                              Card(
+                                child: Center(child:
+                                PositionIndicator(
+                                  Position_Stream: this
+                                      .stream
+                                      .getStream("nav.position")
+                                      .asBroadcastStream(),
+                                  text: "vel",
+                                )),
+                              )
+                          ),
+                          Expanded(
+                              flex: 5, // 20%
+                              child:
+                              Card(
+                                child: Center(child:
+                                BoatVectorsIndicator(
+                                  ATW_Stream: this
+                                      .stream
+                                      .getStream("env.wind.angleTrueWater")
+                                      .asBroadcastStream(),
+                                  ST_Stream: this
+                                      .stream
+                                      .getStream("env.wind.speedTrue")
+                                      .asBroadcastStream(),
+                                  AA_Stream: this
+                                      .stream
+                                      .getStream("env.wind.angleApparent")
+                                      .asBroadcastStream(),
+                                  SA_Stream: this
+                                      .stream
+                                      .getStream("env.wind.speedApparent")
+                                      .asBroadcastStream(),
+                                  HT_Stream: this
+                                      .stream
+                                      .getStream("nav.headingTrue")
+                                      .asBroadcastStream(),
+                                  COG_Stream: this
+                                      .stream
+                                      .getStream("nav.courseOverGroundTrue")
+                                      .asBroadcastStream(),
+                                  SOG_Stream: this
+                                      .stream
+                                      .getStream("nav.speedOverGround")
+                                      .asBroadcastStream(),
+                                  text: "vel",
+                                )),
+                              )
+                            /*PositionIndicator(
+                              Position_Stream: this
+                                  .stream
+                                  .getStream("nav.position")
+                                  .asBroadcastStream(),
+                              text: "vel",
+                            )*/),
+                        ],
+                      )),
+                  //panded (
+                  //  flex:1,
+                  //  child:
+                  //  Row(
+                  //    children: [
+                  //      Expanded(
+                  //          flex: 5, // 20%
+                  //          child:
+                  //          Card(
+                  //            child: Center(child:
+                  //            PositionIndicator(
+                  //              Position_Stream: this
+                  //                  .stream
+                  //                  .getStream("nav.position")
+                  //                  .asBroadcastStream(),
+                  //              text: "vel",
+                  //            )),
+                  //          )
+                  //      ),
+                  //      Expanded(
+                  //          flex: 5, // 20%
+                  //          child:
+                  //          Card(
+                  //            child: Center(child:
+                  //            BoatVectorsIndicator(
+                  //              ATW_Stream: this
+                  //                  .stream
+                  //                  .getStream("env.wind.angleTrueWater")
+                  //                  .asBroadcastStream(),
+                  //              ST_Stream: this
+                  //                  .stream
+                  //                  .getStream("env.wind.speedTrue")
+                  //                  .asBroadcastStream(),
+                  //              AA_Stream: this
+                  //                  .stream
+                  //                  .getStream("env.wind.angleApparent")
+                  //                  .asBroadcastStream(),
+                  //              SA_Stream: this
+                  //                  .stream
+                  //                  .getStream("env.wind.speedApparent")
+                  //                  .asBroadcastStream(),
+                  //              text: "vel",
+                  //            )),
+                  //          )
+                  //        /*PositionIndicator(
+                  //          Position_Stream: this
+                  //              .stream
+                  //              .getStream("nav.position")
+                  //              .asBroadcastStream(),
+                  //          text: "vel",
+                  //        )*/),
+                  //    ],
+                  //  )),
+
+                    //Row(
+                    //  children: [
+                    //    PositionIndicator(
+                    //      Position_Stream: this
+                    //          .stream
+                    //          .getStream("nav.position")
+                    //          .asBroadcastStream(),
+                    //      text: "vel",
+                    //    ),
+                    //  ],
+                    //),
+                    //Row(children: [
+                    //  SpeedOverGroundIndicator(
+                    //    SOG_Stream: this
+                    //        .stream
+                    //        .getStream("env.wind.speedTrue")
+                    //        .asBroadcastStream(),
+                    //    text: "vel",
+                    //  ),
+                    //]),
+                    //Row(
+                    //  children: [
+                    //    SpeedThroughWaterIndicator(
+                    //      STW_Stream: this
+                    //          .stream
+                    //          .getStream("nav.speedThroughWater")
+                    //          .asBroadcastStream(),
+                    //      text: "vel",
+                    //    )
+                    //  ],
+                    //)
+
+                ]),
+          )),
     );
-
   }
 
-
   MaterialApp getMaterialApp() {
-
-
-
     return MaterialApp(
       home: Scaffold(
-       //appBar: AppBar(
-       //  title: const Text('Websocket Manager Example'),
-       //),
-        body:
-Center(
-    child : LayoutBuilder(
-      builder : (context,constraints){
-        if(constraints.maxWidth > 500){
-          return     ListView(
+          //appBar: AppBar(
+          //  title: const Text('Websocket Manager Example'),
+          //),
+          body: Center(child: LayoutBuilder(builder: (context, constraints) {
+        if (constraints.maxWidth > 500) {
+          return ListView(
             children: <Widget>[
               this.appWind.buildWidget(),
               this.gps.getBuildStream(),
-
             ],
           );
-
-      }else{
+        } else {
           //narrow
-          return     ListView(
+          return ListView(
             children: <Widget>[
               this.gps.getBuildStream(),
               this.appWind.buildWidget(),
-
             ],
           );
         }
-      }
-    )
-)
-
-
-      ),
+      }))),
     );
   }
 }

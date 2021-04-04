@@ -52,11 +52,15 @@ class SpeedOverGroundIndicator extends StatelessWidget {
               return CircularProgressIndicator();
             }
             return Text(
-                "Speed : ${(snap.data)}",
+                "Speed : ${(snap.data.toStringAsFixed(2))}",
                 style: GoogleFonts.lato(
                     textStyle: Theme.of(context).textTheme.headline4));
           }),
     );
   }
+
+
+
+
 
 }
