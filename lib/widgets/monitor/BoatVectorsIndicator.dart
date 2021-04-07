@@ -1,12 +1,16 @@
+import 'dart:async';
 import 'dart:math';
-import 'dart:ui';
+import 'dart:typed_data';
+import 'dart:ui' as ui;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:async/async.dart' show StreamGroup;
+import 'package:nautica/models/BaseModel.dart';
 
-class BoatVectorsIndicator extends StatelessWidget {
+class BoatVectorsIndicator extends StatefulWidget {
+  BaseModel model;
   dynamic ST_Value = 0;
   dynamic ATW_Value = 0;
   dynamic AA_Value = 0;
@@ -22,40 +26,30 @@ class BoatVectorsIndicator extends StatelessWidget {
   Stream<dynamic> COG_Stream = null;
   Stream<dynamic> SOG_Stream = null;
 
+  BoatVectorsIndicator({Key key,
+    @required this.model,
+    @required this.ST_Stream,
+  @required this.ATW_Stream,
+  @required this.AA_Stream,
+  @required this.SA_Stream,
+  @required this.HT_Stream,
+  @required this.COG_Stream,
+  @required this.SOG_Stream}){
 
-
-
-  final String text;
-  final Icon icon;
-  final Function(String text, Icon icon) notifyParent;
-
-  BoatVectorsIndicator(
-      {Key key,
-        @required this.ST_Stream,
-        @required this.ATW_Stream,
-        @required this.AA_Stream,
-        @required this.SA_Stream,
-        @required this.HT_Stream,
-        @required this.COG_Stream,
-        @required this.SOG_Stream,
-        @required this.text,
-        this.icon,
-        this.notifyParent})
-      : super(key: key) {
     ST_Stream.listen((data) {
-      ST_Value = data;
+      ST_Value =  (data == null || data == 0) ? 0.0 : data;
     });
 
     ATW_Stream.listen((data) {
-      ATW_Value = data;
+      ATW_Value =  (data == null || data == 0) ? 0.0 : data;
     });
 
     AA_Stream.listen((data) {
-      AA_Value = data;
+      AA_Value =  (data == null || data == 0) ? 0.0 : data;
     });
 
     SA_Stream.listen((data) {
-      SA_Value = data;
+      SA_Value =  (data == null || data == 0) ? 0.0 : data;
     });
 
     HT_Stream.listen((data) {
@@ -63,22 +57,65 @@ class BoatVectorsIndicator extends StatelessWidget {
     });
 
     COG_Stream.listen((data) {
-      COG_Value = data;
+      COG_Value =  (data == null || data == 0) ? 0.0 : data;
     });
 
     SOG_Stream.listen((data) {
-      SOG_Value = data;
+      SOG_Value =  (data == null || data == 0) ? 0.0 : data;
     });
 
-
-
-
   }
 
-  Stream<dynamic> getData() {
+
+  @override
+  _BoatVectorsIndicatorState createState() => _BoatVectorsIndicatorState();
+}
+
+class _BoatVectorsIndicatorState extends State<BoatVectorsIndicator> {
+/*
+  dynamic ST_Value = 0;
+  dynamic ATW_Value = 0;
+  dynamic AA_Value = 0;
+  dynamic SA_Value = 0;
+  dynamic HT_Value = 0;
+  dynamic COG_Value = 0;
+  dynamic SOG_Value = 0;
+  Stream<dynamic> ST_Stream = null;
+  Stream<dynamic> ATW_Stream = null;
+  Stream<dynamic> AA_Stream = null;
+  Stream<dynamic> SA_Stream = null;
+  Stream<dynamic> HT_Stream = null;
+  Stream<dynamic> COG_Stream = null;
+  Stream<dynamic> SOG_Stream = null;
+*/
+
+
+  ui.Image boatImage;
+  bool isImageloaded = false;
+  void initState() {
+    super.initState();
+    init();
+  }
+
+  Future <Null> init() async {
+    final ByteData data = await rootBundle.load('assets/boat_indicator_small.png');
+    boatImage = await loadImage(new Uint8List.view(data.buffer));
+  }
+
+  Future<ui.Image> loadImage(List<int> img) async {
+    final Completer<ui.Image> completer = new Completer();
+    ui.decodeImageFromList(img, (ui.Image img) {
+      setState(() {
+        isImageloaded = true;
+      });
+      return completer.complete(img);
+    });
+    return completer.future;
+  }
+ /* Stream<dynamic> getData() {
     //   return ST_Stream.combineLatest(ATQ_)
     return  StreamGroup.merge([ST_Stream, ATW_Value]);
-  }
+  }*/
 
 
 
@@ -86,10 +123,10 @@ class BoatVectorsIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        notifyParent(text, icon);
+        //notifyParent(text, icon);
       },
       child: StreamBuilder(
-          stream: ATW_Stream,
+          stream: widget.ATW_Stream,
           builder: (context, snap) {
             if (!snap.hasData) {
               return CircularProgressIndicator();
@@ -97,18 +134,7 @@ class BoatVectorsIndicator extends StatelessWidget {
             return Container(
                 margin: const EdgeInsets.all(0.0),
                 padding: const EdgeInsets.all(5.0),
-                decoration: BoxDecoration(
-                  color: const Color(0xff7c94b6),
-                  //image: const DecorationImage(
-                  //  image: NetworkImage('https://flutter.github.io/assets-for-api-docs/assets/widgets/owl-2.jpg'),
-                  //  fit: BoxFit.cover,
-                  //),
-                  border: Border.all(
-                    color: Colors.black,
-                    width: 2,
-                  ),
-                  borderRadius: BorderRadius.circular(12),
-                ),
+
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -117,26 +143,27 @@ class BoatVectorsIndicator extends StatelessWidget {
                     Center(
                         child :
                 Transform.rotate(
-                angle: (HT_Value),
+                angle: (widget.HT_Value != null && widget.HT_Value != 0 ? widget.HT_Value : 0.0),
                   child:
                         Container(
-                          decoration: BoxDecoration(
-                            color: const Color(0xff7c94b6),
+                          /*decoration: BoxDecoration(
                             border: Border.all(
-                              color: Colors.black,
-                              width: 2,
+                              color: Colors.white,
+                              width: 0,
                             ),
-                          ),
+                          ),*/
                           child: CustomPaint(
                             //                       <-- CustomPaint widget
                             size: Size(100, 200),
                             painter: DrawVectors(
-                                angleTrueWater : ATW_Value,
-                                speedTrue : ST_Value,
-                                angleApparent : AA_Value,
-                                speedApparent : SA_Value,
-                                COG : COG_Value,
-                                SOG : SOG_Value,
+                              model : widget.model,
+                              boatVector: boatImage,
+                                angleTrueWater : widget.ATW_Value,
+                                speedTrue : widget.ST_Value,
+                                angleApparent : widget.AA_Value,
+                                speedApparent : widget.SA_Value,
+                                COG : widget.COG_Value,
+                                SOG : widget.SOG_Value,
                                 centerCoords : Offset(50,100)
                             ),
                           ),
@@ -144,42 +171,27 @@ class BoatVectorsIndicator extends StatelessWidget {
                     ),
 
                     //Center(
-                    //child : Image(image: AssetImage('assets/boat.png'))),
+                    //child : Image(
+                    //    image: AssetImage('assets/boat.png'),
+                    //  height:140,
+                    //)),
                     Center(
                         child :Text(
-                            "ATW: ${(ATW_Value.toStringAsFixed(4))}",
+                            "ATW: ${(widget.ATW_Value.toStringAsFixed(4))} AA: ${(widget.AA_Value.toStringAsFixed(4))}",
                             style: GoogleFonts.lato(
                                 textStyle: Theme.of(context).textTheme.headline6))),
                     Center(
                         child :Text(
-                            "ST: ${(ST_Value.toStringAsFixed(4))}",
+                            "ST: ${(widget.ST_Value.toStringAsFixed(4))} SA: ${(widget.SA_Value.toStringAsFixed(4))}",
                             style: GoogleFonts.lato(
                                 textStyle: Theme.of(context).textTheme.headline6))),
+
                     Center(
                         child :Text(
-                            "AA: ${(this.AA_Value.toStringAsFixed(4))}",
+                            "HT: ${(widget.HT_Value.toStringAsFixed(4))} COG: ${(widget.COG_Value.toStringAsFixed(4))} SOG: ${(widget.SOG_Value.toStringAsFixed(4))}",
                             style: GoogleFonts.lato(
                                 textStyle: Theme.of(context).textTheme.headline6))),
-                    Center(
-                        child :Text(
-                            "SA: ${(this.SA_Value.toStringAsFixed(4))}",
-                            style: GoogleFonts.lato(
-                                textStyle: Theme.of(context).textTheme.headline6))),
-                    Center(
-                        child :Text(
-                            "HT: ${(this.HT_Value.toStringAsFixed(4))}",
-                            style: GoogleFonts.lato(
-                                textStyle: Theme.of(context).textTheme.headline6))),
-                    Center(
-                        child :Text(
-                            "COG: ${(this.COG_Value.toStringAsFixed(4))}",
-                            style: GoogleFonts.lato(
-                                textStyle: Theme.of(context).textTheme.headline6))),
-                    Center(
-                        child :Text(
-                            "SOG: ${(this.SOG_Value.toStringAsFixed(4))}",
-                            style: GoogleFonts.lato(
-                                textStyle: Theme.of(context).textTheme.headline6))),
+
                   ],
                 ));
           }),
@@ -190,8 +202,8 @@ class BoatVectorsIndicator extends StatelessWidget {
 class DrawVectors extends CustomPainter {
 
   Canvas mainCanvas;
-
-
+  BaseModel model = BaseModel.instance;
+  ui.Image boatVector;
   var l = 20; //length of every arrow side in pixels
   var t = 0.736332; //angle of arrow in radians
 
@@ -203,7 +215,7 @@ class DrawVectors extends CustomPainter {
   double SOG = 0;
   Offset centerCoords = Offset(0,0);
 
-  DrawVectors({@required angleTrueWater,@required speedTrue,@required angleApparent,@required speedApparent,@required COG,@required SOG,@required this.centerCoords}){
+  DrawVectors({@required this.model,@required this.boatVector,@required angleTrueWater,@required speedTrue,@required angleApparent,@required speedApparent,@required COG,@required SOG,@required this.centerCoords}){
 
     print("ANALIZE " + angleTrueWater.toString());
     this.angleTrueWater = (angleTrueWater == null || angleTrueWater == 0) ? 0.0 : (angleTrueWater as double);
@@ -217,16 +229,18 @@ class DrawVectors extends CustomPainter {
     this.speedTrue = 100;
     this.speedApparent = 100;
     this.SOG = 100;
+
   }
-
-
-
 
   @override
   void paint(Canvas canvas, Size size) {
     this.mainCanvas = canvas;
 
     print("${angleTrueWater} - ${speedTrue} - ${angleApparent} - ${speedApparent}");
+
+
+    mainCanvas.drawImage(boatVector, new Offset(size.width/4, size.height/4 - 20), new Paint());
+
 
 
     //draw true vector
@@ -270,18 +284,22 @@ class DrawVectors extends CustomPainter {
 
 
 
-    //draw middle line
+    //draw vertical middle line
     double MLx1 = size.width/2;
     double MLWy1 = 0;
+    double MLx2 = 0;
+    double MLWy2 = size.height/2;
     vectorPoints = [Offset(size.width/2,size.height),Offset(MLx1,MLWy1)];
 
     final ML_Style = Paint()
-      ..color = Colors.black
-      ..strokeWidth = 1
+      ..color = model.textColor
+      ..strokeWidth = 2
       ..strokeCap = StrokeCap.round;
 
+    drawSingleVector(vectorPoints,0,ML_Style,true,false);
 
-    drawSingleVector(vectorPoints,0,ML_Style,!true,true);
+    vectorPoints = [Offset(size.width,size.height/2),Offset(MLx2,MLWy2)];
+    drawSingleVector(vectorPoints,0,ML_Style,false,false);
 
 
 
@@ -289,7 +307,7 @@ class DrawVectors extends CustomPainter {
 
   void drawSingleVector(List<Offset> coords, double angle,Paint paint, bool headArrow, bool baseArrow){
 
-    mainCanvas.drawPoints(PointMode.polygon, coords, paint);
+    mainCanvas.drawPoints(ui.PointMode.polygon, coords, paint);
 
     double x0 = coords.elementAt(0).dx;
     double y0 = coords.elementAt(0).dy;
@@ -332,7 +350,7 @@ class DrawVectors extends CustomPainter {
     x1 = x0 + speedTrue*cos(angleTrueWater - pi/2);
     y1 = y0 + speedTrue*sin(angleTrueWater - pi/2);
 
-    final pointMode = PointMode.polygon;
+    final pointMode = ui.PointMode.polygon;
     List<Offset> vectorPoints = [
       base,
       Offset(x1,y1)

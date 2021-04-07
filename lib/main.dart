@@ -1,30 +1,29 @@
-import 'package:flutter/cupertino.dart';
+/// dart imports
+import 'dart:io' show Platform;
+/// package imports
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:nautica/SignalKClient.dart';
-import 'package:nautica/widgets/ApparentWind.dart';
-import 'package:nautica/widgets/BoatVectorsIndicator.dart';
-import 'package:nautica/widgets/GPS.dart';
-import 'package:nautica/widgets/PositionIndicator.dart';
-import 'package:nautica/widgets/SpeedOverGroundIndicator.dart';
-import 'package:nautica/widgets/SpeedThroughWaterIndicator.dart';
-import 'package:syncfusion_flutter_charts/sparkcharts.dart';
-import 'dart:developer';
-import 'Configuration.dart';
-import 'StreamSubscriber.dart';
 import 'package:flutter/services.dart';
-import 'package:websocket_manager/websocket_manager.dart';
-import 'package:google_fonts/google_fonts.dart';
+
+import 'package:flutter/cupertino.dart';
+import 'package:nautica/screens/FirstSetup.dart';
+import 'package:nautica/screens/SplashScreen.dart';
+import 'package:nautica/screens/DashBoardPage.dart';
+import 'models/BaseModel.dart';
+
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft])
-      .then((_) {
-    SystemChrome.setEnabledSystemUIOverlays([]).then((_) {
-      runApp(new MyApp());
-    });
-  });
 
-// runApp(MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  //SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft])
+  //    .then((_) {
+  //  SystemChrome.setEnabledSystemUIOverlays([]).then((_) {
+  //    runApp(new MyApp());
+  //  });
+  //});
+
+  runApp(MyApp());
 }
 
 class MyApp extends StatefulWidget {
@@ -32,7 +31,124 @@ class MyApp extends StatefulWidget {
   _MyAppState createState() => _MyAppState();
 }
 
+
+
+
 class _MyAppState extends State<MyApp> {
+  BaseModel _sampleListModel;
+
+
+
+  @override
+  void initState() {
+    _sampleListModel = BaseModel.instance;
+
+    _initializeProperties();
+    super.initState();
+
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+
+
+    ///Avoiding page poping on escape key press
+    final Map<LogicalKeySet, Intent> shortcuts =
+    Map.of(WidgetsApp.defaultShortcuts)
+      ..remove(LogicalKeySet(LogicalKeyboardKey.escape));
+
+    if (_sampleListModel != null && _sampleListModel.isWebFullView) {
+      _sampleListModel.currentThemeData = ThemeData.light();
+      _sampleListModel.paletteBorderColors = <Color>[];
+      _sampleListModel.changeTheme(_sampleListModel.currentThemeData);
+    }
+
+    return  MaterialApp(
+      // initialRoute: '/demos',
+      //routes: navigationRoutes,
+        initialRoute: '/',
+        routes: {
+          // When navigating to the "/" route, build the FirstScreen widget.
+          //  '/': (context) => DashBoard(),
+          // When navigating to the "/second" route, build the SecondScreen widget.
+          '/login': (context) => FirstSetup(),
+          '/first_setup': (context) => FirstSetup(),
+          '/dashboard': (context) => Builder(builder: (BuildContext context) {
+            if(_sampleListModel != null) {
+              _sampleListModel.systemTheme = Theme.of(context);
+              _sampleListModel.currentThemeData =
+              (_sampleListModel.systemTheme.brightness != Brightness.dark
+                  ? ThemeData.light()
+                  : ThemeData.dark());
+              _sampleListModel.changeTheme(_sampleListModel.currentThemeData);
+            }
+            return DashBoard();
+
+
+          }),
+        },
+
+        debugShowCheckedModeBanner: false,
+        title: 'Demos & Examples of Syncfusion Flutter Widgets',
+        theme: ThemeData.light(),
+        darkTheme: ThemeData.dark(),
+        themeMode: ThemeMode.system,
+        home: SplashScreen());
+  }
+
+  void _initializeProperties() {
+    final BaseModel model = BaseModel.instance;
+    model.isWebFullView =
+        kIsWeb || Platform.isWindows || Platform.isMacOS || Platform.isLinux;
+    if (kIsWeb) {
+      model.isWeb = true;
+    } else {
+      model.isAndroid = Platform.isAndroid;
+      model.isIOS = Platform.isIOS;
+      model.isLinux = Platform.isLinux;
+      model.isWindows = Platform.isWindows;
+      model.isMacOS = Platform.isMacOS;
+      model.isDesktop =
+          Platform.isLinux || Platform.isMacOS || Platform.isWindows;
+      model.isMobile = Platform.isAndroid || Platform.isIOS;
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+
+
+
+class _MyAppState2 extends State<MyApp> {
   Future<int> _future;
 
   WebsocketManager socket;
@@ -134,15 +250,17 @@ class _MyAppState extends State<MyApp> {
           return getMaterialApp();
         });
   }
-
+*/
   /***********APP DESIGN***********/
-
+/*
   MaterialApp getMainApplication() {
+
     return MaterialApp(
       home: Scaffold(
           resizeToAvoidBottomInset: false,
           appBar: AppBar(
-            title: Text("Hello Appbar"),
+            title: Text("nautica",style: GoogleFonts.lato(
+                textStyle: Theme.of(context).textTheme.headline6)),
             leading: GestureDetector(
               onTap: () {
                 /* Write listener code here */
@@ -299,37 +417,37 @@ class _MyAppState extends State<MyApp> {
                   //    ],
                   //  )),
 
-                    //Row(
-                    //  children: [
-                    //    PositionIndicator(
-                    //      Position_Stream: this
-                    //          .stream
-                    //          .getStream("nav.position")
-                    //          .asBroadcastStream(),
-                    //      text: "vel",
-                    //    ),
-                    //  ],
-                    //),
-                    //Row(children: [
-                    //  SpeedOverGroundIndicator(
-                    //    SOG_Stream: this
-                    //        .stream
-                    //        .getStream("env.wind.speedTrue")
-                    //        .asBroadcastStream(),
-                    //    text: "vel",
-                    //  ),
-                    //]),
-                    //Row(
-                    //  children: [
-                    //    SpeedThroughWaterIndicator(
-                    //      STW_Stream: this
-                    //          .stream
-                    //          .getStream("nav.speedThroughWater")
-                    //          .asBroadcastStream(),
-                    //      text: "vel",
-                    //    )
-                    //  ],
-                    //)
+                  //Row(
+                  //  children: [
+                  //    PositionIndicator(
+                  //      Position_Stream: this
+                  //          .stream
+                  //          .getStream("nav.position")
+                  //          .asBroadcastStream(),
+                  //      text: "vel",
+                  //    ),
+                  //  ],
+                  //),
+                  //Row(children: [
+                  //  SpeedOverGroundIndicator(
+                  //    SOG_Stream: this
+                  //        .stream
+                  //        .getStream("env.wind.speedTrue")
+                  //        .asBroadcastStream(),
+                  //    text: "vel",
+                  //  ),
+                  //]),
+                  //Row(
+                  //  children: [
+                  //    SpeedThroughWaterIndicator(
+                  //      STW_Stream: this
+                  //          .stream
+                  //          .getStream("nav.speedThroughWater")
+                  //          .asBroadcastStream(),
+                  //      text: "vel",
+                  //    )
+                  //  ],
+                  //)
 
                 ]),
           )),
@@ -339,30 +457,32 @@ class _MyAppState extends State<MyApp> {
   MaterialApp getMaterialApp() {
     return MaterialApp(
       home: Scaffold(
-          //appBar: AppBar(
-          //  title: const Text('Websocket Manager Example'),
-          //),
+        //appBar: AppBar(
+        //  title: const Text('Websocket Manager Example'),
+        //),
           body: Center(child: LayoutBuilder(builder: (context, constraints) {
-        if (constraints.maxWidth > 500) {
-          return ListView(
-            children: <Widget>[
-              this.appWind.buildWidget(),
-              this.gps.getBuildStream(),
-            ],
-          );
-        } else {
-          //narrow
-          return ListView(
-            children: <Widget>[
-              this.gps.getBuildStream(),
-              this.appWind.buildWidget(),
-            ],
-          );
-        }
-      }))),
+            if (constraints.maxWidth > 500) {
+              return ListView(
+                children: <Widget>[
+                  this.appWind.buildWidget(),
+                  this.gps.getBuildStream(),
+                ],
+              );
+            } else {
+              //narrow
+              return ListView(
+                children: <Widget>[
+                  this.gps.getBuildStream(),
+                  this.appWind.buildWidget(),
+                ],
+              );
+            }
+          }))),
     );
   }
 }
+*/
+
 /*
 
 class ListPage extends StatefulWidget {
