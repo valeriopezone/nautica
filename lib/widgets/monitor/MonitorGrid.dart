@@ -4,43 +4,52 @@ import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
-
 import 'package:flutter/cupertino.dart';
 
-import 'package:nautica/widgets/monitor/BoatVectorsIndicator.dart';
+import 'package:nautica/widgets/monitor/indicators/BoatVectorsIndicator.dart';
+import 'package:nautica/widgets/monitor/indicators/CompassIndicator.dart';
+import 'package:nautica/widgets/monitor/indicators/SpeedIndicator.dart';
+import 'package:nautica/widgets/monitor/indicators/WindIndicator.dart';
 
-import 'package:nautica/widgets/monitor/SpeedOverGroundIndicator.dart';
-import 'package:nautica/widgets/monitor/SpeedThroughWaterIndicator.dart';
-import 'package:nautica/widgets/monitor/SpeedTrueIndicator.dart';
+import 'package:nautica/network/StreamSubscriber.dart';
+import 'package:nautica/models/BaseModel.dart';
 
 
-import '../../StreamSubscriber.dart';
-
-import '../../models/BaseModel.dart';
-import '../../models/Helper.dart';
-import 'TrueWindThroughWaterIndicator.dart';
 
 /// Positioning/aligning the categories as  cards
 /// based on the screen width
 class MonitorGrid extends StatefulWidget {
-  StreamSubscriber mainStreamHandle = null;
+  StreamSubscriber StreamObject = null;
+  String currentVessel = "";//vessels.urn:mrn:imo:mmsi:503999999
 
-  MonitorGrid({Key key,@required this.mainStreamHandle}) : super(key: key){
+  MonitorGrid({Key key,@required this.StreamObject,@required this.currentVessel}) : super(key: key){
 
   }
 
   @override
-  _MonitorGridState createState() => _MonitorGridState(mainStreamHandle);
+  _MonitorGridState createState() => _MonitorGridState();
 }
 
 class _MonitorGridState extends State<MonitorGrid> {
   BaseModel model = BaseModel.instance;
   double _cardWidth;
-  StreamSubscriber mainStreamHandle = null;
+  StreamSubscriber mainStreamHandle;
+  String vessel;
 
-  _MonitorGridState(StreamSubscriber this.mainStreamHandle){
-    print("LOADED STREAM ----> ${mainStreamHandle}");
+  void initState(){
+    print("MONITOR CURRENT VESSEL " + widget.currentVessel);
+    super.initState();
+    vessel = widget.currentVessel;
+    //});
+  }
+
+  _MonitorGridState(){
+
+  }
+
+  @override
+  void dispose(){
+    super.dispose();
   }
 
   @override
@@ -106,20 +115,19 @@ class _MonitorGridState extends State<MonitorGrid> {
           Padding(padding: EdgeInsets.only(left: _sidePadding)),
           Column(children: <Widget>[//COLUMN 1
             SimpleCard("Apparent Wind",[Center(child:
-            TrueWindThroughWaterIndicator(
-              ATW_Stream: this.mainStreamHandle.getStream("nav.speedThroughWater").asBroadcastStream(),
-              ST_Stream: this.mainStreamHandle.getStream("nav.speedTrue").asBroadcastStream(),
-              text: "vel",
+            WindIndicator(
+                Angle_Stream: widget.StreamObject.getVesselStream(vessel,"environment.wind.angleApparent").asBroadcastStream(),
+                Intensity_Stream: widget.StreamObject.getVesselStream(vessel,"environment.wind.speedApparent").asBroadcastStream(),
                 model : model
             ))]),
             Padding(padding: EdgeInsets.only(bottom: _sidePadding)),
 
 
 
-            SimpleCard("SOG",[Center(child:
-            SpeedOverGroundIndicator(
-              SOG_Stream: this.mainStreamHandle.getStream("nav.speedOverGround").asBroadcastStream(),
-              text: "vel",
+            SimpleCard("COG(m)",[Center(child:
+            CompassIndicator(
+              model : model,
+              COG_Stream: widget.StreamObject.getVesselStream(vessel,"navigation.courseOverGroundMagnetic").asBroadcastStream(),
             ))]),
             Padding(padding: EdgeInsets.only(bottom: _sidePadding)),
 
@@ -128,10 +136,9 @@ class _MonitorGridState extends State<MonitorGrid> {
           Column(children: <Widget>[//COLUMN 2
 
             SimpleCard("True wind through water",[Center(child:
-            TrueWindThroughWaterIndicator(
-                ATW_Stream: this.mainStreamHandle.getStream("nav.speedThroughWater").asBroadcastStream(),
-                ST_Stream: this.mainStreamHandle.getStream("nav.speedTrue").asBroadcastStream(),
-                text: "vel",
+            WindIndicator(
+                Angle_Stream: widget.StreamObject.getVesselStream(vessel,"environment.wind.angleTrueWater").asBroadcastStream(),
+                Intensity_Stream: widget.StreamObject.getVesselStream(vessel,"environment.wind.speedTrue").asBroadcastStream(),
                 model : model
             ))]),
             Padding(padding: EdgeInsets.only(bottom: _sidePadding)),
@@ -139,21 +146,20 @@ class _MonitorGridState extends State<MonitorGrid> {
             SimpleCard("Real time boat",[Center(child:
             BoatVectorsIndicator(
               model:model,
-              ATW_Stream: this.mainStreamHandle.getStream("env.wind.angleTrueWater").asBroadcastStream(),
-              ST_Stream: this.mainStreamHandle.getStream("env.wind.speedTrue").asBroadcastStream(),
-              AA_Stream: this.mainStreamHandle.getStream("env.wind.angleApparent").asBroadcastStream(),
-              SA_Stream: this.mainStreamHandle.getStream("env.wind.speedApparent").asBroadcastStream(),
-              HT_Stream: this.mainStreamHandle.getStream("nav.headingTrue").asBroadcastStream(),
-              COG_Stream: this.mainStreamHandle.getStream("nav.courseOverGroundTrue").asBroadcastStream(),
-              SOG_Stream: this.mainStreamHandle.getStream("nav.speedOverGround").asBroadcastStream(),
+              ATW_Stream: widget.StreamObject.getVesselStream(vessel,"environment.wind.angleTrueWater").asBroadcastStream(),
+              ST_Stream: widget.StreamObject.getVesselStream(vessel,"environment.wind.speedTrue").asBroadcastStream(),
+              AA_Stream: widget.StreamObject.getVesselStream(vessel,"environment.wind.angleApparent").asBroadcastStream(),
+              SA_Stream: widget.StreamObject.getVesselStream(vessel,"environment.wind.speedApparent").asBroadcastStream(),
+              HT_Stream: widget.StreamObject.getVesselStream(vessel,"navigation.headingTrue").asBroadcastStream(),
+              COG_Stream: widget.StreamObject.getVesselStream(vessel,"navigation.courseOverGroundTrue").asBroadcastStream(),
+              SOG_Stream: widget.StreamObject.getVesselStream(vessel,"navigation.speedOverGround").asBroadcastStream(),
             ))]),
 
             Padding(padding: EdgeInsets.only(bottom: _sidePadding)),
 
-            SimpleCard("Speed True",[Center(child:
-            SpeedTrueIndicator(
-                ST_Stream: this.mainStreamHandle.getStream("env.wind.speedTrue").asBroadcastStream(),
-                text: "vel",
+            SimpleCard("Speed Through Water",[Center(child:
+            SpeedIndicator(
+                ST_Stream: widget.StreamObject.getVesselStream(vessel,"navigation.speedThroughWater").asBroadcastStream(),
                 model : model
             ))]),
 
@@ -166,31 +172,39 @@ class _MonitorGridState extends State<MonitorGrid> {
             padding: EdgeInsets.only(left: padding),
           ),
           Column(children: <Widget>[//COLUMN 3
-
-            SimpleCard("True wind through ground",[Center(child:
-            TrueWindThroughWaterIndicator(
-                ATW_Stream: this.mainStreamHandle.getStream("nav.speedThroughWater").asBroadcastStream(),
-                ST_Stream: this.mainStreamHandle.getStream("nav.speedTrue").asBroadcastStream(),
-                text: "vel",
+            SimpleCard("True wind over ground",[Center(child:
+            WindIndicator(
+                Angle_Stream: widget.StreamObject.getVesselStream(vessel,"environment.wind.angleTrueGround").asBroadcastStream(),
+                Intensity_Stream: widget.StreamObject.getVesselStream(vessel,"environment.wind.speedOverGround").asBroadcastStream(),
                 model : model
             ))]),
             Padding(padding: EdgeInsets.only(bottom: _sidePadding)),
-            SimpleCard("SOG",[Center(child:
-            SpeedOverGroundIndicator(
-              SOG_Stream: this.mainStreamHandle.getStream("nav.speedOverGround").asBroadcastStream(),
-              text: "vel",
-            ))]),
 
+
+            SimpleCard("COG(t)",[Center(child:
+            CompassIndicator(
+              model : model,
+              COG_Stream: widget.StreamObject.getVesselStream(vessel,"navigation.courseOverGroundTrue").asBroadcastStream(),
+            ))]),
             Padding(padding: EdgeInsets.only(bottom: _sidePadding)),
 
-            SimpleCard("Speed True",[Center(child:
-            SpeedTrueIndicator(
-                ST_Stream: this.mainStreamHandle.getStream("env.wind.speedTrue").asBroadcastStream(),
-                text: "vel",
+
+
+            SimpleCard("RPM #1",[Center(child:
+            SpeedIndicator(
+                ST_Stream: widget.StreamObject.getVesselStream(vessel,"propulsion.engine_1.revolutions").asBroadcastStream(),
                 model : model
             ))]),
 
             Padding(padding: EdgeInsets.only(bottom: _sidePadding)),
+            SimpleCard("RPM #2",[Center(child:
+            SpeedIndicator(
+                ST_Stream: widget.StreamObject.getVesselStream(vessel,"propulsion.engine_2.revolutions").asBroadcastStream(),
+                model : model
+            ))]),
+
+            Padding(padding: EdgeInsets.only(bottom: _sidePadding)),
+
             _getCategoryWidget(),
             Padding(padding: EdgeInsets.only(bottom: _sidePadding)),
             _getCategoryWidget()]
@@ -198,6 +212,16 @@ class _MonitorGridState extends State<MonitorGrid> {
 
         ],
       );
+
+
+
+
+
+
+
+
+
+
 
     } else { // 1 column
       _cardWidth = deviceWidth * 0.9;
@@ -209,23 +233,23 @@ class _MonitorGridState extends State<MonitorGrid> {
         children: [
           Padding(padding: EdgeInsets.only(left: _sidePadding)),
           Column(children: <Widget>[
-            SimpleCard("Speed Through Water",[Center(child:
-            SpeedThroughWaterIndicator(
-              STW_Stream: this.mainStreamHandle.getStream("nav.speedThroughWater").asBroadcastStream(),
-              text: "vel"
-            ))]),
-            Padding(padding: EdgeInsets.only(bottom: _sidePadding)),
+            //SimpleCard("Speed Through Water",[Center(child:
+            //SpeedThroughWaterIndicator(
+            //  STW_Stream: this.mainStreamHandle.getStream("navigation.speedThroughWater").asBroadcastStream(),
+            //  text: "vel"
+            //))]),
+            //Padding(padding: EdgeInsets.only(bottom: _sidePadding)),
 
             SimpleCard("Real time boat",[Center(child:
             BoatVectorsIndicator(
               model: model,
-              ATW_Stream: this.mainStreamHandle.getStream("env.wind.angleTrueWater").asBroadcastStream(),
-              ST_Stream: this.mainStreamHandle.getStream("env.wind.speedTrue").asBroadcastStream(),
-              AA_Stream: this.mainStreamHandle.getStream("env.wind.angleApparent").asBroadcastStream(),
-              SA_Stream: this.mainStreamHandle.getStream("env.wind.speedApparent").asBroadcastStream(),
-              HT_Stream: this.mainStreamHandle.getStream("nav.headingTrue").asBroadcastStream(),
-              COG_Stream: this.mainStreamHandle.getStream("nav.courseOverGroundTrue").asBroadcastStream(),
-              SOG_Stream: this.mainStreamHandle.getStream("nav.speedOverGround").asBroadcastStream(),
+              ATW_Stream: widget.StreamObject.getVesselStream(vessel,"environment.wind.angleTrueWater").asBroadcastStream(),
+              ST_Stream: widget.StreamObject.getVesselStream(vessel,"environment.wind.speedTrue").asBroadcastStream(),
+              AA_Stream: widget.StreamObject.getVesselStream(vessel,"environment.wind.angleApparent").asBroadcastStream(),
+              SA_Stream: widget.StreamObject.getVesselStream(vessel,"environment.wind.speedApparent").asBroadcastStream(),
+              HT_Stream: widget.StreamObject.getVesselStream(vessel,"navigation.headingTrue").asBroadcastStream(),
+              COG_Stream: widget.StreamObject.getVesselStream(vessel,"navigation.courseOverGroundTrue").asBroadcastStream(),
+              SOG_Stream: widget.StreamObject.getVesselStream(vessel,"navigation.speedOverGround").asBroadcastStream(),
             ))]),
             Padding(padding: EdgeInsets.only(bottom: _sidePadding))
 

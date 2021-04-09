@@ -10,6 +10,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:nautica/screens/FirstSetup.dart';
 import 'package:nautica/screens/SplashScreen.dart';
 import 'package:nautica/screens/DashBoardPage.dart';
+import 'package:nautica/screens/SubscriptionsPage.dart';
 import 'models/BaseModel.dart';
 
 
@@ -46,6 +47,8 @@ class _MyAppState extends State<MyApp> {
     _initializeProperties();
     super.initState();
 
+    //maybe connections should be created here
+
   }
 
   @override
@@ -59,7 +62,7 @@ class _MyAppState extends State<MyApp> {
       ..remove(LogicalKeySet(LogicalKeyboardKey.escape));
 
     if (_sampleListModel != null && _sampleListModel.isWebFullView) {
-      _sampleListModel.currentThemeData = ThemeData.light();
+      _sampleListModel.currentThemeData = ThemeData.dark();
       _sampleListModel.paletteBorderColors = <Color>[];
       _sampleListModel.changeTheme(_sampleListModel.currentThemeData);
     }
@@ -84,6 +87,19 @@ class _MyAppState extends State<MyApp> {
               _sampleListModel.changeTheme(_sampleListModel.currentThemeData);
             }
             return DashBoard();
+
+
+          }),
+          '/subscriptions': (context) => Builder(builder: (BuildContext context) {
+            if(_sampleListModel != null) {
+              _sampleListModel.systemTheme = Theme.of(context);
+              _sampleListModel.currentThemeData =
+              (_sampleListModel.systemTheme.brightness != Brightness.dark
+                  ? ThemeData.light()
+                  : ThemeData.dark());
+              _sampleListModel.changeTheme(_sampleListModel.currentThemeData);
+            }
+            return SubscriptionsPage();
 
 
           }),

@@ -6,8 +6,9 @@ import 'dart:ui' as ui;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
+
 import 'package:nautica/models/BaseModel.dart';
+import 'package:nautica/models/Helper.dart';
 
 class BoatVectorsIndicator extends StatefulWidget {
   BaseModel model;
@@ -25,76 +26,87 @@ class BoatVectorsIndicator extends StatefulWidget {
   Stream<dynamic> HT_Stream = null;
   Stream<dynamic> COG_Stream = null;
   Stream<dynamic> SOG_Stream = null;
+  final Function(String text, Icon icon) notifyParent;
 
   BoatVectorsIndicator({Key key,
     @required this.model,
     @required this.ST_Stream,
-  @required this.ATW_Stream,
-  @required this.AA_Stream,
-  @required this.SA_Stream,
-  @required this.HT_Stream,
-  @required this.COG_Stream,
-  @required this.SOG_Stream}){
-
-    ST_Stream.listen((data) {
-      ST_Value =  (data == null || data == 0) ? 0.0 : data;
-    });
-
-    ATW_Stream.listen((data) {
-      ATW_Value =  (data == null || data == 0) ? 0.0 : data;
-    });
-
-    AA_Stream.listen((data) {
-      AA_Value =  (data == null || data == 0) ? 0.0 : data;
-    });
-
-    SA_Stream.listen((data) {
-      SA_Value =  (data == null || data == 0) ? 0.0 : data;
-    });
-
-    HT_Stream.listen((data) {
-      HT_Value = (data == null || data == 0) ? 0.0 : data;
-    });
-
-    COG_Stream.listen((data) {
-      COG_Value =  (data == null || data == 0) ? 0.0 : data;
-    });
-
-    SOG_Stream.listen((data) {
-      SOG_Value =  (data == null || data == 0) ? 0.0 : data;
-    });
-
-  }
+    @required this.ATW_Stream,
+    @required this.AA_Stream,
+    @required this.SA_Stream,
+    @required this.HT_Stream,
+    @required this.COG_Stream,
+    @required this.SOG_Stream,
+    this.notifyParent}) : super(key:key);
 
 
   @override
   _BoatVectorsIndicatorState createState() => _BoatVectorsIndicatorState();
 }
 
-class _BoatVectorsIndicatorState extends State<BoatVectorsIndicator> {
-/*
-  dynamic ST_Value = 0;
-  dynamic ATW_Value = 0;
-  dynamic AA_Value = 0;
-  dynamic SA_Value = 0;
-  dynamic HT_Value = 0;
-  dynamic COG_Value = 0;
-  dynamic SOG_Value = 0;
-  Stream<dynamic> ST_Stream = null;
-  Stream<dynamic> ATW_Stream = null;
-  Stream<dynamic> AA_Stream = null;
-  Stream<dynamic> SA_Stream = null;
-  Stream<dynamic> HT_Stream = null;
-  Stream<dynamic> COG_Stream = null;
-  Stream<dynamic> SOG_Stream = null;
-*/
-
+class _BoatVectorsIndicatorState extends State<BoatVectorsIndicator> with DisposableWidget{
 
   ui.Image boatImage;
   bool isImageloaded = false;
+
+
   void initState() {
     super.initState();
+
+
+    if(widget.ST_Stream != null) {
+      widget.ST_Stream.listen((data) {
+        widget.ST_Value = (data == null || data == 0) ? 0.0 : data;
+      }).canceledBy(this);
+    }
+
+    if(widget.ATW_Stream != null) {
+      widget.ATW_Stream.listen((data) {
+        widget.ATW_Value = (data == null || data == 0) ? 0.0 : data;
+      }).canceledBy(this);
+    }
+
+    if(widget.AA_Stream != null) {
+      widget.AA_Stream.listen((data) {
+        widget.AA_Value = (data == null || data == 0) ? 0.0 : data;
+      }).canceledBy(this);
+    }
+
+    if(widget.SA_Stream != null) {
+      widget.SA_Stream.listen((data) {
+        widget.SA_Value = (data == null || data == 0) ? 0.0 : data;
+      }).canceledBy(this);
+    }
+
+    if(widget.HT_Stream != null) {
+      widget.HT_Stream.listen((data) {
+        widget.HT_Value = (data == null || data == 0) ? 0.0 : data;
+      }).canceledBy(this);
+    }
+
+    if(widget.COG_Stream != null) {
+      widget.COG_Stream.listen((data) {
+        widget.COG_Value = (data == null || data == 0) ? 0.0 : data;
+      }).canceledBy(this);
+    }
+
+    if(widget.SOG_Stream != null) {
+      widget.SOG_Stream.listen((data) {
+        widget.SOG_Value = (data == null || data == 0) ? 0.0 : data;
+      }).canceledBy(this);
+    }
+
+
+
     init();
+  }
+
+
+  @override
+  void dispose() {
+    print("CANCEL BOAT VECTORS SUBSCRIPTION");
+    cancelSubscriptions();
+    super.dispose();
   }
 
   Future <Null> init() async {
@@ -128,9 +140,9 @@ class _BoatVectorsIndicatorState extends State<BoatVectorsIndicator> {
       child: StreamBuilder(
           stream: widget.ATW_Stream,
           builder: (context, snap) {
-            if (!snap.hasData) {
-              return CircularProgressIndicator();
-            }
+            //if (!snap.hasData) {
+            //  return CircularProgressIndicator();
+            //}
             return Container(
                 margin: const EdgeInsets.all(0.0),
                 padding: const EdgeInsets.all(5.0),
@@ -175,22 +187,22 @@ class _BoatVectorsIndicatorState extends State<BoatVectorsIndicator> {
                     //    image: AssetImage('assets/boat.png'),
                     //  height:140,
                     //)),
-                    Center(
-                        child :Text(
-                            "ATW: ${(widget.ATW_Value.toStringAsFixed(4))} AA: ${(widget.AA_Value.toStringAsFixed(4))}",
-                            style: GoogleFonts.lato(
-                                textStyle: Theme.of(context).textTheme.headline6))),
-                    Center(
-                        child :Text(
-                            "ST: ${(widget.ST_Value.toStringAsFixed(4))} SA: ${(widget.SA_Value.toStringAsFixed(4))}",
-                            style: GoogleFonts.lato(
-                                textStyle: Theme.of(context).textTheme.headline6))),
-
-                    Center(
-                        child :Text(
-                            "HT: ${(widget.HT_Value.toStringAsFixed(4))} COG: ${(widget.COG_Value.toStringAsFixed(4))} SOG: ${(widget.SOG_Value.toStringAsFixed(4))}",
-                            style: GoogleFonts.lato(
-                                textStyle: Theme.of(context).textTheme.headline6))),
+                    //Center(
+                    //    child :Text(
+                    //        "ATW: ${(widget.ATW_Value.toStringAsFixed(4))} AA: ${(widget.AA_Value.toStringAsFixed(4))}",
+                    //        style: GoogleFonts.lato(
+                    //            textStyle: Theme.of(context).textTheme.headline6))),
+                    //Center(
+                    //    child :Text(
+                    //        "ST: ${(widget.ST_Value.toStringAsFixed(4))} SA: ${(widget.SA_Value.toStringAsFixed(4))}",
+                    //        style: GoogleFonts.lato(
+                    //            textStyle: Theme.of(context).textTheme.headline6))),
+//
+                    //Center(
+                    //    child :Text(
+                    //        "HT: ${(widget.HT_Value.toStringAsFixed(4))} COG: ${(widget.COG_Value.toStringAsFixed(4))} SOG: ${(widget.SOG_Value.toStringAsFixed(4))}",
+                    //        style: GoogleFonts.lato(
+                    //            textStyle: Theme.of(context).textTheme.headline6))),
 
                   ],
                 ));
@@ -214,10 +226,11 @@ class DrawVectors extends CustomPainter {
   double COG = 0;
   double SOG = 0;
   Offset centerCoords = Offset(0,0);
-
+  double minVectorLength = 40.0;
+  double maxVectorLength = 130.0;
   DrawVectors({@required this.model,@required this.boatVector,@required angleTrueWater,@required speedTrue,@required angleApparent,@required speedApparent,@required COG,@required SOG,@required this.centerCoords}){
 
-    print("ANALIZE " + angleTrueWater.toString());
+
     this.angleTrueWater = (angleTrueWater == null || angleTrueWater == 0) ? 0.0 : (angleTrueWater as double);
     this.speedTrue = (speedTrue == 0) ? 0.0 : (speedTrue as double);
     this.angleApparent = (angleApparent == null || angleApparent == 0) ? 0.0 : (angleApparent as double);
@@ -226,9 +239,9 @@ class DrawVectors extends CustomPainter {
     this.SOG = (SOG == 0) ? 0.0 : (SOG as double);
 
   //make vector length fixed (for now)
-    this.speedTrue = 100;
-    this.speedApparent = 100;
-    this.SOG = 100;
+    this.speedTrue = mapRange(this.speedTrue,0,50,minVectorLength,maxVectorLength);
+    this.speedApparent = mapRange(this.speedApparent,0,50,minVectorLength,maxVectorLength);
+    this.SOG = mapRange(this.SOG,0,50,minVectorLength,maxVectorLength);
 
   }
 
@@ -236,10 +249,9 @@ class DrawVectors extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     this.mainCanvas = canvas;
 
-    print("${angleTrueWater} - ${speedTrue} - ${angleApparent} - ${speedApparent}");
+  //  print("${angleTrueWater} - ${speedTrue} - ${angleApparent} - ${speedApparent}");
 
-
-    mainCanvas.drawImage(boatVector, new Offset(size.width/4, size.height/4 - 20), new Paint());
+  if(boatVector != null) mainCanvas.drawImage(boatVector, new Offset(size.width/4, size.height/4 - 20), new Paint());
 
 
 
@@ -250,10 +262,10 @@ class DrawVectors extends CustomPainter {
     List<Offset> vectorPoints = [this.centerCoords,Offset(ATWx1,ATWy1)];
 
     final ATW_Style = Paint()
-      ..color = Colors.yellow
+      ..color = Colors.blue
       ..strokeWidth = 4
       ..strokeCap = StrokeCap.round;
-    drawSingleVector(vectorPoints,angleTrueWater,ATW_Style,true,true);
+    drawSingleVector(vectorPoints,angleTrueWater,ATW_Style,false,true);
 
     //draw apparent vector
 
@@ -266,7 +278,7 @@ class DrawVectors extends CustomPainter {
       ..strokeWidth = 4
       ..strokeCap = StrokeCap.round;
 
-    drawSingleVector(vectorPoints,angleApparent,AA_Style,true,true);
+    drawSingleVector(vectorPoints,angleApparent,AA_Style,false,true);
 
 
     //draw COG&SOG
@@ -280,7 +292,7 @@ class DrawVectors extends CustomPainter {
       ..strokeWidth = 4
       ..strokeCap = StrokeCap.round;
 
-    drawSingleVector(vectorPoints,COG,CS_Style,true,true);
+    drawSingleVector(vectorPoints,COG,CS_Style,true,false);
 
 
 
@@ -339,7 +351,7 @@ class DrawVectors extends CustomPainter {
   void paintCopy(Canvas canvas, Size size) {
     this.mainCanvas = canvas;
 
-    print("${angleTrueWater} - ${speedTrue} - ${angleApparent} - ${speedApparent}");
+    //print("${angleTrueWater} - ${speedTrue} - ${angleApparent} - ${speedApparent}");
     //draw true vector
     double x0 = 50.0;
     double y0 = 100.0;

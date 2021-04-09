@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 
 ///Local import
-import '../models/BaseModel.dart';
+import 'package:nautica/models/BaseModel.dart';
 
 /// To show the setting panel content on the bottom sheet
 Future<T> showRoundedModalBottomSheet<T>({

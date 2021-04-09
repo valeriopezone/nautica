@@ -1,34 +1,25 @@
 /// dart imports
 import 'dart:io' show Platform;
 
+
+import 'package:nautica/Configuration.dart';
+
 /// package imports
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
-
-
 import 'package:flutter/cupertino.dart';
-
-import 'package:nautica/SignalKClient.dart';
-import 'package:nautica/screens/FirstSetup.dart';
-import 'package:nautica/screens/SplashScreen.dart';
 import 'package:nautica/widgets/AnimateOpacityWidget.dart';
-import 'package:nautica/widgets/monitor/BoatVectorsIndicator.dart';
-import 'package:nautica/widgets/monitor/GPS.dart';
 import 'package:nautica/widgets/monitor/MonitorGrid.dart';
-import 'package:nautica/widgets/monitor/SpeedOverGroundIndicator.dart';
-
-
-import '../Configuration.dart';
-import '../StreamSubscriber.dart';
-
+import 'package:nautica/widgets/monitor/SubscriptionsGrid.dart';
 import 'package:websocket_manager/websocket_manager.dart';
-import 'package:google_fonts/google_fonts.dart';
 
-import '../models/BaseModel.dart';
-import '../models/Helper.dart';
+import 'package:nautica/network/SignalKClient.dart';
+import 'package:nautica/network/StreamSubscriber.dart';
+
+
+import 'package:nautica/models/BaseModel.dart';
+import 'package:nautica/models/Helper.dart';
 
 
 /// Home page of the sample browser for both mobile and web
@@ -41,16 +32,74 @@ class DashBoard extends StatefulWidget {
 }
 
 class _DashBoardState extends State<DashBoard> {
+
+
   BaseModel sampleListModel;
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   final ScrollController controller = ScrollController();
 
 
-
+  SignalKClient signalK = null;
   WebsocketManager socket;
   StreamSubscriber SKFlow;
   Authentication loginData = null;
 
+
+
+  String currentViewState = "subscriptions";
+  String currentVessel;
+  String dropdownValue = 'One';
+  List<String> vesselsList;
+  Map vesselsDataTable;
+
+
+
+
+
+
+
+
+
+
+  bool sectionLoaded = false;
+  void _setViewState(String state) {
+    setState(() {
+      currentViewState = state;
+    });
+  }
+
+
+  void _setCurrentVessel(String vessel) {
+    setState(() {
+      currentVessel = vessel;
+     // currentViewState = "monitors";
+    });
+  }
+
+
+  Widget _getCurrentView(){
+    switch(currentViewState){
+
+      case "subscriptions" :
+        return new SubscriptionsGrid(
+            key: UniqueKey(),
+            StreamObject : this.SKFlow,
+            currentVessel : currentVessel,
+            vesselsDataTable : vesselsDataTable);
+        break;
+
+      case "monitors" :
+      default :
+
+        //maybe should do something here....
+
+
+      return new MonitorGrid(key: UniqueKey(),
+          StreamObject : this.SKFlow,
+          currentVessel : currentVessel);
+        break;
+    }
+  }
 
   @override
   void initState() {
@@ -58,23 +107,45 @@ class _DashBoardState extends State<DashBoard> {
     _addColors();
     sampleListModel.addListener(_handleChange);
 
+
+    super.initState();
+
+
     print("INIT ONCE!");
 
-    final signalK = SignalKClient("192.168.1.179", 3000, loginData);
-    this.SKFlow = StreamSubscriber(signalK);
+    signalK = SignalKClient("192.168.1.179", 3000, loginData);
+    SKFlow = StreamSubscriber(signalK);
 
     signalK.loadSignalKData().then((x) {
-      this.SKFlow.startListening().then((isListening) {
-        print("we are listening!");
-      }).catchError((Object onError) {
-        print('[main] Unable to stream -- on error : $onError');
-      });
+     SKFlow.startListening().then((isListening) {
+       print("we are listening!");
+       vesselsList = signalK.getVessels();
+       vesselsDataTable = signalK.getPaths();
+
+
+       setState(() {
+         // The listenable's state was changed already.
+         currentVessel = (vesselsList[0] != null) ? vesselsList[0] : null;
+         print("INITSTATE current vessel " + currentVessel);
+         sectionLoaded = true;
+
+       });
+
+     }).catchError((Object onError) {
+       print('[main] Unable to stream -- on error : $onError');
+     });
     }).catchError((Object onError) {
       print('[main] Unable to connect -- on error : $onError');
     });
 
 
-    super.initState();
+  }
+
+  @override
+  void dispose(){
+    if(signalK != null) signalK.WSdisconnect();
+    sectionLoaded = false;
+    super.dispose();
   }
 
   ///Notify the framework by calling this method
@@ -88,6 +159,8 @@ class _DashBoardState extends State<DashBoard> {
 
   @override
   Widget build(BuildContext context) {
+
+   // print("START BUILDING DASHBOARD");
     ///Checking the download button is currently hovered
     bool isHoveringDownloadButton = false;
 
@@ -96,7 +169,8 @@ class _DashBoardState extends State<DashBoard> {
     final bool isMaxxSize = MediaQuery.of(context).size.width >= 1000;
     final BaseModel model = sampleListModel;
     model.isMobileResolution = (MediaQuery.of(context).size.width) < 768;
-    return Container(
+    //return Container();
+    return !sectionLoaded ? Row(children: [Text("LOADING")],) : Container(
       child: SafeArea(
           child: model.isMobileResolution
               ? Scaffold(
@@ -225,9 +299,9 @@ class _DashBoardState extends State<DashBoard> {
                           : Container(
                           alignment: Alignment.center,
                           padding: EdgeInsets.only(
-                              top: 10, left: isMaxxSize ? 20 : 0),
+                              top: 10, left: isMaxxSize ? 10 : 0),
                           child: Container(
-                              width: 115,
+                              width: 700,
                               height: 32,
                               decoration: BoxDecoration(
                                   border:
@@ -235,94 +309,111 @@ class _DashBoardState extends State<DashBoard> {
                               child: StatefulBuilder(builder:
                                   (BuildContext context,
                                   StateSetter setState) {
-                                return MouseRegion(
-                                  onHover: (PointerHoverEvent event) {
-                                    isHoveringDownloadButton = true;
-                                    setState(() {});
-                                  },
-                                  onExit: (PointerExitEvent event) {
-                                    isHoveringDownloadButton = false;
-                                    setState(() {});
-                                  },
-                                  child: InkWell(
-                                    hoverColor: Colors.white,
-                                    onTap: () {
+                                    return
+                                      Row(
+                                        children: [
 
-                                    },
-                                    child: Padding(
-                                      padding:
-                                      const EdgeInsets.fromLTRB(
-                                          8, 9, 8, 9),
-                                      child: Text('GITHUB',
-                                          style: TextStyle(
-                                              color:
-                                              isHoveringDownloadButton
-                                                  ? model
-                                                  .paletteColor
-                                                  : Colors.white,
-                                              fontSize: 12,
-                                              fontFamily:
-                                              'Roboto-Medium')),
-                                    ),
-                                  ),
-                                );
+
+                                          (currentVessel != null ) ? SizedBox(
+                                              child:  DropdownButton<String>(
+                                                value: currentVessel,
+                                                icon: const Icon(Icons.arrow_downward),
+                                                iconSize: 24,
+                                                elevation: 16,
+                                                style: const TextStyle(color: Colors.deepPurple),
+                                                underline: Container(
+                                                  height: 2,
+                                                  color: Colors.deepPurpleAccent,
+                                                ),
+                                                onChanged: (String vessel) {
+                                                  _setCurrentVessel(vessel);
+                                                },
+                                                items: vesselsList
+                                                    .map<DropdownMenuItem<String>>((String value) {
+                                                  return DropdownMenuItem<String>(
+                                                    value: value,
+                                                    child: Text(value),
+                                                  );
+                                                }).toList(),
+                                              )
+                                          ) : Container(),
+
+                                          SizedBox(
+                                            child: MaterialButton(
+                                              onPressed: (){_setViewState("monitors");},//_setViewState("subscriptions"),
+                                              child: Text("MON"),
+                                              color: Colors.redAccent,
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            child: MaterialButton(
+                                              onPressed: (){_setViewState("subscriptions");},//_setViewState("subscriptions"),
+                                              child: Text("SUB"),
+                                              color: Colors.greenAccent,
+
+
+                                            ),
+                                          ),
+
+                                        ],
+                                      );
                               }))),
 
                       ///Get package from pub.dev option
-                      model.isMobileResolution
-                          ? Container()
-                          : Container(
-                          alignment: Alignment.center,
-                          padding: EdgeInsets.only(
-                              top: 10, left: isMaxxSize ? 25 : 12),
-                          child: Container(
-                              width: 118,
-                              height: 32,
-                              decoration: BoxDecoration(
-                                  border:
-                                  Border.all(color: Colors.white)),
-                              child: StatefulBuilder(builder:
-                                  (BuildContext context,
-                                  StateSetter setState) {
-                                return MouseRegion(
-                                  onHover: (PointerHoverEvent event) {
-                                    isHoveringPubDevButton = true;
-                                    setState(() {});
-                                  },
-                                  onExit: (PointerExitEvent event) {
-                                    isHoveringPubDevButton = false;
-                                    setState(() {});
-                                  },
-                                  child: InkWell(
-                                    hoverColor: Colors.white,
-                                    onTap: () {
-
-                                    },
-                                    child: Padding(
-                                      padding:
-                                      const EdgeInsets.fromLTRB(
-                                          0, 7, 8, 7),
-                                      child: Row(children: [
-                                        Image.asset(
-                                            'assets/boat.png',
-                                            fit: BoxFit.contain,
-                                            height: 33,
-                                            width: 33),
-                                        Text('Credits',
-                                            style: TextStyle(
-                                                color:
-                                                isHoveringPubDevButton
-                                                    ? model
-                                                    .paletteColor
-                                                    : Colors.white,
-                                                fontSize: 12,
-                                                fontFamily:
-                                                'Roboto-Medium'))
-                                      ]),
-                                    ),
-                                  ),
-                                );
-                              }))),
+               //       model.isMobileResolution
+               //           ? Container()
+               //           : Container(
+               //           alignment: Alignment.center,
+               //           padding: EdgeInsets.only(
+               //               top: 10, left: isMaxxSize ? 25 : 12),
+               //           child: Container(
+               //               width: 118,
+               //               height: 32,
+               //               decoration: BoxDecoration(
+               //                   border:
+               //                   Border.all(color: Colors.white)),
+               //               child: StatefulBuilder(builder:
+               //                   (BuildContext context,
+               //                   StateSetter setState) {
+               //                 return MouseRegion(
+               //                   onHover: (PointerHoverEvent event) {
+               //                     isHoveringPubDevButton = true;
+               //                     setState(() {});
+               //                   },
+               //                   onExit: (PointerExitEvent event) {
+               //                     isHoveringPubDevButton = false;
+               //                     setState(() {});
+               //                   },
+               //                   child: InkWell(
+               //                     hoverColor: Colors.white,
+               //                     onTap: () {
+//
+               //                     },
+               //                     child: Padding(
+               //                       padding:
+               //                       const EdgeInsets.fromLTRB(
+               //                           0, 7, 8, 7),
+               //                       child: Row(children: [
+               //                         Image.asset(
+               //                             'assets/boat.png',
+               //                             fit: BoxFit.contain,
+               //                             height: 33,
+               //                             width: 33),
+               //                         Text('Credits',
+               //                             style: TextStyle(
+               //                                 color:
+               //                                 isHoveringPubDevButton
+               //                                     ? model
+               //                                     .paletteColor
+               //                                     : Colors.white,
+               //                                 fontSize: 12,
+               //                                 fontFamily:
+               //                                 'Roboto-Medium'))
+               //                       ]),
+               //                     ),
+               //                   ),
+               //                 );
+               //               }))),
                       Padding(
                           padding:
                           EdgeInsets.only(left: isMaxxSize ? 15 : 0),
@@ -347,7 +438,7 @@ class _DashBoardState extends State<DashBoard> {
                           )),
                     ],
                   )),
-              body: MonitorGrid(mainStreamHandle : this.SKFlow))),
+              body: _getCurrentView())),
     );
   }
 
@@ -397,7 +488,7 @@ class _DashBoardState extends State<DashBoard> {
                   delegate: SliverChildListDelegate(<Widget>[
                     Container(
                         color: model.webBackgroundColor,
-                        child: MonitorGrid(mainStreamHandle : this.SKFlow)),
+                        child: MonitorGrid(StreamObject : this.SKFlow, currentVessel : currentVessel)),
                   ]),
                 )
               ],

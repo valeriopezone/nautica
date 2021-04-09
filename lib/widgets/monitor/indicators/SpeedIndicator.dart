@@ -2,32 +2,53 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nautica/models/BaseModel.dart';
+import 'package:nautica/models/Helper.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 
-class SpeedTrueIndicator extends StatelessWidget {
+
+class SpeedIndicator extends StatefulWidget {
   dynamic ST_Value;
   Stream<dynamic> ST_Stream = null;
   BaseModel model;
-
-  final String text;
-  final Icon icon;
   final Function(String text, Icon icon) notifyParent;
 
-  SpeedTrueIndicator({Key key, @required this.ST_Stream,@required this.text, @required this.model, this.icon, this.notifyParent}) : super(key: key){
-    ST_Stream.listen((data) {
-      ST_Value = data;
-    });
+  SpeedIndicator(
+      {Key key, @required this.ST_Stream, @required this.model, this.notifyParent})
+      : super(key: key);
+
+
+  @override
+  _SpeedIndicatorState createState() => _SpeedIndicatorState();
+}
+
+
+class _SpeedIndicatorState extends State<SpeedIndicator> with DisposableWidget{
+
+  @override
+  void initState(){
+    super.initState();
+    if(widget.ST_Stream != null) {
+      widget.ST_Stream.listen((data) {
+        widget.ST_Value = data;
+      }).canceledBy(this);
+    }
   }
 
+  @override
+  void dispose() {
+    print("CANCEL SPEED INDICATOR SUBSCRIPTION");
+    cancelSubscriptions();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        notifyParent(text, icon);
+        //notifyParent(text, icon);
       },
       child: StreamBuilder(
-          stream: ST_Stream,
+          stream: widget.ST_Stream,
           builder: (context, snap) {
             if (!snap.hasData) {
               return CircularProgressIndicator();
@@ -62,7 +83,7 @@ class SpeedTrueIndicator extends StatelessWidget {
                       NeedlePointer(
                           needleStartWidth: 1,
                           enableAnimation: true,
-                          value: (ST_Value != null && ST_Value != 0) ? ST_Value : 0.0,
+                          value: (widget.ST_Value != null && widget.ST_Value != 0) ? widget.ST_Value : 0.0,
                           tailStyle: TailStyle(
                               length: 0.2, width: 5, lengthUnit: GaugeSizeUnit.factor),
                           needleEndWidth: 5,
@@ -77,7 +98,7 @@ class SpeedTrueIndicator extends StatelessWidget {
                       GaugeRange(
                           startValue: 30,
                           endValue: 100,
-                          startWidth: model.isWebFullView ? 0.2 : 0.05,
+                          startWidth: widget.model.isWebFullView ? 0.2 : 0.05,
                           gradient: const SweepGradient(
                               colors: <Color>[Color(0xFF289AB1), Color(0xFF43E695)],
                               stops: <double>[0.25, 0.75]),

@@ -1,468 +1,13 @@
 import 'dart:async';
-/// dart imports
-import 'dart:io' show Platform;
-import 'dart:typed_data';
 
-/// Package imports
+
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:nautica/widgets/BottomSheet.dart';
 
 /// Local imports
 import 'BaseModel.dart';
-
-import 'dart:async';
-import 'dart:typed_data';
-import 'dart:ui' as ui;
-import 'package:flutter/services.dart' show rootBundle;
-
-
-/// Darwer to show the product related links.
-Widget getLeftSideDrawer(BaseModel _model) {
-  return LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints constraints) {
-        return SizedBox(
-            width: MediaQuery.of(context).size.width *
-                (MediaQuery.of(context).size.width < 600 ? 0.7 : 0.4),
-            child: Drawer(
-                child: Container(
-                  color: _model.themeData.brightness == Brightness.dark
-                      ? Colors.black
-                      : Colors.white,
-                  child: Column(
-                    children: <Widget>[
-                      Stack(children: <Widget>[
-                        _model.themeData.brightness == Brightness.light
-                            ? Container(
-                          padding: const EdgeInsets.fromLTRB(10, 30, 30, 10),
-                          child: Image.asset('images/image_nav_banner.png',
-                              fit: BoxFit.cover),
-                        )
-                            : Container(
-                          padding: const EdgeInsets.fromLTRB(10, 30, 30, 10),
-                          child: Image.asset(
-                              'images/image_nav_banner_darktheme.png',
-                              fit: BoxFit.cover),
-                        )
-                      ]),
-                      Expanded(
-                        /// ListView contains a group of widgets
-                        /// that scroll inside the drawer
-                        child: ListView(
-                          children: <Widget>[
-                            SingleChildScrollView(
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
-                                  Padding(
-                                    padding: const EdgeInsets.fromLTRB(30, 0, 0, 0),
-                                    child: Text('Fast . Fluid . Flexible',
-                                        style: TextStyle(
-                                            color: _model.drawerTextIconColor,
-                                            fontSize: 14,
-                                            letterSpacing: 0.26,
-                                            fontFamily: 'Roboto-Regular',
-                                            fontWeight: FontWeight.normal)),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                              child: Column(
-                                children: <Widget>[
-                                  Padding(
-                                    padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
-                                    child: Material(
-                                        color: Colors.transparent,
-                                        child: InkWell(
-                                            splashColor: Colors.grey.withOpacity(0.4),
-                                            onTap: () {
-                                              Feedback.forLongPress(context);
-
-                                            },
-                                            child: Padding(
-                                                padding: const EdgeInsets.fromLTRB(
-                                                    25, 0, 0, 0),
-                                                child: Column(
-                                                  children: <Widget>[
-                                                    const Padding(
-                                                        padding:
-                                                        EdgeInsets.only(top: 10)),
-                                                    Row(children: <Widget>[
-                                                      Image.asset('images/product.png',
-                                                          fit: BoxFit.contain,
-                                                          height: 22,
-                                                          width: 22,
-                                                          color: _model.webIconColor),
-                                                      Padding(
-                                                        padding:
-                                                        const EdgeInsets.fromLTRB(
-                                                            15, 0, 0, 0),
-                                                        child: Text('Product page',
-                                                            style: TextStyle(
-                                                                color: _model
-                                                                    .drawerTextIconColor,
-                                                                fontSize: 16,
-                                                                letterSpacing: 0.4,
-                                                                fontFamily:
-                                                                'Roboto-Regular',
-                                                                fontWeight:
-                                                                FontWeight.normal)),
-                                                      )
-                                                    ]),
-                                                    const Padding(
-                                                        padding:
-                                                        EdgeInsets.only(top: 10)),
-                                                  ],
-                                                )))),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
-                                    child: Material(
-                                        color: Colors.transparent,
-                                        child: InkWell(
-                                            splashColor: Colors.grey.withOpacity(0.4),
-                                            onTap: () {
-                                              Feedback.forLongPress(context);
-
-                                            },
-                                            child: Padding(
-                                                padding: const EdgeInsets.fromLTRB(
-                                                    25, 0, 0, 0),
-                                                child: Column(
-                                                  children: <Widget>[
-                                                    const Padding(
-                                                        padding:
-                                                        EdgeInsets.only(top: 10)),
-                                                    Row(children: <Widget>[
-                                                      Image.asset(
-                                                          'images/documentation.png',
-                                                          fit: BoxFit.contain,
-                                                          height: 22,
-                                                          width: 22,
-                                                          color: _model.webIconColor),
-                                                      Padding(
-                                                        padding:
-                                                        const EdgeInsets.fromLTRB(
-                                                            15, 0, 0, 0),
-                                                        child: Text('Documentation',
-                                                            style: TextStyle(
-                                                                color: _model
-                                                                    .drawerTextIconColor,
-                                                                fontSize: 16,
-                                                                letterSpacing: 0.4,
-                                                                fontFamily:
-                                                                'Roboto-Regular',
-                                                                fontWeight:
-                                                                FontWeight.normal)),
-                                                      )
-                                                    ]),
-                                                    const Padding(
-                                                        padding:
-                                                        EdgeInsets.only(top: 10)),
-                                                  ],
-                                                )))),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(20, 20, 40, 0),
-                              child: Container(
-                                  height: 2, width: 5, color: _model.backgroundColor),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(0, 20, 3, 0),
-                              child: Column(
-                                children: <Widget>[
-                                  Padding(
-                                    padding: const EdgeInsets.fromLTRB(15, 10, 0, 0),
-                                    child: Row(children: <Widget>[
-                                      Padding(
-                                        padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
-                                        child: Text('Other products',
-                                            style: TextStyle(
-                                                color: _model.drawerTextIconColor,
-                                                fontSize: 16,
-                                                letterSpacing: 0.4,
-                                                fontFamily: 'Roboto-Regular',
-                                                fontWeight: FontWeight.bold)),
-                                      )
-                                    ]),
-                                  ),
-                                  const Padding(
-                                      padding: EdgeInsets.fromLTRB(0, 15, 0, 0)),
-                                  Material(
-                                      color: Colors.transparent,
-                                      child: InkWell(
-                                          splashColor: Colors.grey.withOpacity(0.4),
-                                          onTap: () {
-                                            Feedback.forLongPress(context);
-
-                                          },
-                                          child: Column(
-                                            children: <Widget>[
-                                              const Padding(
-                                                  padding: EdgeInsets.only(top: 10)),
-                                              Row(
-                                                children: <Widget>[
-                                                  Padding(
-                                                      padding:
-                                                      const EdgeInsets.fromLTRB(
-                                                          15, 0, 0, 0),
-                                                      child: Image.asset(
-                                                          'images/img_xamarin.png',
-                                                          fit: BoxFit.contain,
-                                                          height: 28,
-                                                          width: 28)),
-                                                  Container(
-                                                      padding:
-                                                      const EdgeInsets.fromLTRB(
-                                                          10, 0, 0, 0),
-                                                      child: Text('Xamarin Demo',
-                                                          style: TextStyle(
-                                                              color: _model
-                                                                  .drawerTextIconColor,
-                                                              fontSize: 16,
-                                                              letterSpacing: 0.4,
-                                                              fontFamily:
-                                                              'Roboto-Regular',
-                                                              fontWeight:
-                                                              FontWeight.normal))),
-                                                  const Spacer(),
-                                                  Container(
-                                                    child: Icon(Icons.arrow_forward,
-                                                        color: _model.backgroundColor),
-                                                  ),
-                                                ],
-                                              ),
-                                              const Padding(
-                                                  padding: EdgeInsets.only(top: 10)),
-                                            ],
-                                          ))),
-                                  Material(
-                                      color: Colors.transparent,
-                                      child: InkWell(
-                                          splashColor: Colors.grey.withOpacity(0.4),
-                                          onTap: () {
-                                            Feedback.forLongPress(context);
-
-                                          },
-                                          child: Column(
-                                            children: <Widget>[
-                                              const Padding(
-                                                  padding: EdgeInsets.only(top: 10)),
-                                              Row(
-                                                children: <Widget>[
-                                                  Padding(
-                                                      padding:
-                                                      const EdgeInsets.fromLTRB(
-                                                          15, 0, 0, 0),
-                                                      child: Image.asset(
-                                                          'images/img_xamarin_ui.png',
-                                                          fit: BoxFit.contain,
-                                                          height: 28,
-                                                          width: 28)),
-                                                  Container(
-                                                    padding: const EdgeInsets.fromLTRB(
-                                                        10, 0, 0, 0),
-                                                    child: Text('Xamarin UI kit Demo',
-                                                        style: TextStyle(
-                                                            color: _model
-                                                                .drawerTextIconColor,
-                                                            fontSize: 16,
-                                                            letterSpacing: 0.4,
-                                                            fontFamily:
-                                                            'Roboto-Regular',
-                                                            fontWeight:
-                                                            FontWeight.normal)),
-                                                  ),
-                                                  const Spacer(),
-                                                  Container(
-                                                    child: Icon(Icons.arrow_forward,
-                                                        color: _model.backgroundColor),
-                                                  ),
-                                                ],
-                                              ),
-                                              const Padding(
-                                                  padding: EdgeInsets.only(top: 10)),
-                                            ],
-                                          ))),
-                                  Material(
-                                      color: Colors.transparent,
-                                      child: InkWell(
-                                          splashColor: Colors.grey.withOpacity(0.4),
-                                          onTap: () {
-                                            Feedback.forLongPress(context);
-
-                                          },
-                                          child: Column(
-                                            children: <Widget>[
-                                              const Padding(
-                                                  padding: EdgeInsets.only(top: 10)),
-                                              Row(
-                                                children: <Widget>[
-                                                  Padding(
-                                                      padding:
-                                                      const EdgeInsets.fromLTRB(
-                                                          15, 0, 0, 0),
-                                                      child: Image.asset(
-                                                          'images/img_JS.png',
-                                                          fit: BoxFit.contain,
-                                                          height: 28,
-                                                          width: 28)),
-                                                  Container(
-                                                    padding: const EdgeInsets.fromLTRB(
-                                                        10, 0, 0, 0),
-                                                    child: Text('JavaScript Demo',
-                                                        style: TextStyle(
-                                                            color: _model
-                                                                .drawerTextIconColor,
-                                                            fontSize: 16,
-                                                            letterSpacing: 0.4,
-                                                            fontFamily:
-                                                            'Roboto-Regular',
-                                                            fontWeight:
-                                                            FontWeight.normal)),
-                                                  ),
-                                                  const Spacer(),
-                                                  Container(
-                                                    child: Icon(Icons.arrow_forward,
-                                                        color: _model.backgroundColor),
-                                                  ),
-                                                ],
-                                              ),
-                                              const Padding(
-                                                  padding: EdgeInsets.only(top: 10)),
-                                            ],
-                                          ))),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      /// This container holds the align
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: <Widget>[
-                            Align(
-                                alignment: Alignment.bottomCenter,
-                                child: Image.asset(
-                                  _model.themeData.brightness == Brightness.dark
-                                      ? 'images/syncfusion_dark.png'
-                                      : 'images/syncfusion.png',
-                                  fit: BoxFit.contain,
-                                  height: 50,
-                                  width: 100,
-                                )),
-                            Align(
-                                alignment: Alignment.bottomCenter,
-                                child: Text('Version 19.1.0.54',
-                                    style: TextStyle(
-                                        color: _model.drawerTextIconColor,
-                                        fontSize: 12,
-                                        letterSpacing: 0.4,
-                                        fontFamily: 'Roboto-Regular',
-                                        fontWeight: FontWeight.normal)))
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                )));
-      });
-}
-
-/// Shows copyright message, product related links
-/// at the bottom of the home page.
-Widget getFooter(BuildContext context, BaseModel model) {
-  return Container(
-    height: 60,
-    decoration: BoxDecoration(
-      border: Border(
-        top: BorderSide(width: 0.8, color: model.dividerColor),
-      ),
-      color: model.themeData.brightness == Brightness.dark
-          ? const Color.fromRGBO(33, 33, 33, 1)
-          : const Color.fromRGBO(234, 234, 234, 1),
-    ),
-    padding: model.isMobileResolution
-        ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width * 0.025, 0,
-        MediaQuery.of(context).size.width * 0.025, 0)
-        : EdgeInsets.fromLTRB(MediaQuery.of(context).size.width * 0.05, 0,
-        MediaQuery.of(context).size.width * 0.05, 0),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        Container(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Row(
-                  children: <Widget>[
-                    InkWell(
-                      onTap: () => (){},
-                      child: const Text('Documentation',
-                          style: TextStyle(color: Colors.blue, fontSize: 12)),
-                    ),
-                    Text(' | ',
-                        style: TextStyle(
-                            fontSize: 12, color: model.textColor.withOpacity(0.7))),
-                    InkWell(
-                      onTap: () =>(){},
-                      child: const Text('Forum',
-                          style: TextStyle(color: Colors.blue, fontSize: 12)),
-                    ),
-                    Text(' | ',
-                        style: TextStyle(
-                            fontSize: 12, color: model.textColor.withOpacity(0.7))),
-                    InkWell(
-                      onTap: () =>(){},
-                      child: const Text('Blog',
-                          style: TextStyle(color: Colors.blue, fontSize: 12)),
-                    ),
-                    Text(' | ',
-                        style: TextStyle(
-                            fontSize: 12, color: model.textColor.withOpacity(0.7))),
-                    InkWell(
-                      onTap: () => (){},
-                      child: const Text('Knowledge base',
-                          style: TextStyle(color: Colors.blue, fontSize: 12)),
-                    )
-                  ],
-                ),
-                Container(
-                    padding: const EdgeInsets.only(top: 10),
-                    child: Text('Copyright © 2001 - 2021 Syncfusion Inc.',
-                        style: TextStyle(
-                            color: model.textColor.withOpacity(0.7),
-                            fontSize: 12,
-                            letterSpacing: 0.23)))
-              ],
-            )),
-        InkWell(
-          onTap: () => (){},
-          child: Image.asset(
-              model.themeData.brightness == Brightness.dark
-                  ? 'images/syncfusion_dark.png'
-                  : 'images/syncfusion.png',
-              fit: BoxFit.contain,
-              height: 25,
-              width: model.isMobileResolution ? 80 : 120),
-        ),
-      ],
-    ),
-  );
-}
 
 /// Show Right drawer which contains theme settings for web.
 Widget showWebThemeSettings(BaseModel model) {
@@ -936,12 +481,543 @@ void showBottomInfo(BuildContext context, String information) {
 }
 
 
+double mapRange(double x, double in_min, double in_max, double out_min, double out_max)
+{
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+class DisposableWidget {
+
+  List<StreamSubscription> _subscriptions = [];
+
+  void cancelSubscriptions() {
+    _subscriptions.forEach((subscription) {
+      subscription.cancel();
+    });
+  }
+
+  void addSubscription(StreamSubscription subscription) {
+    _subscriptions.add(subscription);
+  }
+
+}
+
+extension DisposableStreamSubscriton on StreamSubscription {
+  void canceledBy(DisposableWidget widget) {
+    widget.addSubscription(this);
+  }
+}
 
 
-Future<ui.Image> loadUiImage(String assetPath) async {
-  final data = await rootBundle.load(assetPath);
-  final list = Uint8List.view(data.buffer);
-  final completer = Completer<ui.Image>();
-  ui.decodeImageFromList(list, completer.complete);
-  return completer.future;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//CONSIDER TO DELETE
+
+
+
+
+
+
+
+
+
+
+
+
+
+/// Darwer to show the product related links.
+Widget getLeftSideDrawer(BaseModel _model) {
+  return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        return SizedBox(
+            width: MediaQuery.of(context).size.width *
+                (MediaQuery.of(context).size.width < 600 ? 0.7 : 0.4),
+            child: Drawer(
+                child: Container(
+                  color: _model.themeData.brightness == Brightness.dark
+                      ? Colors.black
+                      : Colors.white,
+                  child: Column(
+                    children: <Widget>[
+                      Stack(children: <Widget>[
+                        _model.themeData.brightness == Brightness.light
+                            ? Container(
+                          padding: const EdgeInsets.fromLTRB(10, 30, 30, 10),
+                          child: Image.asset('images/image_nav_banner.png',
+                              fit: BoxFit.cover),
+                        )
+                            : Container(
+                          padding: const EdgeInsets.fromLTRB(10, 30, 30, 10),
+                          child: Image.asset(
+                              'images/image_nav_banner_darktheme.png',
+                              fit: BoxFit.cover),
+                        )
+                      ]),
+                      Expanded(
+                        /// ListView contains a group of widgets
+                        /// that scroll inside the drawer
+                        child: ListView(
+                          children: <Widget>[
+                            SingleChildScrollView(
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(30, 0, 0, 0),
+                                    child: Text('Fast . Fluid . Flexible',
+                                        style: TextStyle(
+                                            color: _model.drawerTextIconColor,
+                                            fontSize: 14,
+                                            letterSpacing: 0.26,
+                                            fontFamily: 'Roboto-Regular',
+                                            fontWeight: FontWeight.normal)),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                              child: Column(
+                                children: <Widget>[
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(0, 20, 0, 0),
+                                    child: Material(
+                                        color: Colors.transparent,
+                                        child: InkWell(
+                                            splashColor: Colors.grey.withOpacity(0.4),
+                                            onTap: () {
+                                              Feedback.forLongPress(context);
+
+                                            },
+                                            child: Padding(
+                                                padding: const EdgeInsets.fromLTRB(
+                                                    25, 0, 0, 0),
+                                                child: Column(
+                                                  children: <Widget>[
+                                                    const Padding(
+                                                        padding:
+                                                        EdgeInsets.only(top: 10)),
+                                                    Row(children: <Widget>[
+                                                      Image.asset('images/product.png',
+                                                          fit: BoxFit.contain,
+                                                          height: 22,
+                                                          width: 22,
+                                                          color: _model.webIconColor),
+                                                      Padding(
+                                                        padding:
+                                                        const EdgeInsets.fromLTRB(
+                                                            15, 0, 0, 0),
+                                                        child: Text('Product page',
+                                                            style: TextStyle(
+                                                                color: _model
+                                                                    .drawerTextIconColor,
+                                                                fontSize: 16,
+                                                                letterSpacing: 0.4,
+                                                                fontFamily:
+                                                                'Roboto-Regular',
+                                                                fontWeight:
+                                                                FontWeight.normal)),
+                                                      )
+                                                    ]),
+                                                    const Padding(
+                                                        padding:
+                                                        EdgeInsets.only(top: 10)),
+                                                  ],
+                                                )))),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
+                                    child: Material(
+                                        color: Colors.transparent,
+                                        child: InkWell(
+                                            splashColor: Colors.grey.withOpacity(0.4),
+                                            onTap: () {
+                                              Feedback.forLongPress(context);
+
+                                            },
+                                            child: Padding(
+                                                padding: const EdgeInsets.fromLTRB(
+                                                    25, 0, 0, 0),
+                                                child: Column(
+                                                  children: <Widget>[
+                                                    const Padding(
+                                                        padding:
+                                                        EdgeInsets.only(top: 10)),
+                                                    Row(children: <Widget>[
+                                                      Image.asset(
+                                                          'images/documentation.png',
+                                                          fit: BoxFit.contain,
+                                                          height: 22,
+                                                          width: 22,
+                                                          color: _model.webIconColor),
+                                                      Padding(
+                                                        padding:
+                                                        const EdgeInsets.fromLTRB(
+                                                            15, 0, 0, 0),
+                                                        child: Text('Documentation',
+                                                            style: TextStyle(
+                                                                color: _model
+                                                                    .drawerTextIconColor,
+                                                                fontSize: 16,
+                                                                letterSpacing: 0.4,
+                                                                fontFamily:
+                                                                'Roboto-Regular',
+                                                                fontWeight:
+                                                                FontWeight.normal)),
+                                                      )
+                                                    ]),
+                                                    const Padding(
+                                                        padding:
+                                                        EdgeInsets.only(top: 10)),
+                                                  ],
+                                                )))),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(20, 20, 40, 0),
+                              child: Container(
+                                  height: 2, width: 5, color: _model.backgroundColor),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(0, 20, 3, 0),
+                              child: Column(
+                                children: <Widget>[
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(15, 10, 0, 0),
+                                    child: Row(children: <Widget>[
+                                      Padding(
+                                        padding: const EdgeInsets.fromLTRB(5, 0, 0, 0),
+                                        child: Text('Other products',
+                                            style: TextStyle(
+                                                color: _model.drawerTextIconColor,
+                                                fontSize: 16,
+                                                letterSpacing: 0.4,
+                                                fontFamily: 'Roboto-Regular',
+                                                fontWeight: FontWeight.bold)),
+                                      )
+                                    ]),
+                                  ),
+                                  const Padding(
+                                      padding: EdgeInsets.fromLTRB(0, 15, 0, 0)),
+                                  Material(
+                                      color: Colors.transparent,
+                                      child: InkWell(
+                                          splashColor: Colors.grey.withOpacity(0.4),
+                                          onTap: () {
+                                            Feedback.forLongPress(context);
+
+                                          },
+                                          child: Column(
+                                            children: <Widget>[
+                                              const Padding(
+                                                  padding: EdgeInsets.only(top: 10)),
+                                              Row(
+                                                children: <Widget>[
+                                                  Padding(
+                                                      padding:
+                                                      const EdgeInsets.fromLTRB(
+                                                          15, 0, 0, 0),
+                                                      child: Image.asset(
+                                                          'images/img_xamarin.png',
+                                                          fit: BoxFit.contain,
+                                                          height: 28,
+                                                          width: 28)),
+                                                  Container(
+                                                      padding:
+                                                      const EdgeInsets.fromLTRB(
+                                                          10, 0, 0, 0),
+                                                      child: Text('Xamarin Demo',
+                                                          style: TextStyle(
+                                                              color: _model
+                                                                  .drawerTextIconColor,
+                                                              fontSize: 16,
+                                                              letterSpacing: 0.4,
+                                                              fontFamily:
+                                                              'Roboto-Regular',
+                                                              fontWeight:
+                                                              FontWeight.normal))),
+                                                  const Spacer(),
+                                                  Container(
+                                                    child: Icon(Icons.arrow_forward,
+                                                        color: _model.backgroundColor),
+                                                  ),
+                                                ],
+                                              ),
+                                              const Padding(
+                                                  padding: EdgeInsets.only(top: 10)),
+                                            ],
+                                          ))),
+                                  Material(
+                                      color: Colors.transparent,
+                                      child: InkWell(
+                                          splashColor: Colors.grey.withOpacity(0.4),
+                                          onTap: () {
+                                            Feedback.forLongPress(context);
+
+                                          },
+                                          child: Column(
+                                            children: <Widget>[
+                                              const Padding(
+                                                  padding: EdgeInsets.only(top: 10)),
+                                              Row(
+                                                children: <Widget>[
+                                                  Padding(
+                                                      padding:
+                                                      const EdgeInsets.fromLTRB(
+                                                          15, 0, 0, 0),
+                                                      child: Image.asset(
+                                                          'images/img_xamarin_ui.png',
+                                                          fit: BoxFit.contain,
+                                                          height: 28,
+                                                          width: 28)),
+                                                  Container(
+                                                    padding: const EdgeInsets.fromLTRB(
+                                                        10, 0, 0, 0),
+                                                    child: Text('Xamarin UI kit Demo',
+                                                        style: TextStyle(
+                                                            color: _model
+                                                                .drawerTextIconColor,
+                                                            fontSize: 16,
+                                                            letterSpacing: 0.4,
+                                                            fontFamily:
+                                                            'Roboto-Regular',
+                                                            fontWeight:
+                                                            FontWeight.normal)),
+                                                  ),
+                                                  const Spacer(),
+                                                  Container(
+                                                    child: Icon(Icons.arrow_forward,
+                                                        color: _model.backgroundColor),
+                                                  ),
+                                                ],
+                                              ),
+                                              const Padding(
+                                                  padding: EdgeInsets.only(top: 10)),
+                                            ],
+                                          ))),
+                                  Material(
+                                      color: Colors.transparent,
+                                      child: InkWell(
+                                          splashColor: Colors.grey.withOpacity(0.4),
+                                          onTap: () {
+                                            Feedback.forLongPress(context);
+
+                                          },
+                                          child: Column(
+                                            children: <Widget>[
+                                              const Padding(
+                                                  padding: EdgeInsets.only(top: 10)),
+                                              Row(
+                                                children: <Widget>[
+                                                  Padding(
+                                                      padding:
+                                                      const EdgeInsets.fromLTRB(
+                                                          15, 0, 0, 0),
+                                                      child: Image.asset(
+                                                          'images/img_JS.png',
+                                                          fit: BoxFit.contain,
+                                                          height: 28,
+                                                          width: 28)),
+                                                  Container(
+                                                    padding: const EdgeInsets.fromLTRB(
+                                                        10, 0, 0, 0),
+                                                    child: Text('JavaScript Demo',
+                                                        style: TextStyle(
+                                                            color: _model
+                                                                .drawerTextIconColor,
+                                                            fontSize: 16,
+                                                            letterSpacing: 0.4,
+                                                            fontFamily:
+                                                            'Roboto-Regular',
+                                                            fontWeight:
+                                                            FontWeight.normal)),
+                                                  ),
+                                                  const Spacer(),
+                                                  Container(
+                                                    child: Icon(Icons.arrow_forward,
+                                                        color: _model.backgroundColor),
+                                                  ),
+                                                ],
+                                              ),
+                                              const Padding(
+                                                  padding: EdgeInsets.only(top: 10)),
+                                            ],
+                                          ))),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      /// This container holds the align
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: <Widget>[
+                            Align(
+                                alignment: Alignment.bottomCenter,
+                                child: Image.asset(
+                                  _model.themeData.brightness == Brightness.dark
+                                      ? 'images/syncfusion_dark.png'
+                                      : 'images/syncfusion.png',
+                                  fit: BoxFit.contain,
+                                  height: 50,
+                                  width: 100,
+                                )),
+                            Align(
+                                alignment: Alignment.bottomCenter,
+                                child: Text('Version 19.1.0.54',
+                                    style: TextStyle(
+                                        color: _model.drawerTextIconColor,
+                                        fontSize: 12,
+                                        letterSpacing: 0.4,
+                                        fontFamily: 'Roboto-Regular',
+                                        fontWeight: FontWeight.normal)))
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                )));
+      });
+}
+
+/// Shows copyright message, product related links
+/// at the bottom of the home page.
+Widget getFooter(BuildContext context, BaseModel model) {
+  return Container(
+    height: 60,
+    decoration: BoxDecoration(
+      border: Border(
+        top: BorderSide(width: 0.8, color: model.dividerColor),
+      ),
+      color: model.themeData.brightness == Brightness.dark
+          ? const Color.fromRGBO(33, 33, 33, 1)
+          : const Color.fromRGBO(234, 234, 234, 1),
+    ),
+    padding: model.isMobileResolution
+        ? EdgeInsets.fromLTRB(MediaQuery.of(context).size.width * 0.025, 0,
+        MediaQuery.of(context).size.width * 0.025, 0)
+        : EdgeInsets.fromLTRB(MediaQuery.of(context).size.width * 0.05, 0,
+        MediaQuery.of(context).size.width * 0.05, 0),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        Container(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Row(
+                  children: <Widget>[
+                    InkWell(
+                      onTap: () => (){},
+                      child: const Text('Documentation',
+                          style: TextStyle(color: Colors.blue, fontSize: 12)),
+                    ),
+                    Text(' | ',
+                        style: TextStyle(
+                            fontSize: 12, color: model.textColor.withOpacity(0.7))),
+                    InkWell(
+                      onTap: () =>(){},
+                      child: const Text('Forum',
+                          style: TextStyle(color: Colors.blue, fontSize: 12)),
+                    ),
+                    Text(' | ',
+                        style: TextStyle(
+                            fontSize: 12, color: model.textColor.withOpacity(0.7))),
+                    InkWell(
+                      onTap: () =>(){},
+                      child: const Text('Blog',
+                          style: TextStyle(color: Colors.blue, fontSize: 12)),
+                    ),
+                    Text(' | ',
+                        style: TextStyle(
+                            fontSize: 12, color: model.textColor.withOpacity(0.7))),
+                    InkWell(
+                      onTap: () => (){},
+                      child: const Text('Knowledge base',
+                          style: TextStyle(color: Colors.blue, fontSize: 12)),
+                    )
+                  ],
+                ),
+                Container(
+                    padding: const EdgeInsets.only(top: 10),
+                    child: Text('Copyright © 2001 - 2021 Syncfusion Inc.',
+                        style: TextStyle(
+                            color: model.textColor.withOpacity(0.7),
+                            fontSize: 12,
+                            letterSpacing: 0.23)))
+              ],
+            )),
+        InkWell(
+          onTap: () => (){},
+          child: Image.asset(
+              model.themeData.brightness == Brightness.dark
+                  ? 'images/syncfusion_dark.png'
+                  : 'images/syncfusion.png',
+              fit: BoxFit.contain,
+              height: 25,
+              width: model.isMobileResolution ? 80 : 120),
+        ),
+      ],
+    ),
+  );
 }

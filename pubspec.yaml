@@ -34,6 +34,7 @@ dependencies:
   syncfusion_flutter_datagrid: ^19.1.54-beta
   syncfusion_flutter_gauges: ^19.1.54
   syncfusion_flutter_sliders: ^19.1.54-beta
+  path: ^1.8.0
 
 dev_dependencies:
   flutter_test:
