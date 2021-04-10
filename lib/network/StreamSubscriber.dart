@@ -66,6 +66,7 @@ class StreamSubscriber {
 
   void onMessageCallback(dynamic msg) {
     this.wsRawData = msg;
+
     dynamic dec = convert.jsonDecode(this.wsRawData);
     dynamic streamedParams;
 
@@ -98,9 +99,9 @@ class StreamSubscriber {
   }
 
   Stream<dynamic> getVesselStream(
-      String vessel, String subscriptionName) async* {
-    print("SOMEBODY SUBSCRIBED TO " + vessel + " : " + subscriptionName);
-    Duration interval = Duration(microseconds: 300);
+      String vessel, String subscriptionName,Duration refreshRate) async* {
+    print("SOMEBODY SUBSCRIBED TO " + vessel + " : " + subscriptionName + "at " + refreshRate.toString());
+    Duration interval = refreshRate;//Duration(microseconds: 2000);
     int i = 0;
     while (true) {
       await Future.delayed(interval);
@@ -125,8 +126,9 @@ class StreamSubscriber {
   //  }
   //}
 
-  Stream<dynamic> subscribeEverything(String vessel) async* {
-    Duration interval = Duration(microseconds: 300);
+  Stream<dynamic> subscribeEverything(String vessel,Duration refreshRate) async* {
+    print("SUBSCRIBE EVERYTHING AT " + refreshRate.toString());
+    Duration interval = refreshRate;//Duration(microseconds: 2000);
     int i = 0;
     while (true) {
       await Future.delayed(interval);

@@ -11,6 +11,9 @@ const Map NAUTICA =  {
   'configuration' : {
     'widget' : {
       'refreshRate' : 500 //ms
+    },
+    'map' : {
+      'refreshRate' : 2 //s
     }
   }
 };

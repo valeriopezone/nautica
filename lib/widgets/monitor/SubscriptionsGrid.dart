@@ -6,6 +6,8 @@ import 'package:nautica/models/Helper.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:nautica/network/StreamSubscriber.dart';
 
+import 'package:nautica/Configuration.dart';
+
 class SubscriptionsGrid extends StatefulWidget {
   StreamSubscriber StreamObject = null;
   String currentVessel = "";
@@ -120,8 +122,7 @@ class _RealTimeUpdateDataGridSource extends DataGridSource
     buildDataGridRows();
     print("START GRID LISTENING");
 
-    mainStream =
-        StreamObject.subscribeEverything(currentVessel).asBroadcastStream();
+    mainStream =  _subscribeToAllStreams();
     if (mainStream != null) {
       mainStream.listen((data) {
         mainStreamResponse = data;
@@ -134,6 +135,11 @@ class _RealTimeUpdateDataGridSource extends DataGridSource
     print("GRID CANCEL GENERAL SUBSCRIPTION");
     cancelSubscriptions();
     super.dispose();
+  }
+
+
+  Stream<dynamic> _subscribeToAllStreams(){
+    return StreamObject.subscribeEverything(currentVessel,Duration(microseconds: NAUTICA['configuration']['widget']['refreshRate'])).asBroadcastStream();
   }
 
   final bool isWebOrDesktop;

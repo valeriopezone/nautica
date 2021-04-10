@@ -14,6 +14,8 @@ import 'package:nautica/widgets/monitor/indicators/WindIndicator.dart';
 import 'package:nautica/network/StreamSubscriber.dart';
 import 'package:nautica/models/BaseModel.dart';
 
+import 'package:nautica/Configuration.dart';
+
 
 
 /// Positioning/aligning the categories as  cards
@@ -56,6 +58,12 @@ class _MonitorGridState extends State<MonitorGrid> {
   Widget build(BuildContext context) {
     return Container(child: _getMonitorGrid());
   }
+
+  Stream<dynamic> _subscribeToStream(String path){
+    return widget.StreamObject.getVesselStream(vessel,path,Duration(microseconds: NAUTICA['configuration']['widget']['refreshRate'])).asBroadcastStream();
+  }
+
+
 
   Widget _getMonitorGrid() {
     final double deviceWidth = MediaQuery.of(context).size.width;
@@ -116,8 +124,8 @@ class _MonitorGridState extends State<MonitorGrid> {
           Column(children: <Widget>[//COLUMN 1
             SimpleCard("Apparent Wind",[Center(child:
             WindIndicator(
-                Angle_Stream: widget.StreamObject.getVesselStream(vessel,"environment.wind.angleApparent").asBroadcastStream(),
-                Intensity_Stream: widget.StreamObject.getVesselStream(vessel,"environment.wind.speedApparent").asBroadcastStream(),
+                Angle_Stream: _subscribeToStream("environment.wind.angleApparent"),
+                Intensity_Stream: _subscribeToStream("environment.wind.speedApparent"),
                 model : model
             ))]),
             Padding(padding: EdgeInsets.only(bottom: _sidePadding)),
@@ -127,7 +135,7 @@ class _MonitorGridState extends State<MonitorGrid> {
             SimpleCard("COG(m)",[Center(child:
             CompassIndicator(
               model : model,
-              COG_Stream: widget.StreamObject.getVesselStream(vessel,"navigation.courseOverGroundMagnetic").asBroadcastStream(),
+              COG_Stream: _subscribeToStream("navigation.courseOverGroundMagnetic"),
             ))]),
             Padding(padding: EdgeInsets.only(bottom: _sidePadding)),
 
@@ -137,8 +145,8 @@ class _MonitorGridState extends State<MonitorGrid> {
 
             SimpleCard("True wind through water",[Center(child:
             WindIndicator(
-                Angle_Stream: widget.StreamObject.getVesselStream(vessel,"environment.wind.angleTrueWater").asBroadcastStream(),
-                Intensity_Stream: widget.StreamObject.getVesselStream(vessel,"environment.wind.speedTrue").asBroadcastStream(),
+                Angle_Stream: _subscribeToStream("environment.wind.angleTrueWater"),
+                Intensity_Stream: _subscribeToStream("environment.wind.speedTrue"),
                 model : model
             ))]),
             Padding(padding: EdgeInsets.only(bottom: _sidePadding)),
@@ -146,20 +154,20 @@ class _MonitorGridState extends State<MonitorGrid> {
             SimpleCard("Real time boat",[Center(child:
             BoatVectorsIndicator(
               model:model,
-              ATW_Stream: widget.StreamObject.getVesselStream(vessel,"environment.wind.angleTrueWater").asBroadcastStream(),
-              ST_Stream: widget.StreamObject.getVesselStream(vessel,"environment.wind.speedTrue").asBroadcastStream(),
-              AA_Stream: widget.StreamObject.getVesselStream(vessel,"environment.wind.angleApparent").asBroadcastStream(),
-              SA_Stream: widget.StreamObject.getVesselStream(vessel,"environment.wind.speedApparent").asBroadcastStream(),
-              HT_Stream: widget.StreamObject.getVesselStream(vessel,"navigation.headingTrue").asBroadcastStream(),
-              COG_Stream: widget.StreamObject.getVesselStream(vessel,"navigation.courseOverGroundTrue").asBroadcastStream(),
-              SOG_Stream: widget.StreamObject.getVesselStream(vessel,"navigation.speedOverGround").asBroadcastStream(),
+              ATW_Stream: _subscribeToStream("environment.wind.angleTrueWater"),
+              ST_Stream: _subscribeToStream("environment.wind.speedTrue"),
+              AA_Stream: _subscribeToStream("environment.wind.angleApparent"),
+              SA_Stream: _subscribeToStream("environment.wind.speedApparent"),
+              HT_Stream: _subscribeToStream("navigation.headingTrue"),
+              COG_Stream: _subscribeToStream("navigation.courseOverGroundTrue"),
+              SOG_Stream: _subscribeToStream("navigation.speedOverGround"),
             ))]),
 
             Padding(padding: EdgeInsets.only(bottom: _sidePadding)),
 
             SimpleCard("Speed Through Water",[Center(child:
             SpeedIndicator(
-                ST_Stream: widget.StreamObject.getVesselStream(vessel,"navigation.speedThroughWater").asBroadcastStream(),
+                ST_Stream: _subscribeToStream("navigation.speedThroughWater"),
                 model : model
             ))]),
 
@@ -174,8 +182,8 @@ class _MonitorGridState extends State<MonitorGrid> {
           Column(children: <Widget>[//COLUMN 3
             SimpleCard("True wind over ground",[Center(child:
             WindIndicator(
-                Angle_Stream: widget.StreamObject.getVesselStream(vessel,"environment.wind.angleTrueGround").asBroadcastStream(),
-                Intensity_Stream: widget.StreamObject.getVesselStream(vessel,"environment.wind.speedOverGround").asBroadcastStream(),
+                Angle_Stream: _subscribeToStream("environment.wind.angleTrueGround"),
+                Intensity_Stream: _subscribeToStream("environment.wind.speedOverGround"),
                 model : model
             ))]),
             Padding(padding: EdgeInsets.only(bottom: _sidePadding)),
@@ -184,7 +192,7 @@ class _MonitorGridState extends State<MonitorGrid> {
             SimpleCard("COG(t)",[Center(child:
             CompassIndicator(
               model : model,
-              COG_Stream: widget.StreamObject.getVesselStream(vessel,"navigation.courseOverGroundTrue").asBroadcastStream(),
+              COG_Stream: _subscribeToStream("navigation.courseOverGroundTrue"),
             ))]),
             Padding(padding: EdgeInsets.only(bottom: _sidePadding)),
 
@@ -192,14 +200,14 @@ class _MonitorGridState extends State<MonitorGrid> {
 
             SimpleCard("RPM #1",[Center(child:
             SpeedIndicator(
-                ST_Stream: widget.StreamObject.getVesselStream(vessel,"propulsion.engine_1.revolutions").asBroadcastStream(),
+                ST_Stream: _subscribeToStream("propulsion.engine_1.revolutions"),
                 model : model
             ))]),
 
             Padding(padding: EdgeInsets.only(bottom: _sidePadding)),
             SimpleCard("RPM #2",[Center(child:
             SpeedIndicator(
-                ST_Stream: widget.StreamObject.getVesselStream(vessel,"propulsion.engine_2.revolutions").asBroadcastStream(),
+                ST_Stream: _subscribeToStream("propulsion.engine_2.revolutions"),
                 model : model
             ))]),
 
@@ -243,13 +251,13 @@ class _MonitorGridState extends State<MonitorGrid> {
             SimpleCard("Real time boat",[Center(child:
             BoatVectorsIndicator(
               model: model,
-              ATW_Stream: widget.StreamObject.getVesselStream(vessel,"environment.wind.angleTrueWater").asBroadcastStream(),
-              ST_Stream: widget.StreamObject.getVesselStream(vessel,"environment.wind.speedTrue").asBroadcastStream(),
-              AA_Stream: widget.StreamObject.getVesselStream(vessel,"environment.wind.angleApparent").asBroadcastStream(),
-              SA_Stream: widget.StreamObject.getVesselStream(vessel,"environment.wind.speedApparent").asBroadcastStream(),
-              HT_Stream: widget.StreamObject.getVesselStream(vessel,"navigation.headingTrue").asBroadcastStream(),
-              COG_Stream: widget.StreamObject.getVesselStream(vessel,"navigation.courseOverGroundTrue").asBroadcastStream(),
-              SOG_Stream: widget.StreamObject.getVesselStream(vessel,"navigation.speedOverGround").asBroadcastStream(),
+              ATW_Stream: _subscribeToStream("environment.wind.angleTrueWater"),
+              ST_Stream: _subscribeToStream("environment.wind.speedTrue"),
+              AA_Stream: _subscribeToStream("environment.wind.angleApparent"),
+              SA_Stream: _subscribeToStream("environment.wind.speedApparent"),
+              HT_Stream: _subscribeToStream("navigation.headingTrue"),
+              COG_Stream: _subscribeToStream("navigation.courseOverGroundTrue"),
+              SOG_Stream: _subscribeToStream("navigation.speedOverGround"),
             ))]),
             Padding(padding: EdgeInsets.only(bottom: _sidePadding))
 

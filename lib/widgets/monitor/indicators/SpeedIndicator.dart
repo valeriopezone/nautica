@@ -29,7 +29,7 @@ class _SpeedIndicatorState extends State<SpeedIndicator> with DisposableWidget{
     super.initState();
     if(widget.ST_Stream != null) {
       widget.ST_Stream.listen((data) {
-        widget.ST_Value = data;
+        widget.ST_Value =  (data == null || data == 0) ? 0.0 : data;
       }).canceledBy(this);
     }
   }
@@ -83,7 +83,7 @@ class _SpeedIndicatorState extends State<SpeedIndicator> with DisposableWidget{
                       NeedlePointer(
                           needleStartWidth: 1,
                           enableAnimation: true,
-                          value: (widget.ST_Value != null && widget.ST_Value != 0) ? widget.ST_Value : 0.0,
+                          value: widget.ST_Value,
                           tailStyle: TailStyle(
                               length: 0.2, width: 5, lengthUnit: GaugeSizeUnit.factor),
                           needleEndWidth: 5,

@@ -17,14 +17,14 @@ import 'models/BaseModel.dart';
 void main() {
 
   WidgetsFlutterBinding.ensureInitialized();
-  //SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft])
-  //    .then((_) {
-  //  SystemChrome.setEnabledSystemUIOverlays([]).then((_) {
-  //    runApp(new MyApp());
-  //  });
-  //});
+ SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft])
+     .then((_) {
+   SystemChrome.setEnabledSystemUIOverlays([]).then((_) {
+     runApp(new MyApp());
+   });
+ });
 
-  runApp(MyApp());
+ // runApp(MyApp());
 }
 
 class MyApp extends StatefulWidget {
@@ -107,8 +107,8 @@ class _MyAppState extends State<MyApp> {
 
         debugShowCheckedModeBanner: false,
         title: 'Demos & Examples of Syncfusion Flutter Widgets',
-        theme: ThemeData.light(),
-        darkTheme: ThemeData.dark(),
+        theme: ThemeData.dark(),
+        darkTheme: ThemeData.light(),
         themeMode: ThemeMode.system,
         home: SplashScreen());
   }

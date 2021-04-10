@@ -1,193 +1,154 @@
-/// Dart import
-import 'dart:convert';
-import 'dart:io' show Platform;
-
-/// Package imports
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class BaseModel extends Listenable {
-  /// Contains the category, control, theme information
   BaseModel() {
+    //set style4 as default
+   // selectedThemeIndex = 2;
+
+    for (int j = 0; j < paletteBorderColors.length; j++) {
+      paletteBorderColors[j] = Colors.transparent;
+    }
+
+    paletteBorderColors[4] = paletteColors[4];
+    currentPaletteColor = paletteColors[4];
+    currentPrimaryColor = darkPaletteColors[4];
+    _setDarkColors();
+
+    selectedThemeIndex = 1;
+    backgroundColor = currentPrimaryColor;
+    paletteColor = currentPaletteColor;
+    // ignore: invalid_use_of_protected_member
 
   }
 
-  /// Used to create the instance of [SampleModel]
 static BaseModel instance = BaseModel();
 
-
-/// holds theme based current palette color
 Color backgroundColor = const Color.fromRGBO(0, 116, 227, 1);
-
-/// holds light theme current palette color
 Color paletteColor = const Color.fromRGBO(0, 116, 227, 1);
-
-/// holds current palette color
-/// on toggling the palette colors before or after apply settings
 Color currentPrimaryColor = const Color.fromRGBO(0, 116, 227, 1);
 
-/// holds the current theme data
 ThemeData themeData;
-
-/// Holds theme baased color of web outputcontainer
 Color textColor = const Color.fromRGBO(51, 51, 51, 1);
-
-/// Holds theme based drawer text color
 Color drawerTextIconColor = Colors.black;
-
-/// Holds theme based bottom sheet color
 Color bottomSheetBackgroundColor = Colors.white;
-
-/// Holds theme based card color
 Color cardThemeColor = Colors.white;
-
-/// Holds theme based web page background color
 Color webBackgroundColor = const Color.fromRGBO(246, 246, 246, 1);
-
-/// Holds theme based color of icon
 Color webIconColor = const Color.fromRGBO(0, 0, 0, 0.54);
-
-/// Holds theme based input container color
 Color webInputColor = const Color.fromRGBO(242, 242, 242, 1);
-
-/// Holds theme based web outputcontainer color
 Color webOutputContainerColor = Colors.white;
-
-/// Holds the theme based card's color
 Color cardColor = Colors.white;
-
-/// Holds the theme based divider color
 Color dividerColor = const Color.fromRGBO(204, 204, 204, 1);
 
-/// Holds the old browser window's height and width
 Size oldWindowSize;
+Size currentWindowSize;
+dynamic currentRenderSample;
+String currentSampleKey;
 
-/// Holds the current browser window's height and width
- Size currentWindowSize;
+List<Color> paletteColors = <Color>[
+  const Color.fromRGBO(0, 116, 227, 1),
+  const Color.fromRGBO(230, 74, 25, 1),
+  const Color.fromRGBO(216, 27, 96, 1),
+  const Color.fromRGBO(103, 58, 184, 1),
+  const Color.fromRGBO(2, 137, 123, 1)
+];
+List<Color> paletteBorderColors = <Color>[
+  const Color.fromRGBO(68, 138, 255, 1),
+  const Color.fromRGBO(255, 110, 64, 1),
+  const Color.fromRGBO(238, 79, 132, 1),
+  const Color.fromRGBO(180, 137, 255, 1),
+  const Color.fromRGBO(29, 233, 182, 1)
+];
+
+List<Color> darkPaletteColors =  <Color>[
+  const Color.fromRGBO(0, 116, 227, 1),
+  Colors.transparent,
+  Colors.transparent,
+  Colors.transparent,
+  Colors.transparent
+];
 
 
-/// Holds the current visible sample, only for web
- dynamic currentRenderSample;
-
-/// Holds the current rendered sample's key, only for web
- String currentSampleKey;
-
-/// Contains the light theme pallete colors
- List<Color> paletteColors;
-
-/// Contains the pallete's border colors
- List<Color> paletteBorderColors;
-
-/// Contains dark theme theme palatte colors
- List<Color> darkPaletteColors;
-
-/// Holds current theme data
 ThemeData currentThemeData;
-
-/// Holds current pallete color
 Color currentPaletteColor = const Color.fromRGBO(0, 116, 227, 1);
-
-/// holds the index to finding the current theme
-/// In mobile sb - system 0, light 1, dark 2
 int selectedThemeIndex = 0;
-
-/// Holds the information of isCardView or not
 bool isCardView = true;
-
-/// Holds the information of isMobileResolution or not
-/// To render the appbar and search bar based on it
- bool isMobileResolution;
-
-/// Holds the current system theme
- ThemeData systemTheme;
-
-/// Editing controller which used in the search text field
+bool isMobileResolution;
+ThemeData systemTheme;
 TextEditingController editingController = TextEditingController();
-
-/// Holds the information of to be maximize or not
 bool needToMaximize = false;
-
-
-///check whether application is running on web/linuxOS/windowsOS/macOS
 bool isWebFullView = false;
-
-///Check whether application is running on a mobile device
 bool isMobile = false;
-
-///Check whether application is running on the web browser
 bool isWeb = false;
-
-///Check whether application is running on the desktop
 bool isDesktop = false;
-
-///Check whether application is running on the Android mobile device
 bool isAndroid = false;
-
-///Check whether application is running on the Windows desktop OS
 bool isWindows = false;
-
-///Check whether application is running on the iOS mobile device
 bool isIOS = false;
-
-///Check whether application is running on the Linux desktop OS
 bool isLinux = false;
-
-///Check whether application is running on the macOS desktop
 bool isMacOS = false;
 
-/// Switching between light, dark, system themes
+String currentMapTheme;
+
+
+void _setDarkColors(){
+  dividerColor = const Color.fromRGBO(61, 61, 61, 1);
+  cardColor = const Color.fromRGBO(48, 48, 48, 1);
+  webIconColor = const Color.fromRGBO(255, 255, 255, 0.65);
+  webOutputContainerColor = const Color.fromRGBO(23, 23, 23, 1);
+  webInputColor = const Color.fromRGBO(44, 44, 44, 1);
+  webBackgroundColor = const Color.fromRGBO(33, 33, 33, 1);
+  drawerTextIconColor = Colors.white;
+  bottomSheetBackgroundColor = const Color.fromRGBO(34, 39, 51, 1);
+  textColor = const Color.fromRGBO(242, 242, 242, 1);
+  cardThemeColor = const Color.fromRGBO(33, 33, 33, 1);
+  currentMapTheme = '[{"elementType":"geometry","stylers":[{"color":"#1d2c4d"}]},{"elementType":"labels.text.fill","stylers":[{"color":"#8ec3b9"}]},{"elementType":"labels.text.stroke","stylers":[{"color":"#1a3646"}]},{"featureType":"administrative.country","elementType":"geometry.stroke","stylers":[{"color":"#4b6878"}]},{"featureType":"administrative.land_parcel","stylers":[{"visibility":"off"}]},{"featureType":"administrative.land_parcel","elementType":"labels.text.fill","stylers":[{"color":"#64779e"}]},{"featureType":"administrative.neighborhood","stylers":[{"visibility":"off"}]},{"featureType":"administrative.province","elementType":"geometry.stroke","stylers":[{"color":"#4b6878"}]},{"featureType":"landscape.man_made","elementType":"geometry.stroke","stylers":[{"color":"#334e87"}]},{"featureType":"landscape.natural","elementType":"geometry","stylers":[{"color":"#023e58"}]},{"featureType":"poi","elementType":"geometry","stylers":[{"color":"#283d6a"}]},{"featureType":"poi","elementType":"labels.text.fill","stylers":[{"color":"#6f9ba5"}]},{"featureType":"poi","elementType":"labels.text.stroke","stylers":[{"color":"#1d2c4d"}]},{"featureType":"poi.park","elementType":"geometry.fill","stylers":[{"color":"#023e58"}]},{"featureType":"poi.park","elementType":"labels.text.fill","stylers":[{"color":"#3C7680"}]},{"featureType":"road","elementType":"geometry","stylers":[{"color":"#304a7d"}]},{"featureType":"road","elementType":"labels","stylers":[{"visibility":"off"}]},{"featureType":"road","elementType":"labels.text.fill","stylers":[{"color":"#98a5be"}]},{"featureType":"road","elementType":"labels.text.stroke","stylers":[{"color":"#1d2c4d"}]},{"featureType":"road.arterial","stylers":[{"visibility":"off"}]},{"featureType":"road.highway","elementType":"geometry","stylers":[{"color":"#2c6675"}]},{"featureType":"road.highway","elementType":"geometry.stroke","stylers":[{"color":"#255763"}]},{"featureType":"road.highway","elementType":"labels","stylers":[{"visibility":"off"}]},{"featureType":"road.highway","elementType":"labels.text.fill","stylers":[{"color":"#b0d5ce"}]},{"featureType":"road.highway","elementType":"labels.text.stroke","stylers":[{"color":"#023e58"}]},{"featureType":"road.local","stylers":[{"visibility":"off"}]},{"featureType":"transit","elementType":"labels.text.fill","stylers":[{"color":"#98a5be"}]},{"featureType":"transit","elementType":"labels.text.stroke","stylers":[{"color":"#1d2c4d"}]},{"featureType":"transit.line","elementType":"geometry.fill","stylers":[{"color":"#283d6a"}]},{"featureType":"transit.station","elementType":"geometry","stylers":[{"color":"#3a4762"}]},{"featureType":"water","elementType":"geometry","stylers":[{"color":"#0e1626"}]},{"featureType":"water","elementType":"labels.text","stylers":[{"visibility":"off"}]},{"featureType":"water","elementType":"labels.text.fill","stylers":[{"color":"#4e6d70"}]}]';
+
+}
+
+void _setLightColors(){
+  dividerColor = const Color.fromRGBO(204, 204, 204, 1);
+  cardColor = Colors.white;
+  webIconColor = const Color.fromRGBO(0, 0, 0, 0.54);
+  webOutputContainerColor = Colors.white;
+  webInputColor = const Color.fromRGBO(242, 242, 242, 1);
+  webBackgroundColor = const Color.fromRGBO(246, 246, 246, 1);
+  drawerTextIconColor = Colors.black;
+  bottomSheetBackgroundColor = Colors.white;
+  textColor = const Color.fromRGBO(51, 51, 51, 1);
+  cardThemeColor = Colors.white;
+  currentMapTheme = '[{"elementType":"geometry","stylers":[{"color":"#f5f5f5"}]},{"elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"elementType":"labels.text.fill","stylers":[{"color":"#616161"}]},{"elementType":"labels.text.stroke","stylers":[{"color":"#f5f5f5"}]},{"featureType":"administrative.land_parcel","elementType":"labels.text.fill","stylers":[{"color":"#bdbdbd"}]},{"featureType":"poi","elementType":"geometry","stylers":[{"color":"#eeeeee"}]},{"featureType":"poi","elementType":"labels.text.fill","stylers":[{"color":"#757575"}]},{"featureType":"poi.park","elementType":"geometry","stylers":[{"color":"#e5e5e5"}]},{"featureType":"poi.park","elementType":"labels.text.fill","stylers":[{"color":"#9e9e9e"}]},{"featureType":"road","elementType":"geometry","stylers":[{"color":"#ffffff"}]},{"featureType":"road.arterial","elementType":"labels.text.fill","stylers":[{"color":"#757575"}]},{"featureType":"road.highway","elementType":"geometry","stylers":[{"color":"#dadada"}]},{"featureType":"road.highway","elementType":"labels.text.fill","stylers":[{"color":"#616161"}]},{"featureType":"road.local","elementType":"labels.text.fill","stylers":[{"color":"#9e9e9e"}]},{"featureType":"transit.line","elementType":"geometry","stylers":[{"color":"#e5e5e5"}]},{"featureType":"transit.station","elementType":"geometry","stylers":[{"color":"#eeeeee"}]},{"featureType":"water","elementType":"geometry","stylers":[{"color":"#c9c9c9"}]},{"featureType":"water","elementType":"labels.text.fill","stylers":[{"color":"#9e9e9e"}]}]';
+
+}
+
 void changeTheme(ThemeData _themeData) {
   themeData = _themeData;
   switch (_themeData.brightness) {
     case Brightness.dark:
       {
-        dividerColor = const Color.fromRGBO(61, 61, 61, 1);
-        cardColor = const Color.fromRGBO(48, 48, 48, 1);
-        webIconColor = const Color.fromRGBO(255, 255, 255, 0.65);
-        webOutputContainerColor = const Color.fromRGBO(23, 23, 23, 1);
-        webInputColor = const Color.fromRGBO(44, 44, 44, 1);
-        webBackgroundColor = const Color.fromRGBO(33, 33, 33, 1);
-        drawerTextIconColor = Colors.white;
-        bottomSheetBackgroundColor = const Color.fromRGBO(34, 39, 51, 1);
-        textColor = const Color.fromRGBO(242, 242, 242, 1);
-        cardThemeColor = const Color.fromRGBO(33, 33, 33, 1);
+        _setDarkColors();
         break;
       }
     default:
       {
-        dividerColor = const Color.fromRGBO(204, 204, 204, 1);
-        cardColor = Colors.white;
-        webIconColor = const Color.fromRGBO(0, 0, 0, 0.54);
-        webOutputContainerColor = Colors.white;
-        webInputColor = const Color.fromRGBO(242, 242, 242, 1);
-        webBackgroundColor = const Color.fromRGBO(246, 246, 246, 1);
-        drawerTextIconColor = Colors.black;
-        bottomSheetBackgroundColor = Colors.white;
-        textColor = const Color.fromRGBO(51, 51, 51, 1);
-        cardThemeColor = Colors.white;
+        _setLightColors();
         break;
       }
   }
 }
 
-//ignore: prefer_collection_literals
 final Set<VoidCallback> _listeners = Set<VoidCallback>();
 @override
 
-/// [listener] will be invoked when the model changes.
 void addListener(VoidCallback listener) {
   _listeners.add(listener);
 }
 
 @override
-
-/// [listener] will no longer be invoked when the model changes.
 void removeListener(VoidCallback listener) {
   _listeners.remove(listener);
 }
 
-/// Should be called only by [Model] when the model has changed.
 @protected
 void notifyListeners() {
   _listeners.toList().forEach((VoidCallback listener) => listener());

@@ -66,6 +66,7 @@ class SignalKClient {
     loaded = false;
     wsConnected = false;
     vessels.clear();
+    vesselsPaths.clear();
     this.socket.close();
   }
 
@@ -140,6 +141,8 @@ class SignalKClient {
 
     //set current available paths
   }
+
+
 
   void loadPaths() {}
 
