@@ -121,6 +121,7 @@ class _DashBoardState extends State<DashBoard> {
       print("INIT ONCE!");
 
       signalK = SignalKClient(signalKServerAddress, signalKServerPort, loginData);
+      //signalK = SignalKClient("192.168.1.179", 3000, loginData);
       SKFlow = StreamSubscriber(signalK);
 
       signalK.loadSignalKData().then((x) {
@@ -252,7 +253,7 @@ class _DashBoardState extends State<DashBoard> {
               //    :
 
               Scaffold(
-                 bottomNavigationBar: getFooter(context, model),
+                // bottomNavigationBar: getFooter(context, model),
                   key: scaffoldKey,
                   backgroundColor: model.webBackgroundColor,
                   endDrawer: showWebThemeSettings(model),

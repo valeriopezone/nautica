@@ -166,7 +166,7 @@ class SignalKClient {
         // time has run out, do what you wanted to do
         return Future.error("Unable to connect http");
       },
-    );;
+    );
     if (response.statusCode == 200) {
       print('[execHTTPRequest] response obtained');
       return convert.jsonDecode(response.body);

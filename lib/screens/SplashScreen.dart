@@ -401,9 +401,11 @@ class _SplashScreenState extends State<SplashScreen> {
     return SafeArea(
       child: Scaffold(
         resizeToAvoidBottomInset: false,
-        body: FutureBuilder(builder: (context, snapshot) {
-          return Container(child: Center(key: UniqueKey(), child: currentView));
-        }),
+        body: Container(
+          child: FutureBuilder(builder: (context, snapshot) {
+            return Container(child: Center(key: UniqueKey(), child: currentView));
+          }),
+        ),
       ),
     );
   }

@@ -77,7 +77,7 @@ class _CompassIndicatorState extends State<CompassIndicator> with DisposableWidg
       axes: <RadialAxis>[
         RadialAxis(
             showAxisLine: false,
-            radiusFactor: 1,
+            radiusFactor: 1.3,
             canRotateLabels: true,
             tickOffset: 0.32,
             offsetUnit: GaugeSizeUnit.factor,

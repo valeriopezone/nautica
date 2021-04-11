@@ -77,37 +77,42 @@ class _MonitorGridState extends State<MonitorGrid> {
 
     Widget organizedCardWidget;
 
-    if (deviceWidth > 1060) {
-      padding = deviceWidth * 0.011;
-      _cardWidth = (deviceWidth * 0.9) / 3;
 
-      ///setting max cardwidth, spacing between cards in higher resolutions
-      if (deviceWidth > 3000) { //three columns
-        _cardWidth = 2800 / 3;
-        _sidePadding = (deviceWidth - 2740) * 0.5;
-        padding = 30;
-      }
-      final List<Widget> firstColumnWidgets = <Widget>[];
-      final List<Widget> secondColumnWidgets = <Widget>[];
-      final List<Widget> thirdColumnWidgets = <Widget>[];
-      int firstColumnControlCount = 0;
-      int secondColumnControlCount = 0;
-      organizedCardWidget = Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(padding: EdgeInsets.only(left: _sidePadding)),
-          Column(children: <Widget>[_getCategoryWidget()]),
-          Padding(padding: EdgeInsets.only(left: padding)),
-          Column(children: <Widget>[Text("bu")]),
-          Padding(padding: EdgeInsets.only(left: padding)),
-          Column(children: <Widget>[Text("bu")]),
-          Padding(
-            padding: EdgeInsets.only(left: _sidePadding),
-          )
-        ],
-      );
+    /*
+position
 
-    } else if (deviceWidth >= 768) { // TABLET
+wind{
+	apparent
+	throug water
+	over ground
+}
+
+heading{
+	COG
+	SOG
+	headingtrue
+	headingmagnetic
+}
+
+realtimeboat{
+	apparent wind,
+	real wind,
+	cog+sog
+}
+
+depth{
+	belowkeel
+	belowsurface
+	belowtransducer
+	surfacetotrasducer
+}
+engine{
+	rpm1
+	rpm2
+}
+
+     */
+   if (deviceWidth >= 768) { // TABLET
 
 
       /**********CURRENTLY WORKING HERE************/
@@ -115,25 +120,29 @@ class _MonitorGridState extends State<MonitorGrid> {
 
 
       padding = deviceWidth * 0.011;// 0.018;
-      _cardWidth = (deviceWidth * 0.9) / 3;//(deviceWidth * 0.9) / 2;
+      _cardWidth = (deviceWidth * 0.9) / 4;//(deviceWidth * 0.9) / 2;
+      _sidePadding = (deviceWidth * 0.1) / 8;
 
       organizedCardWidget = Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+
+
           Padding(padding: EdgeInsets.only(left: _sidePadding)),
           Column(children: <Widget>[//COLUMN 1
-            SimpleCard("Apparent Wind",[Center(child:
             SizedBox(
-              height:220,
-              child: WindIndicator(
-                  Angle_Stream: _subscribeToStream("environment.wind.angleApparent"),
-                  Intensity_Stream: _subscribeToStream("environment.wind.speedApparent"),
-                  model : model
-              ),
-            ))]),
+              child: SimpleCard("Apparent Wind",[Center(child:
+              SizedBox(
+                height:180,
+                child: WindIndicator(
+                    Angle_Stream: _subscribeToStream("environment.wind.angleApparent"),
+                    Intensity_Stream: _subscribeToStream("environment.wind.speedApparent"),
+                    model : model
+                ),
+              )
+              )]),
+            ),
             Padding(padding: EdgeInsets.only(bottom: _sidePadding)),
-
-
 
             SimpleCard("COG(m)",[Center(child:
             SizedBox(
@@ -144,6 +153,17 @@ class _MonitorGridState extends State<MonitorGrid> {
               ),
             ))]),
             Padding(padding: EdgeInsets.only(bottom: _sidePadding)),
+
+
+            SimpleCard("RPM #1",[Center(child:
+            SizedBox(
+              height:180,
+              child: SpeedIndicator(
+                  ST_Stream: _subscribeToStream("propulsion.engine_1.revolutions"),
+                  model : model
+              ),
+            ))]),
+
 
           ]),
           Padding(padding: EdgeInsets.only(left: padding)),
@@ -158,37 +178,32 @@ class _MonitorGridState extends State<MonitorGrid> {
                   model : model
               ),
             ))]),
+
+
             Padding(padding: EdgeInsets.only(bottom: _sidePadding)),
 
-            SimpleCard("Real time boat",[Center(child:
+
+
+            SimpleCard("COG(t)",[Center(child:
             SizedBox(
-              child: BoatVectorsIndicator(
-                model:model,
-                ATW_Stream: _subscribeToStream("environment.wind.angleTrueWater"),
-                ST_Stream: _subscribeToStream("environment.wind.speedTrue"),
-                AA_Stream: _subscribeToStream("environment.wind.angleApparent"),
-                SA_Stream: _subscribeToStream("environment.wind.speedApparent"),
-                HT_Stream: _subscribeToStream("navigation.headingTrue"),
+              height:180,
+              child: CompassIndicator(
+                model : model,
                 COG_Stream: _subscribeToStream("navigation.courseOverGroundTrue"),
-                SOG_Stream: _subscribeToStream("navigation.speedOverGround"),
               ),
             ))]),
-
             Padding(padding: EdgeInsets.only(bottom: _sidePadding)),
 
-            SimpleCard("Speed Through Water",[Center(child:
+            SimpleCard("RPM #2",[Center(child:
             SizedBox(
               height:180,
               child: SpeedIndicator(
-                  ST_Stream: _subscribeToStream("navigation.speedThroughWater"),
+                  ST_Stream: _subscribeToStream("propulsion.engine_2.revolutions"),
                   model : model
               ),
             ))]),
 
-            Padding(padding: EdgeInsets.only(bottom: _sidePadding)),
-            _getCategoryWidget(),
-            Padding(padding: EdgeInsets.only(bottom: _sidePadding)),
-            _getCategoryWidget()]
+]
           ),
           Padding(
             padding: EdgeInsets.only(left: padding),
@@ -206,38 +221,58 @@ class _MonitorGridState extends State<MonitorGrid> {
             Padding(padding: EdgeInsets.only(bottom: _sidePadding)),
 
 
-            SimpleCard("COG(t)",[Center(child:
+            SimpleCard("Speed Through Water",[Center(child:
             SizedBox(
               height:180,
-              child: CompassIndicator(
-                model : model,
-                COG_Stream: _subscribeToStream("navigation.courseOverGroundTrue"),
+              child: SpeedIndicator(
+                  ST_Stream: _subscribeToStream("navigation.speedThroughWater"),
+                  model : model
               ),
             ))]),
-            Padding(padding: EdgeInsets.only(bottom: _sidePadding)),
 
 
-
-            SimpleCard("RPM #1",[Center(child:
-            SpeedIndicator(
-                ST_Stream: _subscribeToStream("propulsion.engine_1.revolutions"),
-                model : model
-            ))]),
-
-            Padding(padding: EdgeInsets.only(bottom: _sidePadding)),
-            SimpleCard("RPM #2",[Center(child:
-            SpeedIndicator(
-                ST_Stream: _subscribeToStream("propulsion.engine_2.revolutions"),
-                model : model
-            ))]),
-
-            Padding(padding: EdgeInsets.only(bottom: _sidePadding)),
-
-            _getCategoryWidget(),
-            Padding(padding: EdgeInsets.only(bottom: _sidePadding)),
-            _getCategoryWidget()]
+]
           ),
+          Padding(padding: EdgeInsets.only(left: _sidePadding)),
+          Column(children: <Widget>[//COLUMN 1
 
+
+            SimpleCard("Real time boat",[Center(child:
+            SizedBox(
+              height:360 + 30.0 + 28,
+              child: Column(
+                children: [
+                  BoatVectorsIndicator(
+                    model:model,
+                    ATW_Stream: _subscribeToStream("environment.wind.angleTrueWater"),
+                    ST_Stream: _subscribeToStream("environment.wind.speedTrue"),
+                    AA_Stream: _subscribeToStream("environment.wind.angleApparent"),
+                    SA_Stream: _subscribeToStream("environment.wind.speedApparent"),
+                    HT_Stream: _subscribeToStream("navigation.headingTrue"),
+                    COG_Stream: _subscribeToStream("navigation.courseOverGroundTrue"),
+                    SOG_Stream: _subscribeToStream("navigation.speedOverGround"),
+                    LatLng_Stream : _subscribeToStream("navigation.position"),
+                    DBK_Stream : _subscribeToStream("environment.depth.belowKeel"),
+                    DBS_Stream : _subscribeToStream("environment.depth.belowSurface"),
+                    DBT_Stream : _subscribeToStream("environment.depth.belowTransducer"),
+                    DBST_Stream : _subscribeToStream("environment.depth.surfaceToTransducer"),
+                  ),
+
+
+
+
+
+
+
+                ],
+              ),
+            ))]),
+
+
+
+
+
+          ]),
         ],
       );
 
@@ -327,6 +362,8 @@ class _MonitorGridState extends State<MonitorGrid> {
                 : const Color.fromRGBO(238, 238, 238, 1),
             thickness: 1,
           ),
+          Padding(padding: EdgeInsets.only(bottom: 0, top:0)),
+
           Column(children: children)
         ]));
   }

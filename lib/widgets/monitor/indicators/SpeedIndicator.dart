@@ -7,7 +7,7 @@ import 'package:syncfusion_flutter_gauges/gauges.dart';
 
 
 class SpeedIndicator extends StatefulWidget {
-  dynamic ST_Value;
+  dynamic ST_Value = 0.0;
   Stream<dynamic> ST_Stream = null;
   BaseModel model;
   final Function(String text, Icon icon) notifyParent;
@@ -29,7 +29,7 @@ class _SpeedIndicatorState extends State<SpeedIndicator> with DisposableWidget{
     super.initState();
     if(widget.ST_Stream != null) {
       widget.ST_Stream.listen((data) {
-        widget.ST_Value =  (data == null || data == 0) ? 0.0 : data;
+        widget.ST_Value =  (data == null || data == 0) ? 0.0 : data + .0;
       }).canceledBy(this);
     }
   }
@@ -50,9 +50,6 @@ class _SpeedIndicatorState extends State<SpeedIndicator> with DisposableWidget{
       child: StreamBuilder(
           stream: widget.ST_Stream,
           builder: (context, snap) {
-            if (!snap.hasData) {
-              return CircularProgressIndicator();
-            }
 
             return  SfRadialGauge(
               axes: <RadialAxis>[
@@ -62,10 +59,10 @@ class _SpeedIndicatorState extends State<SpeedIndicator> with DisposableWidget{
                     maximum: 100,
                     ticksPosition: ElementsPosition.outside,
                     labelsPosition: ElementsPosition.outside,
-                    radiusFactor: 0.9,
+                    radiusFactor: 1.0,
                     canRotateLabels: true,
                     majorTickStyle: MajorTickStyle(
-                      length: 0.1,
+                      length: 0.04,
                       thickness: 1.5,
                       lengthUnit: GaugeSizeUnit.factor,
                     ),
@@ -84,8 +81,7 @@ class _SpeedIndicatorState extends State<SpeedIndicator> with DisposableWidget{
                           needleStartWidth: 1,
                           enableAnimation: true,
                           value: widget.ST_Value,
-                          tailStyle: TailStyle(
-                              length: 0.2, width: 5, lengthUnit: GaugeSizeUnit.factor),
+
                           needleEndWidth: 5,
                           needleLength: 0.7,
                           lengthUnit: GaugeSizeUnit.factor,
@@ -96,15 +92,15 @@ class _SpeedIndicatorState extends State<SpeedIndicator> with DisposableWidget{
                     ],
                     ranges: <GaugeRange>[
                       GaugeRange(
-                          startValue: 30,
+                          startValue: 0,
                           endValue: 100,
-                          startWidth: widget.model.isWebFullView ? 0.2 : 0.05,
+                          startWidth: 0.05,
                           gradient: const SweepGradient(
-                              colors: <Color>[Color(0xFF289AB1), Color(0xFF43E695)],
+                              colors: <Color>[Colors.green, Colors.red],
                               stops: <double>[0.25, 0.75]),
-                          color: const Color(0xFF289AB1),
+                          color: widget.model.textColor,
                           rangeOffset: 0.08,
-                          endWidth: 0.2,
+                          endWidth: 0.1,
                           sizeUnit: GaugeSizeUnit.factor)
                     ]),
               ],

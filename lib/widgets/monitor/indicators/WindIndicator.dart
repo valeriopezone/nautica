@@ -95,7 +95,7 @@ class _WindIndicatorState extends State<WindIndicator> with DisposableWidget {
                     interval: 45,
                     //22.5,
                     showLabels: true,
-                    radiusFactor: 0.9,
+                    radiusFactor: 1.05,
                     axisLabelStyle: GaugeTextStyle(
                         color: widget.model.textColor,
                         fontWeight: FontWeight.bold),
@@ -108,10 +108,9 @@ class _WindIndicatorState extends State<WindIndicator> with DisposableWidget {
                       GaugeAnnotation(
                           widget: Container(
                               child: Text(
-                                  ((widget.haveData)
-                                      ? widget.Angle_Value.toStringAsFixed(2) +
+                                  (widget.Angle_Value.toStringAsFixed(2) +
                                           "°"
-                                      : "No data"),
+                                      ),
                                   style: TextStyle(
                                       color: widget.model.textColor,
                                       fontSize: angleLabelFontSize,
@@ -121,11 +120,10 @@ class _WindIndicatorState extends State<WindIndicator> with DisposableWidget {
                       GaugeAnnotation(
                           widget: Container(
                               child: Text(
-                                  ((widget.haveData)
-                                      ? widget.Intensity_Value.toStringAsFixed(
+                                  ( widget.Intensity_Value.toStringAsFixed(
                                               2) +
                                           " m/s"
-                                      : "No data"),
+                                      ),
                                   style: TextStyle(
                                       color: widget.model.textColor,
                                       fontSize: speedLabelFontSize,

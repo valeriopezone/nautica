@@ -19,6 +19,12 @@ class BoatVectorsIndicator extends StatefulWidget {
   dynamic HT_Value = 0;
   dynamic COG_Value = 0;
   dynamic SOG_Value = 0;
+  dynamic Lat_Value = 0;
+  dynamic Lng_Value = 0;
+  dynamic DBK_Value = 0;
+  dynamic DBS_Value = 0;
+  dynamic DBT_Value = 0;
+  dynamic DBST_Value = 0;
   Stream<dynamic> ST_Stream = null;
   Stream<dynamic> ATW_Stream = null;
   Stream<dynamic> AA_Stream = null;
@@ -26,6 +32,18 @@ class BoatVectorsIndicator extends StatefulWidget {
   Stream<dynamic> HT_Stream = null;
   Stream<dynamic> COG_Stream = null;
   Stream<dynamic> SOG_Stream = null;
+  Stream<dynamic> LatLng_Stream = null;
+  Stream<dynamic> DBK_Stream = null;
+  Stream<dynamic> DBS_Stream = null;
+  Stream<dynamic> DBT_Stream = null;
+  Stream<dynamic> DBST_Stream = null;
+
+
+
+
+
+
+
   final Function(String text, Icon icon) notifyParent;
 
   BoatVectorsIndicator({Key key,
@@ -37,6 +55,11 @@ class BoatVectorsIndicator extends StatefulWidget {
     @required this.HT_Stream,
     @required this.COG_Stream,
     @required this.SOG_Stream,
+    @required this.LatLng_Stream,
+    @required this.DBK_Stream,
+    @required this.DBS_Stream,
+    @required this.DBT_Stream,
+    @required this.DBST_Stream,
     this.notifyParent}) : super(key:key);
 
 
@@ -95,7 +118,40 @@ class _BoatVectorsIndicatorState extends State<BoatVectorsIndicator> with Dispos
         widget.SOG_Value = (data == null || data == 0) ? 0.0 : data;
       }).canceledBy(this);
     }
+    if(widget.DBK_Stream != null) {
+      widget.DBK_Stream.listen((data) {
+        widget.DBK_Value = (data == null || data == 0) ? 0.0 : data;
+      }).canceledBy(this);
+    }
+    if(widget.DBS_Stream != null) {
+      widget.DBS_Stream.listen((data) {
+        widget.DBS_Value = (data == null || data == 0) ? 0.0 : data;
+      }).canceledBy(this);
+    }
+    if(widget.DBT_Stream != null) {
+      widget.DBT_Stream.listen((data) {
+        widget.DBT_Value = (data == null || data == 0) ? 0.0 : data;
+      }).canceledBy(this);
+    }
+    if(widget.DBST_Stream != null) {
+      widget.DBST_Stream.listen((data) {
+        widget.DBST_Value = (data == null || data == 0) ? 0.0 : data;
+      }).canceledBy(this);
+    }
 
+    if (widget.LatLng_Stream != null) {
+      widget.LatLng_Stream.listen((data) {
+        if(data != null) {
+          try {
+            if (data["latitude"] != null && data["longitude"] != null) {
+              widget.Lat_Value = (data["latitude"] != 0) ? data["latitude"] : 0.0;
+              widget.Lng_Value = (data["longitude"] != 0) ? data["longitude"] : 0.0;
+            }
+          } catch (e) {}
+        }
+
+      }).canceledBy(this);
+    }
 
 
     init();
@@ -181,7 +237,38 @@ class _BoatVectorsIndicatorState extends State<BoatVectorsIndicator> with Dispos
                           ),
                         )),
                     ),
+                    Padding(padding: EdgeInsets.only(top: 15)),
 
+
+                      Column(
+                        children: [
+                          Text("Lat : " + widget.Lat_Value.toStringAsFixed(7),style: TextStyle(
+                              color: widget.model.paletteColor,
+                              fontSize: 24,
+                              fontFamily: 'Roboto-Bold'),),
+                          Text("Lon : " + widget.Lng_Value.toStringAsFixed(7),style: TextStyle(
+                              color: widget.model.paletteColor,
+                              fontSize: 24,
+                              fontFamily: 'Roboto-Bold'),),
+                          Text("DBK : " + widget.DBK_Value.toStringAsFixed(2),style: TextStyle(
+                              color: widget.model.paletteColor,
+                              fontSize: 24,
+                              fontFamily: 'Roboto-Bold'),),
+                          Text("DBS : " + widget.DBS_Value.toStringAsFixed(2),style: TextStyle(
+                              color: widget.model.paletteColor,
+                              fontSize: 24,
+                              fontFamily: 'Roboto-Bold'),),
+                          Text("DBT : " + widget.DBT_Value.toStringAsFixed(2),style: TextStyle(
+                              color: widget.model.paletteColor,
+                              fontSize: 24,
+                              fontFamily: 'Roboto-Bold'),),
+                          Text("DBST : " + widget.DBST_Value.toStringAsFixed(2),style: TextStyle(
+                              color: widget.model.paletteColor,
+                              fontSize: 24,
+                              fontFamily: 'Roboto-Bold'),),
+                        ],
+                      )
+                    ,
                     //Center(
                     //child : Image(
                     //    image: AssetImage('assets/boat.png'),
