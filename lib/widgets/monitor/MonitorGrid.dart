@@ -123,19 +123,25 @@ class _MonitorGridState extends State<MonitorGrid> {
           Padding(padding: EdgeInsets.only(left: _sidePadding)),
           Column(children: <Widget>[//COLUMN 1
             SimpleCard("Apparent Wind",[Center(child:
-            WindIndicator(
-                Angle_Stream: _subscribeToStream("environment.wind.angleApparent"),
-                Intensity_Stream: _subscribeToStream("environment.wind.speedApparent"),
-                model : model
+            SizedBox(
+              height:220,
+              child: WindIndicator(
+                  Angle_Stream: _subscribeToStream("environment.wind.angleApparent"),
+                  Intensity_Stream: _subscribeToStream("environment.wind.speedApparent"),
+                  model : model
+              ),
             ))]),
             Padding(padding: EdgeInsets.only(bottom: _sidePadding)),
 
 
 
             SimpleCard("COG(m)",[Center(child:
-            CompassIndicator(
-              model : model,
-              COG_Stream: _subscribeToStream("navigation.courseOverGroundMagnetic"),
+            SizedBox(
+              height:180,
+              child: CompassIndicator(
+                model : model,
+                COG_Stream: _subscribeToStream("navigation.courseOverGroundMagnetic"),
+              ),
             ))]),
             Padding(padding: EdgeInsets.only(bottom: _sidePadding)),
 
@@ -144,31 +150,39 @@ class _MonitorGridState extends State<MonitorGrid> {
           Column(children: <Widget>[//COLUMN 2
 
             SimpleCard("True wind through water",[Center(child:
-            WindIndicator(
-                Angle_Stream: _subscribeToStream("environment.wind.angleTrueWater"),
-                Intensity_Stream: _subscribeToStream("environment.wind.speedTrue"),
-                model : model
+            SizedBox(
+              height:180,
+              child: WindIndicator(
+                  Angle_Stream: _subscribeToStream("environment.wind.angleTrueWater"),
+                  Intensity_Stream: _subscribeToStream("environment.wind.speedTrue"),
+                  model : model
+              ),
             ))]),
             Padding(padding: EdgeInsets.only(bottom: _sidePadding)),
 
             SimpleCard("Real time boat",[Center(child:
-            BoatVectorsIndicator(
-              model:model,
-              ATW_Stream: _subscribeToStream("environment.wind.angleTrueWater"),
-              ST_Stream: _subscribeToStream("environment.wind.speedTrue"),
-              AA_Stream: _subscribeToStream("environment.wind.angleApparent"),
-              SA_Stream: _subscribeToStream("environment.wind.speedApparent"),
-              HT_Stream: _subscribeToStream("navigation.headingTrue"),
-              COG_Stream: _subscribeToStream("navigation.courseOverGroundTrue"),
-              SOG_Stream: _subscribeToStream("navigation.speedOverGround"),
+            SizedBox(
+              child: BoatVectorsIndicator(
+                model:model,
+                ATW_Stream: _subscribeToStream("environment.wind.angleTrueWater"),
+                ST_Stream: _subscribeToStream("environment.wind.speedTrue"),
+                AA_Stream: _subscribeToStream("environment.wind.angleApparent"),
+                SA_Stream: _subscribeToStream("environment.wind.speedApparent"),
+                HT_Stream: _subscribeToStream("navigation.headingTrue"),
+                COG_Stream: _subscribeToStream("navigation.courseOverGroundTrue"),
+                SOG_Stream: _subscribeToStream("navigation.speedOverGround"),
+              ),
             ))]),
 
             Padding(padding: EdgeInsets.only(bottom: _sidePadding)),
 
             SimpleCard("Speed Through Water",[Center(child:
-            SpeedIndicator(
-                ST_Stream: _subscribeToStream("navigation.speedThroughWater"),
-                model : model
+            SizedBox(
+              height:180,
+              child: SpeedIndicator(
+                  ST_Stream: _subscribeToStream("navigation.speedThroughWater"),
+                  model : model
+              ),
             ))]),
 
             Padding(padding: EdgeInsets.only(bottom: _sidePadding)),
@@ -181,18 +195,24 @@ class _MonitorGridState extends State<MonitorGrid> {
           ),
           Column(children: <Widget>[//COLUMN 3
             SimpleCard("True wind over ground",[Center(child:
-            WindIndicator(
-                Angle_Stream: _subscribeToStream("environment.wind.angleTrueGround"),
-                Intensity_Stream: _subscribeToStream("environment.wind.speedOverGround"),
-                model : model
+            SizedBox(
+              height:180,
+              child: WindIndicator(
+                  Angle_Stream: _subscribeToStream("environment.wind.angleTrueGround"),
+                  Intensity_Stream: _subscribeToStream("environment.wind.speedOverGround"),
+                  model : model
+              ),
             ))]),
             Padding(padding: EdgeInsets.only(bottom: _sidePadding)),
 
 
             SimpleCard("COG(t)",[Center(child:
-            CompassIndicator(
-              model : model,
-              COG_Stream: _subscribeToStream("navigation.courseOverGroundTrue"),
+            SizedBox(
+              height:180,
+              child: CompassIndicator(
+                model : model,
+                COG_Stream: _subscribeToStream("navigation.courseOverGroundTrue"),
+              ),
             ))]),
             Padding(padding: EdgeInsets.only(bottom: _sidePadding)),
 
@@ -296,7 +316,7 @@ class _MonitorGridState extends State<MonitorGrid> {
             child: Text(
               title,
               style: TextStyle(
-                  color: model.backgroundColor,
+                  color: model.paletteColor,
                   fontSize: 16,
                   fontFamily: 'Roboto-Bold'),
             ),

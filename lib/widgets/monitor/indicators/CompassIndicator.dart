@@ -52,21 +52,16 @@ class _CompassIndicatorState extends State<CompassIndicator> with DisposableWidg
   Widget build(BuildContext context) {
 
 
-    if (MediaQuery.of(context).orientation == Orientation.portrait) {
-      _annotationTextSize = 22;
-      _markerOffset = 0.71;
-      _positionFactor = 0.025;
-      _markerHeight = 10;
-      _markerWidth = 15;
-      _labelFontSize = 11;
-    } else {
+
       _annotationTextSize = widget.model.isWebFullView ? 22 : 16;
       _markerOffset = widget.model.isWebFullView ? 0.71 : 0.69;
       _positionFactor = widget.model.isWebFullView ? 0.025 : 0.05;
       _markerHeight = widget.model.isWebFullView ? 10 : 5;
       _markerWidth = widget.model.isWebFullView ? 15 : 10;
       _labelFontSize = widget.model.isWebFullView ? 11 : 10;
-    }
+
+
+
     final Widget _widget = GestureDetector(
         onTap: () {
       //notifyParent(text, icon);
@@ -96,7 +91,7 @@ class _CompassIndicatorState extends State<CompassIndicator> with DisposableWidg
             minorTicksPerInterval: 4,
             axisLabelStyle: GaugeTextStyle(
                 color: const Color(0xFF949494),
-                fontSize: widget.model.isCardView ? 10 : _labelFontSize,
+                fontSize: widget.model.isWebFullView ? 10 : _labelFontSize,
             fontWeight : FontWeight.bold,
             ),
 
@@ -118,11 +113,11 @@ class _CompassIndicatorState extends State<CompassIndicator> with DisposableWidg
                   color: const Color(0xFFDF5F2D),
                   enableAnimation: true,
                   animationDuration: 1200,
-                  markerOffset: widget.model.isCardView ? 0.69 : _markerOffset,
+                  markerOffset: widget.model.isWebFullView ? 0.69 : _markerOffset,
                   offsetUnit: GaugeSizeUnit.factor,
                   markerType: MarkerType.triangle,
-                  markerHeight: widget.model.isCardView ? 8 : _markerHeight,
-                  markerWidth: widget.model.isCardView ? 8 : _markerWidth)
+                  markerHeight: widget.model.isWebFullView ? 8 : _markerHeight,
+                  markerWidth: widget.model.isWebFullView ? 8 : _markerWidth)
             ],
             annotations: <GaugeAnnotation>[
               GaugeAnnotation(
@@ -133,7 +128,7 @@ class _CompassIndicatorState extends State<CompassIndicator> with DisposableWidg
                     style: TextStyle(
                         color: const Color(0xFFDF5F2D),
                         fontWeight: FontWeight.bold,
-                        fontSize: widget.model.isCardView ? 16 : _annotationTextSize),
+                        fontSize: widget.model.isWebFullView ? 16 : _annotationTextSize),
                   ))
             ])
       ],
@@ -160,7 +155,7 @@ class _CompassIndicatorState extends State<CompassIndicator> with DisposableWidg
         args.text = 'N';
         args.labelStyle = GaugeTextStyle(
             color: widget.model.paletteColor,
-            fontSize: widget.model.isCardView ? 10 : _labelFontSize);
+            fontSize: widget.model.isWebFullView ? 10 : _labelFontSize);
 
       } else if (args.text == '180') {
         args.text = 'S';
@@ -170,7 +165,7 @@ class _CompassIndicatorState extends State<CompassIndicator> with DisposableWidg
 
       args.labelStyle = GaugeTextStyle(
           color: widget.model.paletteColor,
-          fontSize: widget.model.isCardView ? 12 : _labelFontSize);
+          fontSize: widget.model.isWebFullView ? 12 : _labelFontSize);
     }
   }
 

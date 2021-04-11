@@ -32,6 +32,10 @@ class WindIndicator extends StatefulWidget {
 
 class _WindIndicatorState extends State<WindIndicator> with DisposableWidget {
   @override
+  double speedLabelFontSize;
+  double angleLabelFontSize;
+
+
   void initState() {
     super.initState();
     if (widget.Angle_Stream != null) {
@@ -58,6 +62,13 @@ class _WindIndicatorState extends State<WindIndicator> with DisposableWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    angleLabelFontSize = widget.model.isWebFullView ? 25.0 : 17.0;
+    speedLabelFontSize = widget.model.isWebFullView ? 18.0 : 12.0;
+
+
+
+
     return GestureDetector(
       onTap: () {
         // notifyParent(text, icon);
@@ -103,7 +114,7 @@ class _WindIndicatorState extends State<WindIndicator> with DisposableWidget {
                                       : "No data"),
                                   style: TextStyle(
                                       color: widget.model.textColor,
-                                      fontSize: 25,
+                                      fontSize: angleLabelFontSize,
                                       fontWeight: FontWeight.bold))),
                           angle: 90,
                           positionFactor: 0.2),
@@ -117,36 +128,46 @@ class _WindIndicatorState extends State<WindIndicator> with DisposableWidget {
                                       : "No data"),
                                   style: TextStyle(
                                       color: widget.model.textColor,
-                                      fontSize: 18,
+                                      fontSize: speedLabelFontSize,
                                       fontWeight: FontWeight.bold))),
                           angle: 90,
                           positionFactor: 0.4)
                     ],
                     pointers: <GaugePointer>[
-                      /*RangePointer(
 
-                            gradient: const SweepGradient(
-                                colors: <Color>[Color(0xFFD481FF), Color(0xFF06F0E0)],
-                                stops: <double>[0.25, 0.75]),
-                            value: -45,
-                            width: 5,
-                            animationDuration: 2000,
-                            enableAnimation: true,
-                            animationType: AnimationType.elasticOut,
-                            color: const Color(0xFF00A8B5)),*/
+
+
+
+
                       NeedlePointer(
                           value: widget.Angle_Value,
                           needleStartWidth: 0,
-                          needleColor: widget.model.currentPrimaryColor,
+                          needleColor: widget.model.paletteColor,
                           // model.isWebFullView ? null : const Color(0xFFD481FF),
                           lengthUnit: GaugeSizeUnit.factor,
-                          needleLength: 1,
+                          needleLength: 0.9,
                           enableAnimation: true,
                           animationDuration: 2000,
                           animationType: AnimationType.elasticOut,
                           needleEndWidth: 5,
                           knobStyle: KnobStyle(
                               knobRadius: 0, sizeUnit: GaugeSizeUnit.factor)),
+                    ],
+
+                    ranges: <GaugeRange>[
+                      GaugeRange(
+                        startValue: 0,
+                        endValue: widget.Angle_Value,
+                        rangeOffset: 0.1,
+                        sizeUnit: GaugeSizeUnit.factor,
+                        startWidth: 0.10,
+                        endWidth: 0.10,
+                        color: widget.Angle_Value >= 0 ? widget.model.positiveWind : widget.model.negativeWind,
+
+                        //gradient: const SweepGradient(
+                        //    colors: <Color>[Color(0xFFD481FF), Color(0xFF06F0E0)],
+                        //    stops: <double>[0.25, 0.75]),
+                      ),
                     ],
                     minorTickStyle: MinorTickStyle(
                         length: 0.04,

@@ -14,9 +14,9 @@ class BaseModel extends Listenable {
     paletteBorderColors[4] = paletteColors[4];
     currentPaletteColor = paletteColors[4];
     currentPrimaryColor = darkPaletteColors[4];
-    _setDarkColors();
+    //_setDarkColors();
 
-    selectedThemeIndex = 1;
+    selectedThemeIndex = 0;
     backgroundColor = currentPrimaryColor;
     paletteColor = currentPaletteColor;
     // ignore: invalid_use_of_protected_member
@@ -39,7 +39,8 @@ Color webIconColor = const Color.fromRGBO(0, 0, 0, 0.54);
 Color webInputColor = const Color.fromRGBO(242, 242, 242, 1);
 Color webOutputContainerColor = Colors.white;
 Color cardColor = Colors.white;
-Color dividerColor = const Color.fromRGBO(204, 204, 204, 1);
+  Color dividerColor = const Color.fromRGBO(204, 204, 204, 1);
+  Color splashScreenBackground = const Color.fromRGBO(212, 212, 212, 1.0);
 
 Size oldWindowSize;
 Size currentWindowSize;
@@ -51,7 +52,7 @@ List<Color> paletteColors = <Color>[
   const Color.fromRGBO(230, 74, 25, 1),
   const Color.fromRGBO(216, 27, 96, 1),
   const Color.fromRGBO(103, 58, 184, 1),
-  const Color.fromRGBO(2, 137, 123, 1)
+  const Color.fromRGBO(2, 137, 123, 1.0)
 ];
 List<Color> paletteBorderColors = <Color>[
   const Color.fromRGBO(68, 138, 255, 1),
@@ -68,6 +69,15 @@ List<Color> darkPaletteColors =  <Color>[
   Colors.transparent,
   Colors.transparent
 ];
+
+
+//widget, gauges, ecc
+
+  Color positiveWind = Color.fromRGBO(20, 148, 0, 1.0);
+  Color negativeWind = Color.fromRGBO(141, 0, 10, 1.0);
+
+
+
 
 
 ThemeData currentThemeData;
@@ -135,6 +145,37 @@ void changeTheme(ThemeData _themeData) {
         break;
       }
   }
+}
+
+Widget getLoadingPage(){
+  return Container(
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+
+          children: [
+            Stack(
+              children: [
+                SizedBox(
+                  width:130,
+                  height:130,
+                  child: CircularProgressIndicator(
+                    backgroundColor: paletteColor,
+                    valueColor: new AlwaysStoppedAnimation<Color>(dividerColor),
+                    strokeWidth: 8,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
 }
 
 final Set<VoidCallback> _listeners = Set<VoidCallback>();

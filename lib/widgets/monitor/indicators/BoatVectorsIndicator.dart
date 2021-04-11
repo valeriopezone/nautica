@@ -226,8 +226,8 @@ class DrawVectors extends CustomPainter {
   double COG = 0;
   double SOG = 0;
   Offset centerCoords = Offset(0,0);
-  double minVectorLength = 40.0;
-  double maxVectorLength = 130.0;
+  double minVectorLength = 20.0;
+  double maxVectorLength = 100.0;
   DrawVectors({@required this.model,@required this.boatVector,@required angleTrueWater,@required speedTrue,@required angleApparent,@required speedApparent,@required COG,@required SOG,@required this.centerCoords}){
 
 

@@ -14,6 +14,7 @@ import 'package:nautica/widgets/monitor/MonitorGrid.dart';
 import 'package:nautica/widgets/monitor/SubscriptionsGrid.dart';
 import 'package:nautica/widgets/monitor/map/RealTimeMap.dart';
 import 'package:websocket_manager/websocket_manager.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:nautica/network/SignalKClient.dart';
 import 'package:nautica/network/StreamSubscriber.dart';
@@ -38,6 +39,7 @@ class _DashBoardState extends State<DashBoard> {
   BaseModel sampleListModel;
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   final ScrollController controller = ScrollController();
+  Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
 
 
   SignalKClient signalK = null;
@@ -45,21 +47,14 @@ class _DashBoardState extends State<DashBoard> {
   StreamSubscriber SKFlow;
   Authentication loginData = null;
 
-
+  String signalKServerAddress;
+  int signalKServerPort;
 
   String currentViewState = "subscriptions";
   String currentVessel;
   String dropdownValue = 'One';
   List<String> vesselsList;
   Map vesselsDataTable;
-
-
-
-
-
-
-
-
 
 
   bool sectionLoaded = false;
@@ -115,42 +110,62 @@ class _DashBoardState extends State<DashBoard> {
     //sampleListModel.currentPrimaryColor = sampleListModel.darkPaletteColors[4];
    // sampleListModel.changeTheme(ThemeData.dark());
 
-
-
-
-
-
     super.initState();
 
 
-    print("INIT ONCE!");
+    _prefs.then((SharedPreferences prefs) {
+      signalKServerAddress =
+          prefs.getString('signalKServerAddress') ?? NAUTICA['signalK']['connection']['address'];
+      signalKServerPort = prefs.getInt('signalKServerPort') ?? NAUTICA['signalK']['connection']['port'];
 
-    signalK = SignalKClient("192.168.1.179", 3000, loginData);
-    SKFlow = StreamSubscriber(signalK);
+      print("INIT ONCE!");
 
-    signalK.loadSignalKData().then((x) {
-     SKFlow.startListening().then((isListening) {
-       print("we are listening!");
-       vesselsList = signalK.getVessels();
-       vesselsDataTable = signalK.getPaths();
+      signalK = SignalKClient(signalKServerAddress, signalKServerPort, loginData);
+      SKFlow = StreamSubscriber(signalK);
+
+      signalK.loadSignalKData().then((x) {
+        SKFlow.startListening().then((isListening) {
+          print("we are listening!");
+          vesselsList = signalK.getVessels();
+          vesselsDataTable = signalK.getPaths();
 
 
-       setState(() {
-         // The listenable's state was changed already.
-         currentVessel = (vesselsList[0] != null) ? vesselsList[0] : null;
-         print("INITSTATE current vessel " + currentVessel);
-         sectionLoaded = true;
+          setState(() {
+            // The listenable's state was changed already.
+            currentVessel = (vesselsList[0] != null) ? vesselsList[0] : null;
+            sectionLoaded = true;
 
-       });
+          });
 
-     }).catchError((Object onError) {
-       print('[main] Unable to stream -- on error : $onError');
-     });
-    }).catchError((Object onError) {
-      print('[main] Unable to connect -- on error : $onError');
+        }).catchError((Object onError) {
+          print('[main] Unable to stream -- on error : $onError');
+          cleanPrefsAndGoToSetup().then((value) => goToSetup());
+        });
+      }).catchError((Object onError) {
+        print('[main] Unable to connect -- on error : $onError');
+        cleanPrefsAndGoToSetup().then((value) => goToSetup());
+
+      });
+
+
+
     });
 
 
+
+  }
+
+  Future<void> cleanPrefsAndGoToSetup() async{
+    final SharedPreferences prefs = await _prefs;
+    return prefs.setBool("firstSetupDone", false).then((bool success) {
+      return Future.value(true);
+    });
+
+  }
+
+  void goToSetup(){
+    Navigator.pop(context);
+    Navigator.pushNamed(context, '/');
   }
 
   @override
@@ -237,13 +252,13 @@ class _DashBoardState extends State<DashBoard> {
               //    :
 
               Scaffold(
-                // bottomNavigationBar: getFooter(context, model),
+                 bottomNavigationBar: getFooter(context, model),
                   key: scaffoldKey,
                   backgroundColor: model.webBackgroundColor,
                   endDrawer: showWebThemeSettings(model),
                   resizeToAvoidBottomInset: false,
                   appBar: PreferredSize(
-                      preferredSize: const Size.fromHeight(90.0),
+                      preferredSize: const Size.fromHeight(75.0),
                       child: AppBar(
                         leading: Container(),
                         elevation: 0.0,
@@ -275,22 +290,24 @@ class _DashBoardState extends State<DashBoard> {
                                 const Padding(
                                   padding: EdgeInsets.only(top: 15),
                                 ),
-                                Container(
-                                    alignment: Alignment.bottomCenter,
-                                    width: double.infinity,
-                                    height: kIsWeb ? 16 : 14,
-                                    decoration: BoxDecoration(
-                                        color: model.webBackgroundColor,
-                                        borderRadius: const BorderRadius.only(
-                                            topLeft: Radius.circular(12.0),
-                                            topRight: Radius.circular(12.0)),
-                                        boxShadow: <BoxShadow>[
-                                          BoxShadow(
-                                            color: model.webBackgroundColor,
-                                            offset: const Offset(0, 2.0),
-                                            blurRadius: 0.25,
-                                          )
-                                        ]))
+                               // Container(
+                               //     alignment: Alignment.bottomCenter,
+                               //     width: double.infinity,
+                               //     height: 0,
+                               //     decoration: BoxDecoration(
+                               //         color: model.webBackgroundColor,
+                               //         borderRadius: const BorderRadius.only(
+                               //             topLeft: Radius.circular(12.0),
+                               //             topRight: Radius.circular(12.0)),
+                               //         boxShadow: <BoxShadow>[
+                               //           BoxShadow(
+                               //             color: model.webBackgroundColor,
+                               //             offset: const Offset(0, 2.0),
+                               //             blurRadius: 0.25,
+                               //           )
+                               //         ]))
+
+
                               ],
                             )),
                         actions: <Widget>[
@@ -314,77 +331,103 @@ class _DashBoardState extends State<DashBoard> {
                           ///download option
                           model.isMobileResolution
                               ? Container()
-                              : Container(
-                              alignment: Alignment.center,
-                              padding: EdgeInsets.only(
-                                  top: 10, left: isMaxxSize ? 10 : 0),
-                              child: Container(
-                                  width: 700,
-                                  height: 32,
-                                  decoration: BoxDecoration(
-                                      border:
-                                      Border.all(color: Colors.white)),
-                                  child: StatefulBuilder(builder:
-                                      (BuildContext context,
-                                      StateSetter setState) {
-                                        return
-                                          Row(
-                                            children: [
+                              : Row(
+                            mainAxisSize: MainAxisSize.min,
+
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+
+                            children: [
+                                  Container(
+
+                                  alignment: Alignment.center,
+                                  padding: EdgeInsets.only(
+                                      top: 10, left: isMaxxSize ? 10 : 0),
+                                  child: Container(
+
+                                      child: StatefulBuilder(builder:
+                                          (BuildContext context,
+                                          StateSetter setState) {
+                                            return
+                                              Row(
+                                                children: [
 
 
-                                              (currentVessel != null ) ? SizedBox(
-                                                  child:  DropdownButton<String>(
-                                                    value: currentVessel,
-                                                    icon: const Icon(Icons.arrow_downward),
-                                                    iconSize: 24,
-                                                    elevation: 16,
-                                                    style: const TextStyle(color: Colors.deepPurple),
-                                                    underline: Container(
-                                                      height: 2,
-                                                      color: Colors.deepPurpleAccent,
+                                                  (currentVessel != null ) ? SizedBox(
+                                                      child:  DropdownButton<String>(
+                                                        value: currentVessel,
+                                                        icon: const Icon(Icons.arrow_downward),
+                                                        iconSize: 24,
+                                                        elevation: 16,
+                                                        style: const TextStyle(color: Colors.white),
+                                                        underline: Container(
+                                                          height: 0,
+                                                          color: model.splashScreenBackground,
+                                                        ),
+                                                        onChanged: (String vessel) {
+                                                          _setCurrentVessel(vessel);
+                                                        },
+                                                        dropdownColor: Colors.black,
+                                                        items: vesselsList
+                                                            .map<DropdownMenuItem<String>>((String value) {
+                                                          return DropdownMenuItem<String>(
+                                                            value: value,
+                                                            child: Text("Vessel #" + (vesselsList.indexOf(value) + 1).toString()),
+                                                          );
+                                                        }).toList(),
+                                                      )
+                                                  ) : Container(),
+                                                  Padding(padding: EdgeInsets.only(left: 25)),
+                                                  SizedBox(
+                                                    child: MaterialButton(
+                                                      onPressed: (){_setViewState("monitors");},//_setViewState("subscriptions"),
+                                                      child: Text("MON"),
+                                                      color: Colors.white,
                                                     ),
-                                                    onChanged: (String vessel) {
-                                                      _setCurrentVessel(vessel);
-                                                    },
-                                                    items: vesselsList
-                                                        .map<DropdownMenuItem<String>>((String value) {
-                                                      return DropdownMenuItem<String>(
-                                                        value: value,
-                                                        child: Text(value),
-                                                      );
-                                                    }).toList(),
-                                                  )
-                                              ) : Container(),
+                                                  ),
+                                                  Padding(padding: EdgeInsets.only(left: 25)),
 
-                                              SizedBox(
-                                                child: MaterialButton(
-                                                  onPressed: (){_setViewState("monitors");},//_setViewState("subscriptions"),
-                                                  child: Text("MON"),
-                                                  color: Colors.redAccent,
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                child: MaterialButton(
-                                                  onPressed: (){_setViewState("subscriptions");},//_setViewState("subscriptions"),
-                                                  child: Text("SUB"),
-                                                  color: Colors.greenAccent,
+                                                  SizedBox(
+                                                    child: MaterialButton(
+                                                      onPressed: (){_setViewState("subscriptions");},//_setViewState("subscriptions"),
+                                                      child: Text("SUB"),
+                                                      color: Colors.white,
 
 
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                child: MaterialButton(
-                                                  onPressed: (){_setViewState("real_time_map");},//_setViewState("subscriptions"),
-                                                  child: Text("MAP"),
-                                                  color: Colors.purpleAccent,
+                                                    ),
+                                                  ),
+                                                  Padding(padding: EdgeInsets.only(left: 25)),
+
+                                                  SizedBox(
+                                                    child: MaterialButton(
+                                                      onPressed: (){_setViewState("real_time_map");},//_setViewState("subscriptions"),
+                                                      child: Text("MAP"),
+                                                      color: Colors.white,
 
 
-                                                ),
-                                              ),
+                                                    ),
+                                                  ),
+                                                  Padding(padding: EdgeInsets.only(left: 25)),
 
-                                            ],
-                                          );
-                                  }))),
+                                                  SizedBox(
+                                                    child: MaterialButton(
+                                                      onPressed: (){cleanPrefsAndGoToSetup().then((value) => goToSetup());},//_setViewState("subscriptions"),
+                                                      child: Text("LOGOUT"),
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                  Padding(padding: EdgeInsets.only(left: 25)),
+                                                  Row(
+                                                    crossAxisAlignment: CrossAxisAlignment.stretch,
+
+                                                    children: [
+                                                      showThemeSwitcher(sampleListModel),
+                                                    ],
+                                                  ),
+                                                ],
+                                              );
+                                      }))),
+                                ],
+                              ),
 
                           ///Get package from pub.dev option
                    //       model.isMobileResolution
@@ -543,34 +586,7 @@ Widget getSpinnerPage(BaseModel model){
                    Container(),
                   ],
                 )),
-            body:  Container(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-
-                    children: [
-                      Stack(
-                        children: [
-                          SizedBox(
-                            width:130,
-                            height:130,
-                            child: CircularProgressIndicator(
-                              backgroundColor: model.paletteColor,
-                              valueColor: new AlwaysStoppedAnimation<Color>(model.dividerColor),
-                              strokeWidth: 8,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            )),
+            body:  model.getLoadingPage()),
       ),
     );
 }

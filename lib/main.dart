@@ -17,14 +17,14 @@ import 'models/BaseModel.dart';
 void main() {
 
   WidgetsFlutterBinding.ensureInitialized();
- SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft])
-     .then((_) {
-   SystemChrome.setEnabledSystemUIOverlays([]).then((_) {
-     runApp(new MyApp());
-   });
- });
+//SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft])
+//    .then((_) {
+//  SystemChrome.setEnabledSystemUIOverlays([]).then((_) {
+//    runApp(new MyApp());
+//  });
+//});
 
- // runApp(MyApp());
+ runApp(MyApp());
 }
 
 class MyApp extends StatefulWidget {
@@ -75,8 +75,6 @@ class _MyAppState extends State<MyApp> {
           // When navigating to the "/" route, build the FirstScreen widget.
           //  '/': (context) => DashBoard(),
           // When navigating to the "/second" route, build the SecondScreen widget.
-          '/login': (context) => FirstSetup(),
-          '/first_setup': (context) => FirstSetup(),
           '/dashboard': (context) => Builder(builder: (BuildContext context) {
             if(_sampleListModel != null) {
               _sampleListModel.systemTheme = Theme.of(context);
@@ -90,25 +88,13 @@ class _MyAppState extends State<MyApp> {
 
 
           }),
-          '/subscriptions': (context) => Builder(builder: (BuildContext context) {
-            if(_sampleListModel != null) {
-              _sampleListModel.systemTheme = Theme.of(context);
-              _sampleListModel.currentThemeData =
-              (_sampleListModel.systemTheme.brightness != Brightness.dark
-                  ? ThemeData.light()
-                  : ThemeData.dark());
-              _sampleListModel.changeTheme(_sampleListModel.currentThemeData);
-            }
-            return SubscriptionsPage();
 
-
-          }),
         },
 
         debugShowCheckedModeBanner: false,
-        title: 'Demos & Examples of Syncfusion Flutter Widgets',
-        theme: ThemeData.dark(),
-        darkTheme: ThemeData.light(),
+        title: 'Nautica',
+        theme: ThemeData.light(),
+        darkTheme: ThemeData.dark(),
         themeMode: ThemeMode.system,
         home: SplashScreen());
   }

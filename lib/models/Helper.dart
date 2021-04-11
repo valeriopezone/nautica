@@ -28,7 +28,7 @@ Widget showWebThemeSettings(BaseModel model) {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-                    Text('   Settings',
+                    Text('   Main settings',
                         style: TextStyle(
                             color: model.textColor,
                             fontSize: 16,
@@ -194,7 +194,7 @@ void _applyThemeAndPaletteColor(
   model.changeTheme(model.currentThemeData);
   // ignore: invalid_use_of_protected_member
   model.notifyListeners();
-  Navigator.pop(context);
+  //Navigator.pop(context);
 }
 
 /// Adding the palette color in the theme setting panel.
@@ -226,6 +226,74 @@ List<Widget> _addColorPalettes(BaseModel model, [StateSetter setState]) {
 
   return _colorPaletteWidgets;
 }
+
+
+
+
+
+Widget showThemeSwitcher(BaseModel model) {
+  int _selectedValue = model.selectedThemeIndex;
+  return StatefulBuilder(builder: (BuildContext context, StateSetter setState) {
+    final double _width = MediaQuery.of(context).size.width * 0.4;
+    final Color _textColor = model.themeData.brightness == Brightness.light
+        ? const Color.fromRGBO(84, 84, 84, 1)
+        : const Color.fromRGBO(218, 218, 218, 1);
+    return Column(children: <Widget>[
+      Padding(
+          padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+          child: StatefulBuilder(builder:
+              (BuildContext context, StateSetter setState) {
+            return CupertinoSegmentedControl<int>(
+              children: <int, Widget>{
+                0: Container(
+                  padding :  const EdgeInsets.all(5),
+                    alignment: Alignment.center,
+                    child: Text('Day',
+                        style: TextStyle(
+                            color: _selectedValue == 0
+                                ? Colors.white
+                                : _textColor,
+                            fontFamily: 'Roboto-Medium'))),
+                1: Container(
+                    padding :  const EdgeInsets.all(5),
+
+                    alignment: Alignment.center,
+                    child: Text('Night',
+                        style: TextStyle(
+                            color: _selectedValue == 1
+                                ? Colors.white
+                                : _textColor,
+                            fontFamily: 'Roboto-Medium')))
+              },
+              padding: const EdgeInsets.all(5),
+              unselectedColor: Colors.transparent,
+              selectedColor: model.paletteColor,
+              pressedColor: model.paletteColor,
+              borderColor: Colors.white,
+              groupValue: _selectedValue,
+              onValueChanged: (int value) {
+                _selectedValue = value;
+                model.currentThemeData = (value == 0)
+                    ? ThemeData.light()
+                    : ThemeData.dark();
+                _applyThemeAndPaletteColor(
+                    model, context, value);
+                setState(() {
+                  /// update the theme changes
+                  /// tp [CupertinoSegmentedControl]
+                });
+              },
+            );
+          }))
+    ]);
+  });
+}
+
+
+
+
+
+
 
 /// Changing the palete color of the application.
 void _changeColorPalette(BaseModel model, int index,
@@ -272,7 +340,7 @@ void showBottomSettingsPanel(BaseModel model, BuildContext context) {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        Text('Settings',
+                        Text('Hi!',
                             style: TextStyle(
                                 color: model.textColor,
                                 fontSize: 18,
@@ -541,54 +609,40 @@ Widget getFooter(BuildContext context, BaseModel model) {
                   children: <Widget>[
                     InkWell(
                       onTap: () => (){},
-                      child: const Text('Documentation',
+                      child: const Text('GitHub Project',
                           style: TextStyle(color: Colors.blue, fontSize: 12)),
                     ),
                     Text(' | ',
                         style: TextStyle(
                             fontSize: 12, color: model.textColor.withOpacity(0.7))),
+
                     InkWell(
                       onTap: () =>(){},
-                      child: const Text('Forum',
+                      child: const Text('Credits',
                           style: TextStyle(color: Colors.blue, fontSize: 12)),
                     ),
-                    Text(' | ',
-                        style: TextStyle(
-                            fontSize: 12, color: model.textColor.withOpacity(0.7))),
-                    InkWell(
-                      onTap: () =>(){},
-                      child: const Text('Blog',
-                          style: TextStyle(color: Colors.blue, fontSize: 12)),
-                    ),
-                    Text(' | ',
-                        style: TextStyle(
-                            fontSize: 12, color: model.textColor.withOpacity(0.7))),
-                    InkWell(
-                      onTap: () => (){},
-                      child: const Text('Knowledge base',
-                          style: TextStyle(color: Colors.blue, fontSize: 12)),
-                    )
+
                   ],
                 ),
                 Container(
                     padding: const EdgeInsets.only(top: 10),
-                    child: Text('Copyright © 2001 - 2021 Syncfusion Inc.',
+                    child: Text('Valerio Pezone | Università degli studi di Napoli Parthenope - Dipartimento di Scienze e Tecnologie - Corso di laurea in Informatica ',
                         style: TextStyle(
                             color: model.textColor.withOpacity(0.7),
                             fontSize: 12,
                             letterSpacing: 0.23)))
               ],
             )),
-        InkWell(
-          onTap: () => (){},
-          child: Image.asset(
-              model.themeData.brightness == Brightness.dark
-                  ? 'images/syncfusion_dark.png'
-                  : 'images/syncfusion.png',
-              fit: BoxFit.contain,
-              height: 25,
-              width: model.isMobileResolution ? 80 : 120),
-        ),
+       // InkWell(
+       //   onTap: () => (){},
+       //   child: Image.asset(
+       //       model.themeData.brightness == Brightness.dark
+       //           ? 'images/syncfusion_dark.png'
+       //           : 'images/syncfusion.png',
+       //       fit: BoxFit.contain,
+       //       height: 25,
+       //       width: model.isMobileResolution ? 80 : 120),
+       // ),
       ],
     ),
   );

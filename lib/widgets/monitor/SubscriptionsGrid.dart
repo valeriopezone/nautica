@@ -36,6 +36,9 @@ class _SubscriptionsGridState extends State<SubscriptionsGrid> {
   @override
   void initState() {
     super.initState();
+
+
+
     isWebOrDesktop = (model.isWeb || model.isDesktop);
     realTimeUpdateDataGridSource = _RealTimeUpdateDataGridSource(
         isWebOrDesktop: isWebOrDesktop,

@@ -12,6 +12,8 @@ class SignalKClient {
   String apiVersion;
   String serverId, serverVersion;
   String wsURL = "ws://192.168.1.162:3000/signalk/v1/stream", httpURL, tcpURL;
+  Authentication loginData;
+
   Function onWSCloseCallBack = () {}, onWSMessageCallBack = () {};
 
   WebsocketManager socket;
@@ -22,7 +24,7 @@ class SignalKClient {
 
   Map vesselsPaths = new Map();
 
-  SignalKClient(this.ip, this.port, Authentication loginData) {
+  SignalKClient(this.ip, this.port, Authentication this.loginData) {
     this.apiVersion = NAUTICA['signalK']['APIVersion'];
     print("[SignalKClient] Launch");
   }
@@ -35,7 +37,7 @@ class SignalKClient {
     return vesselsPaths;
   }
 
-  Future<void> WSconnect(
+  Future<bool> WSconnect(
       Function closeCallback, Function messageCallback) async {
 //login data?
     if (this.wsURL.isEmpty) {
@@ -56,20 +58,25 @@ class SignalKClient {
     return await this.socket.connect().then((v) {
       this.wsConnected = true;
       print("[SignalKClient] connected to websocket");
+      return Future.value(true);
     }).catchError((Object onError) {
       print('[SignalKClient] Unable to connect -- on error : $onError');
-      return Future.error('Unable to connect -- on error : $onError');
+      return Future.value(false);
     });
   }
 
   void WSdisconnect() {
-    loaded = false;
+
     wsConnected = false;
-    vessels.clear();
-    vesselsPaths.clear();
+    disconnect();
     this.socket.close();
   }
 
+  void disconnect(){
+    loaded = false;
+    vessels.clear();
+    vesselsPaths.clear();
+  }
 
   bool isLoaded() {
     return this.loaded;
@@ -77,7 +84,7 @@ class SignalKClient {
 
   void executeHTTPRequest() {}
 
-  Future<void> loadSignalKData() async {
+  Future<bool> loadSignalKData() async {
     //launch first request
     dynamic response = await this.execHTTPRequest(path: 'signalk');
     //.then((response) {
@@ -105,7 +112,7 @@ class SignalKClient {
 
     print("[loadSignalKData] configuration done");
     this.loaded = true;
-    // return Future.value(true);
+     return Future.value(true);
     //  });
   }
 
@@ -153,7 +160,13 @@ class SignalKClient {
     var url = Uri.http('${this.ip}:${this.port}', path, data);
 
     // Await the http get response, then decode the json-formatted response.
-    var response = await http.get(url);
+    var response = await http.get(url).timeout(
+      Duration(seconds:NAUTICA['configuration']['connection']['timeout']),
+      onTimeout: () {
+        // time has run out, do what you wanted to do
+        return Future.error("Unable to connect http");
+      },
+    );;
     if (response.statusCode == 200) {
       print('[execHTTPRequest] response obtained');
       return convert.jsonDecode(response.body);
