@@ -16,6 +16,8 @@ import 'package:nautica/models/BaseModel.dart';
 
 import 'package:nautica/Configuration.dart';
 
+import 'graph/BasicGraph.dart';
+
 
 
 /// Positioning/aligning the categories as  cards
@@ -112,7 +114,7 @@ engine{
 }
 
      */
-   if (deviceWidth >= 768) { // TABLET
+  // if (deviceWidth >= 768) { // TABLET
 
 
       /**********CURRENTLY WORKING HERE************/
@@ -134,11 +136,15 @@ engine{
               child: SimpleCard("Apparent Wind",[Center(child:
               SizedBox(
                 height:180,
-                child: WindIndicator(
-                    Angle_Stream: _subscribeToStream("environment.wind.angleApparent"),
-                    Intensity_Stream: _subscribeToStream("environment.wind.speedApparent"),
-                    model : model
-                ),
+                child:
+                //WindIndicator(
+                //    Angle_Stream: _subscribeToStream("environment.wind.angleApparent"),
+                //    Intensity_Stream: _subscribeToStream("environment.wind.speedApparent"),
+                //    model : model
+                //),
+                BasicGraph(
+                    DataValue_Stream: _subscribeToStream("environment.wind.speedApparent"),
+                    model : model),
               )
               )]),
             ),
@@ -286,45 +292,7 @@ engine{
 
 
 
-    } else { // 1 column
-      _cardWidth = deviceWidth * 0.9;
-      padding = deviceWidth * 0.035;
-      _sidePadding = (deviceWidth * 0.1) / 2;
-
-      organizedCardWidget = Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(padding: EdgeInsets.only(left: _sidePadding)),
-          Column(children: <Widget>[
-            //SimpleCard("Speed Through Water",[Center(child:
-            //SpeedThroughWaterIndicator(
-            //  STW_Stream: this.mainStreamHandle.getStream("navigation.speedThroughWater").asBroadcastStream(),
-            //  text: "vel"
-            //))]),
-            //Padding(padding: EdgeInsets.only(bottom: _sidePadding)),
-
-            SimpleCard("Real time boat",[Center(child:
-            BoatVectorsIndicator(
-              model: model,
-              ATW_Stream: _subscribeToStream("environment.wind.angleTrueWater"),
-              ST_Stream: _subscribeToStream("environment.wind.speedTrue"),
-              AA_Stream: _subscribeToStream("environment.wind.angleApparent"),
-              SA_Stream: _subscribeToStream("environment.wind.speedApparent"),
-              HT_Stream: _subscribeToStream("navigation.headingTrue"),
-              COG_Stream: _subscribeToStream("navigation.courseOverGroundTrue"),
-              SOG_Stream: _subscribeToStream("navigation.speedOverGround"),
-            ))]),
-            Padding(padding: EdgeInsets.only(bottom: _sidePadding))
-
-          ]),
-          Padding(
-            padding: EdgeInsets.only(left: _sidePadding),
-          )
-        ],
-      );
-
-    }
-
+    //}
 
 
 

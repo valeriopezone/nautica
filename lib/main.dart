@@ -17,14 +17,14 @@ import 'models/BaseModel.dart';
 void main() {
 
   WidgetsFlutterBinding.ensureInitialized();
-//SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft])
-//    .then((_) {
-//  SystemChrome.setEnabledSystemUIOverlays([]).then((_) {
-//    runApp(new MyApp());
-//  });
-//});
+SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft])
+    .then((_) {
+  SystemChrome.setEnabledSystemUIOverlays([]).then((_) {
+    runApp(new MyApp());
+  });
+});
 
- runApp(MyApp());
+ //runApp(MyApp());
 }
 
 class MyApp extends StatefulWidget {

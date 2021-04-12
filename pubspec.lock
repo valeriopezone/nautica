@@ -240,6 +240,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.2.1"
+  reorderables:
+    dependency: "direct main"
+    description:
+      name: reorderables
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.4.1"
   rxdart:
     dependency: "direct main"
     description:

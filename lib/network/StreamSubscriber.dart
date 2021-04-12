@@ -13,6 +13,7 @@ class StreamSubscriber {
 
   //Map<String, dynamic> wsDataMap;
   Map<String, Map<String, dynamic>> wsDataTable = new Map();
+  Map<String, Map<String, dynamic>> wsTimeTable = new Map();
 
   StreamSubscriber(this.client) {
     //generate config map
@@ -25,17 +26,23 @@ class StreamSubscriber {
 
   void initDataTable() {
     wsDataTable = Map();
+    wsTimeTable = Map();
 
     Map paths = this.client.getPaths();
     paths.forEach((vessel, value) {
       var keys = value.keys;
       this.wsDataTable[vessel] = Map();
+      this.wsTimeTable[vessel] = Map();
       for (String path in keys) {
         this.wsDataTable[vessel][path] = null;
+        this.wsTimeTable[vessel][path] = null;
       }
     });
     print("INIT DATATABLE PATH");
     print(wsDataTable);
+    print("INIT TIMETABLE PATH");
+
+    print(wsTimeTable);
   }
 
   Future<void> reconnectToStream() async {
@@ -66,9 +73,9 @@ class StreamSubscriber {
 
   void onMessageCallback(dynamic msg) {
     this.wsRawData = msg;
-
+try{
     dynamic dec = convert.jsonDecode(this.wsRawData);
-    dynamic streamedParams;
+    dynamic streamedParams, timeParam;
 
     if (dec != null &&
         dec['context'] != null &&
@@ -76,21 +83,50 @@ class StreamSubscriber {
         dec['updates'][0] != null &&
         dec['updates'][0]['values'] != null) {
       //todo fix nullable error
+
+      try {
+        timeParam = dec['updates'][0]['timestamp'];
+      } catch (e) {
+        print("Unable to decode time");
+      }
+
+
       streamedParams = dec['updates'][0]['values'];
+
+
       if (streamedParams is List<dynamic>) {
         streamedParams.forEach((param) {
           //check for path and value
           if (dec["context"].toString() != "" &&
               param["path"] != null &&
-              param["path"].toString().isNotEmpty &&
+              param["path"]
+                  .toString()
+                  .isNotEmpty &&
               //param["path"].toString() != "notifications.server.newVersion" &&
               param["value"] != null) {
-            this.wsDataTable[dec["context"].toString()]
-                [param["path"].toString()] = param["value"];
+            //timestamp!
+
+
+            try {
+              this.wsDataTable[dec["context"].toString()][param["path"]
+                  .toString()] = param["value"];
+            } catch (e) {
+              print("Unable to insert data");
+            }
+
+            try {
+              this.wsTimeTable[dec["context"].toString()][param["path"]
+                  .toString()] = timeParam;
+            } catch (e) {
+              print("unable to insert time");
+            }
           }
         });
       }
     }
+  }catch(e){
+  print("unable to decode json");
+  }
   }
 
   void onCloseCallback() {
@@ -100,18 +136,47 @@ class StreamSubscriber {
 
   Stream<dynamic> getVesselStream(
       String vessel, String subscriptionName,Duration refreshRate) async* {
-    print("SOMEBODY SUBSCRIBED TO " + vessel + " : " + subscriptionName + "at " + refreshRate.toString());
+    print("SOMEBODY SUBSCRIBED TO " + vessel + " : " + subscriptionName + " at " + refreshRate.toString());
     Duration interval = refreshRate;//Duration(microseconds: 2000);
     int i = 0;
     while (true) {
       await Future.delayed(interval);
+try{
+  if (this.wsDataTable[vessel] != null &&
+      this.wsDataTable[vessel][subscriptionName] != null) {
+    yield this.wsDataTable[vessel][subscriptionName];
+  } else {
+    yield null;
+  }
+}catch(e){
+  yield null;
+}
 
-      if (this.wsDataTable[vessel] != null &&
-          this.wsDataTable[vessel][subscriptionName] != null) {
-        yield this.wsDataTable[vessel][subscriptionName];
-      } else {
-        yield null;
+    }
+  }
+
+
+  Stream<dynamic> getTimedVesselStream(
+      String vessel, String subscriptionName,Duration refreshRate) async* {
+    print("SOMEBODY SUBSCRIBED TO " + vessel + " : " + subscriptionName + " at " + refreshRate.toString());
+    Duration interval = refreshRate;//Duration(microseconds: 2000);
+    int i = 0;
+
+    while (true) {
+      await Future.delayed(interval);
+      try{
+        if (this.wsDataTable[vessel] != null &&
+            this.wsDataTable[vessel][subscriptionName] != null) {
+          print(this.wsTimeTable[vessel][subscriptionName]);
+
+          yield {"value" : this.wsDataTable[vessel][subscriptionName], "timestamp" : this.wsTimeTable[vessel][subscriptionName]};
+        } else {
+          yield {"value" : 0.0, "timestamp" : null};
+        }
+      }catch(e){
+        yield {"value" : 0.0, "timestamp" : null};
       }
+
     }
   }
 
@@ -133,11 +198,16 @@ class StreamSubscriber {
     while (true) {
       await Future.delayed(interval);
 
-      if (this.wsDataTable[vessel] != null) {
-        yield this.wsDataTable[vessel];
-      } else {
+      try {
+        if (this.wsDataTable[vessel] != null) {
+          yield this.wsDataTable[vessel];
+        } else {
+          yield null;
+        }
+      }catch(e){
         yield null;
       }
+
     }
   }
 }

@@ -10,6 +10,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:nautica/widgets/AnimateOpacityWidget.dart';
+import 'package:nautica/widgets/monitor/MonitorDrag.dart';
 import 'package:nautica/widgets/monitor/MonitorGrid.dart';
 import 'package:nautica/widgets/monitor/SubscriptionsGrid.dart';
 import 'package:nautica/widgets/monitor/map/RealTimeMap.dart';
@@ -50,9 +51,9 @@ class _DashBoardState extends State<DashBoard> {
   String signalKServerAddress;
   int signalKServerPort;
 
-  String currentViewState = "subscriptions";
+  String currentViewState = "monitors";
   String currentVessel;
-  String dropdownValue = 'One';
+
   List<String> vesselsList;
   Map vesselsDataTable;
 
@@ -93,6 +94,10 @@ class _DashBoardState extends State<DashBoard> {
 
       case "monitors" :
       default :
+
+      return new MonitorDrag(key: UniqueKey(),
+          StreamObject : this.SKFlow,
+          currentVessel : currentVessel);
 
       return new MonitorGrid(key: UniqueKey(),
           StreamObject : this.SKFlow,
