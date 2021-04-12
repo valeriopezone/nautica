@@ -96,6 +96,8 @@ class _MonitorDragState extends State<MonitorDrag> {
                     setState(() {
                       mainWidgetList.insert(
                           newIndex, mainWidgetList.removeAt(oldIndex));
+
+                      print("Grid changed ${oldIndex.toString()} to ${newIndex.toString()}");
                     });
                   },
                   children: mainWidgetList.map((icon) {
