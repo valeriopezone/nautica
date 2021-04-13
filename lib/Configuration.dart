@@ -16,7 +16,7 @@ const Map NAUTICA =  {
   }},
   'configuration' : {
     'widget' : {
-      'refreshRate' : 350 //ms
+      'refreshRate' : 850 //ms
     },
     'map' : {
       'refreshRate' : 2 //s
@@ -39,9 +39,10 @@ class Player{
   static instatiate() => Player();
 }
 */
-
-
-String mainJSONGridTheme =  '''
+String mainJSONGridTheme = '''
+{"name":"grid1","description":"Descrizione demo","author":"Valerio Pezone","widgets":[{"current":0,"width":4,"height":1,"elements":[{"widgetTitle":"Apparent Wind","widgetClass":"WindIndicator","widgetSubscriptions":{"Angle_Stream":"environment.wind.angleApparent","Intensity_Stream":"environment.wind.speedApparent"}},{"widgetTitle":"Angle","widgetClass":"BasicGraph","widgetSubscriptions":{"DataValue_Stream":"environment.wind.speedApparent"}},{"widgetTitle":"Speed","widgetClass":"BasicGraph","widgetSubscriptions":{"DataValue_Stream":"environment.wind.speedApparent"}}]},{"current":1,"width":2,"height":2,"elements":[{"widgetTitle":"Apparent Wind 2","widgetClass":"WindIndicator","widgetSubscriptions":{"Angle_Stream":"environment.wind.angleApparent","Intensity_Stream":"environment.wind.speedApparent"}},{"widgetTitle":"Angle 2","widgetClass":"BasicGraph","widgetSubscriptions":{"DataValue_Stream":"environment.wind.speedApparent"}},{"widgetTitle":"Speed 2","widgetClass":"BasicGraph","widgetSubscriptions":{"DataValue_Stream":"environment.wind.speedApparent"}}]},{"current":1,"width":1,"height":4,"elements":[{"widgetTitle":"COG(m)","widgetClass":"CompassIndicator","widgetSubscriptions":{"COG_Stream":"navigation.courseOverGroundMagnetic"}},{"widgetTitle":"about COG(m)","widgetClass":"BasicGraph","widgetSubscriptions":{"DataValue_Stream":"environment.courseOverGroundMagnetic"}}]},{"current":1,"width":1,"height":4,"elements":[{"widgetTitle":"Apparent Wind 3","widgetClass":"WindIndicator","widgetSubscriptions":{"Angle_Stream":"environment.wind.angleApparent","Intensity_Stream":"environment.wind.speedApparent"}},{"widgetTitle":"Angle 3","widgetClass":"BasicGraph","widgetSubscriptions":{"DataValue_Stream":"environment.wind.speedApparent"}},{"widgetTitle":"Speed 3","widgetClass":"BasicGraph","widgetSubscriptions":{"DataValue_Stream":"environment.wind.speedApparent"}}]},{"current":1,"width":2,"height":2,"elements":[{"widgetTitle":"Apparent  4","widgetClass":"WindIndicator","widgetSubscriptions":{"Angle_Stream":"environment.wind.angleApparent","Intensity_Stream":"environment.wind.speedApparent"}},{"widgetTitle":"Angle 4","widgetClass":"BasicGraph","widgetSubscriptions":{"DataValue_Stream":"environment.wind.speedApparent"}},{"widgetTitle":"Speed 4","widgetClass":"BasicGraph","widgetSubscriptions":{"DataValue_Stream":"environment.wind.speedApparent"}}]},{"current":1,"width":4,"height":1,"elements":[{"widgetTitle":"Apparent  5","widgetClass":"WindIndicator","widgetSubscriptions":{"Angle_Stream":"environment.wind.angleApparent","Intensity_Stream":"environment.wind.speedApparent"}},{"widgetTitle":"Angle 5","widgetClass":"BasicGraph","widgetSubscriptions":{"DataValue_Stream":"environment.wind.speedApparent"}},{"widgetTitle":"Speed 5","widgetClass":"BasicGraph","widgetSubscriptions":{"DataValue_Stream":"environment.wind.speedApparent"}},{"widgetTitle":"Speed 6","widgetClass":"BasicGraph","widgetSubscriptions":{"DataValue_Stream":"environment.wind.speedApparent"}},{"widgetTitle":"Speed 7","widgetClass":"BasicGraph","widgetSubscriptions":{"DataValue_Stream":"environment.wind.speedApparent"}},{"widgetTitle":"Speed 8","widgetClass":"BasicGraph","widgetSubscriptions":{"DataValue_Stream":"environment.wind.speedApparent"}}]}]}
+''';
+String x =  '''
 {
 	"name": "grid1",
 	"widgets": [{

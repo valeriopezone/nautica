@@ -39,31 +39,30 @@ class BasicGraph extends StatefulWidget {
 /// State class of the realtime line chart.
 class _LiveVerticalState extends State<BasicGraph> {
   _LiveVerticalState() {
-    timer =
-        Timer.periodic(const Duration(milliseconds: 100), _updateDataSource);
+   // timer = Timer.periodic(const Duration(milliseconds: 100), _updateDataSource);
   }
 
   Timer timer;
-  List<_ChartData> chartData = <_ChartData>[
-    _ChartData(0, 42),
-    _ChartData(1, 47),
-    _ChartData(2, 33),
-    _ChartData(3, 49),
-    _ChartData(4, 54),
-    _ChartData(5, 41),
-    _ChartData(6, 58),
-    _ChartData(7, 51),
-    _ChartData(8, 98),
-    _ChartData(9, 41),
-    _ChartData(10, 53),
-    _ChartData(11, 72),
-    _ChartData(12, 86),
-    _ChartData(13, 52),
-    _ChartData(14, 94),
-    _ChartData(15, 92),
-    _ChartData(16, 86),
-    _ChartData(17, 72),
-    _ChartData(18, 94),
+  List<_BasicChartCoords> chartData = <_BasicChartCoords>[
+    _BasicChartCoords(0, 42.0),
+    _BasicChartCoords(1, 47.0),
+    _BasicChartCoords(2, 33.0),
+    _BasicChartCoords(3, 49.0),
+    _BasicChartCoords(4, 54.0),
+    _BasicChartCoords(5, 41.0),
+    _BasicChartCoords(6, 58.0),
+    _BasicChartCoords(7, 51.0),
+    _BasicChartCoords(8, 98.0),
+    _BasicChartCoords(9, 41.0),
+    _BasicChartCoords(10, 53.0),
+    _BasicChartCoords(11, 72.0),
+    _BasicChartCoords(12, 86.0),
+    _BasicChartCoords(13, 52.0),
+    _BasicChartCoords(14, 94.0),
+    _BasicChartCoords(15, 92.0),
+    _BasicChartCoords(16, 86.0),
+    _BasicChartCoords(17, 72.0),
+    _BasicChartCoords(18, 94.0),
   ];
   int count = 19;
   ChartSeriesController _chartSeriesController;
@@ -81,31 +80,41 @@ class _LiveVerticalState extends State<BasicGraph> {
 
   /// Returns the realtime Cartesian line chart.
   SfCartesianChart _buildLiveLineChart() {
+    //var x = DateTimeAxis();
+    //dateTime
     return SfCartesianChart(
+        isTransposed: true,
         plotAreaBorderWidth: 0,
         primaryXAxis: NumericAxis(majorGridLines: MajorGridLines(width: 0)),
         primaryYAxis: NumericAxis(
             axisLine: AxisLine(width: 0),
             majorTickLines: MajorTickLines(size: 0)),
-        series: <LineSeries<_ChartData, int>>[
-          LineSeries<_ChartData, int>(
+        series: <LineSeries<_BasicChartCoords, int>>[
+          LineSeries<_BasicChartCoords, int>(
             onRendererCreated: (ChartSeriesController controller) {
               _chartSeriesController = controller;
             },
             dataSource: chartData,
             color: const Color.fromRGBO(192, 108, 132, 1),
-            xValueMapper: (_ChartData sales, _) => sales.country,
-            yValueMapper: (_ChartData sales, _) => sales.sales,
+            xValueMapper: (_BasicChartCoords sales, _) => sales.x,
+            yValueMapper: (_BasicChartCoords sales, _) => sales.y,
             animationDuration: 0,
           )
         ]);
   }
 
+
+
+
+
+
+
+
+
   ///Continously updating the data source based on timer
   void _updateDataSource(Timer timer) {
-    print("STILL UPDATING");
     if (true) {
-      chartData.add(_ChartData(count, _getRandomInt(10, 100)));
+      chartData.add(_BasicChartCoords(count, _getRandomInt(10, 100) + .0));
       if (chartData.length == 20) {
         chartData.removeAt(0);
         _chartSeriesController?.updateDataSource(
@@ -129,71 +138,11 @@ class _LiveVerticalState extends State<BasicGraph> {
 }
 
 /// Private calss for storing the chart series data points.
-class _ChartData {
-  _ChartData(this.country, this.sales);
-  final int country;
-  final num sales;
+class _BasicChartCoords {
+  _BasicChartCoords(this.x, this.y);
+  final int x;
+  final double y;
 }
 
 
 
-class ChartSampleData {
-  /// Holds the datapoint values like x, y, etc.,
-  ChartSampleData(
-      {this.x,
-        this.y,
-        this.xValue,
-        this.yValue,
-        this.secondSeriesYValue,
-        this.thirdSeriesYValue,
-        this.pointColor,
-        this.size,
-        this.text,
-        this.open,
-        this.close,
-        this.low,
-        this.high,
-        this.volume});
-
-  /// Holds x value of the datapoint
-  final dynamic x;
-
-  /// Holds y value of the datapoint
-  final num y;
-
-  /// Holds x value of the datapoint
-  final dynamic xValue;
-
-  /// Holds y value of the datapoint
-  final num yValue;
-
-  /// Holds y value of the datapoint(for 2nd series)
-  final num secondSeriesYValue;
-
-  /// Holds y value of the datapoint(for 3nd series)
-  final num thirdSeriesYValue;
-
-  /// Holds point color of the datapoint
-  final Color pointColor;
-
-  /// Holds size of the datapoint
-  final num size;
-
-  /// Holds datalabel/text value mapper of the datapoint
-  final String text;
-
-  /// Holds open value of the datapoint
-  final num open;
-
-  /// Holds close value of the datapoint
-  final num close;
-
-  /// Holds low value of the datapoint
-  final num low;
-
-  /// Holds high value of the datapoint
-  final num high;
-
-  /// Holds open value of the datapoint
-  final num volume;
-}

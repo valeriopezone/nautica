@@ -1,5 +1,6 @@
 /// dart imports
-import 'dart:io' show Platform;
+import 'dart:io' show Platform, exit;
+
 /// package imports
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -7,38 +8,44 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:flutter/cupertino.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:nautica/screens/FirstSetup.dart';
 import 'package:nautica/screens/SplashScreen.dart';
 import 'package:nautica/screens/DashBoardPage.dart';
 import 'package:nautica/screens/SubscriptionsPage.dart';
+import 'Configuration.dart';
 import 'models/BaseModel.dart';
+import 'package:path_provider/path_provider.dart';
 
+import 'models/database/models.dart';
 
-void main() {
-
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft])
-    .then((_) {
-  SystemChrome.setEnabledSystemUIOverlays([]).then((_) {
-    runApp(new MyApp());
-  });
-});
 
- //runApp(MyApp());
+  bool storageLoaded = await initializeStorage();
+
+  if(!storageLoaded) exit(0); //kill app if storage not loaded
+
+  SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft])
+      .then((_) {
+    SystemChrome.setEnabledSystemUIOverlays([]).then((_) {
+      runApp(new MyApp());
+    });
+  });
+
+  //runApp(MyApp());
 }
+
+
 
 class MyApp extends StatefulWidget {
   @override
   _MyAppState createState() => _MyAppState();
 }
 
-
-
-
 class _MyAppState extends State<MyApp> {
   BaseModel _sampleListModel;
-
-
 
   @override
   void initState() {
@@ -48,18 +55,14 @@ class _MyAppState extends State<MyApp> {
     super.initState();
 
     //maybe connections should be created here
-
   }
 
   @override
   Widget build(BuildContext context) {
-
-
-
     ///Avoiding page poping on escape key press
     final Map<LogicalKeySet, Intent> shortcuts =
-    Map.of(WidgetsApp.defaultShortcuts)
-      ..remove(LogicalKeySet(LogicalKeyboardKey.escape));
+        Map.of(WidgetsApp.defaultShortcuts)
+          ..remove(LogicalKeySet(LogicalKeyboardKey.escape));
 
     if (_sampleListModel != null && _sampleListModel.isWebFullView) {
       _sampleListModel.currentThemeData = ThemeData.dark();
@@ -67,30 +70,28 @@ class _MyAppState extends State<MyApp> {
       _sampleListModel.changeTheme(_sampleListModel.currentThemeData);
     }
 
-    return  MaterialApp(
-      // initialRoute: '/demos',
-      //routes: navigationRoutes,
+    return MaterialApp(
+        // initialRoute: '/demos',
+        //routes: navigationRoutes,
         initialRoute: '/',
         routes: {
           // When navigating to the "/" route, build the FirstScreen widget.
           //  '/': (context) => DashBoard(),
           // When navigating to the "/second" route, build the SecondScreen widget.
           '/dashboard': (context) => Builder(builder: (BuildContext context) {
-            if(_sampleListModel != null) {
-              _sampleListModel.systemTheme = Theme.of(context);
-              _sampleListModel.currentThemeData =
-              (_sampleListModel.systemTheme.brightness != Brightness.dark
-                  ? ThemeData.light()
-                  : ThemeData.dark());
-              _sampleListModel.changeTheme(_sampleListModel.currentThemeData);
-            }
-            return DashBoard();
-
-
-          }),
-
+                if (_sampleListModel != null) {
+                  _sampleListModel.systemTheme = Theme.of(context);
+                  _sampleListModel.currentThemeData =
+                      (_sampleListModel.systemTheme.brightness !=
+                              Brightness.dark
+                          ? ThemeData.light()
+                          : ThemeData.dark());
+                  _sampleListModel
+                      .changeTheme(_sampleListModel.currentThemeData);
+                }
+                return DashBoard();
+              }),
         },
-
         debugShowCheckedModeBanner: false,
         title: 'Nautica',
         theme: ThemeData.light(),
@@ -116,414 +117,130 @@ class _MyAppState extends State<MyApp> {
       model.isMobile = Platform.isAndroid || Platform.isIOS;
     }
   }
+
+
 }
 
 
+Future<bool> initializeStorage() async {
+  int currentThemeIndex;
 
+  await Hive.initFlutter();
+  //final document = await getApplicationDocumentsDirectory();
+  //Hive.init(document.path);
+  Hive.registerAdapter(SettingRecordAdapter());
+  Hive.registerAdapter(GridThemeRecordAdapter());
 
+  if(false){//clear
+    var s1 = await Hive.openBox("settings");
+    s1.clear();
+    s1.close();
+    var s2 = await Hive.openBox("grid_schema");
+    s2.clear();
+    s2.close();
 
+  }
 
+  print("Initialize Storage");
+  return await Hive.openBox("settings").then((settings) async {
+    var signalKAddress = settings.get("signalk_address");
+    var signalkPort = settings.get("signalk_port");
+    var keepLoggedIn = settings.get("keep_logged_in");
+    var firstSetupDone = settings.get("first_setup_done");
+    currentThemeIndex = settings.get("current_grid_index");
 
+    //check if have values
+    print("[hive] signalKAddress = " + signalKAddress.toString());
+    print("[hive] signalkPort = " + signalkPort.toString());
+    print("[hive] keepLoggedIn = " + keepLoggedIn.toString());
+    print("[hive] firstSetupDone = " + firstSetupDone.toString());
+    print("[hive] current_grid_index = " + currentThemeIndex.toString());
 
+    //await settings.delete("signalk_port");
+    //await settings.delete("keep_logged_in");
+    //await settings.delete("first_setup_done");
+    //await settings.delete("current_grid_index");
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-
-
-
-class _MyAppState2 extends State<MyApp> {
-  Future<int> _future;
-
-  WebsocketManager socket;
-  String _message = '';
-  String _closeMessage = '';
-
-  bool goForIt = true;
-  GPSWidget gps = GPSWidget();
-  ApparentWindIndicator appWind = ApparentWindIndicator();
-  StreamSubscriber stream;
-
-  @override
-  void initState() {
-    _future = Future.value(DateTime.now().second);
-
-    Authentication loginData = null;
-    print("INIT ONCE!");
-
-    if (goForIt) {
-      final signalK = SignalKClient("192.168.1.179", 3000, loginData);
-      this.stream = StreamSubscriber(signalK);
-
-      gps.setTitle("ciao");
-      gps.subscribePosition(
-          this.stream.getStream("nav.position").asBroadcastStream());
-      appWind.subscribeApparentWind(
-          this.stream.getStream("env.wind.speedApparent").asBroadcastStream());
-      appWind.subscribeRealWindSpeed(
-          this.stream.getStream("env.wind.speedTrue").asBroadcastStream());
-
-      signalK.loadSignalKData().then((x) {
-        this.stream.startListening().then((isListening) {
-          print("we are listening!");
-        }).catchError((Object onError) {
-          print('[main] Unable to stream -- on error : $onError');
-        });
-        //
-        //stream.WSConnect().then(
-        // subscribe every widget to his data
-        // )....
-
-        //
-      }).catchError((Object onError) {
-        print('[main] Unable to connect -- on error : $onError');
+    if (signalKAddress == null) {
+      //var usernameSetting = SettingRecord(paramkey : "signalk_address",paramvalue : NAUTICA['signalK']['connection']['address']);
+      await settings
+          .put("signalk_address", NAUTICA['signalK']['connection']['address'])
+          .then((value) {
+        print("signalk_address inserted");
       });
-    } else {
-      // test functions....
-
-      final signalK = SignalKClient("192.168.1.179", 3000, loginData);
-      this.stream = StreamSubscriber(signalK);
-
-      gps.setTitle("ciao");
-      gps.subscribePosition(
-          this.stream.getStream("nav.position").asBroadcastStream());
-      appWind.subscribeApparentWind(
-          this.stream.getStream("env.wind.speedApparent").asBroadcastStream());
-      appWind.subscribeRealWindSpeed(
-          this.stream.getStream("env.wind.speedTrue").asBroadcastStream());
     }
 
-/*
+    if (signalkPort == null) {
+      await settings
+          .put("signalk_port", NAUTICA['signalK']['connection']['port'])
+          .then((value) {
+        print("signalk_port inserted");
+      });
+    }
 
-    print("INIT STATE");
+    if (keepLoggedIn == null) {
+      await settings.put("keep_logged_in", false).then((value) {
+        print("keep_logged_in inserted");
+      });
+    }
 
-    SubscriptionMap.forEach((k,v) => print('${k}: ${v}'));
+    if (firstSetupDone == null) {
+      await settings.put("first_setup_done", false).then((value) {
+        print("first_setup_done inserted");
+      });
+    }
 
-*/
+    if (currentThemeIndex == null) {
+      await settings.put("current_grid_index", 1).then((value) {
+        print("current_grid_index inserted");
+      });
+    }
 
-    super.initState();
-  }
+    return await Hive.openBox<GridThemeRecord>("grid_schema").then((grid) async {
+      //check if grid #1 exists
 
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    super.dispose();
-  }
+      var currentGrid = grid.get(1);
+  print(currentGrid.toString());
+      if (currentGrid == null) {
+        //insert grid
+        GridThemeRecord themeRecord = GridThemeRecord(id: 1, name: "Nautica", schema: mainJSONGridTheme);
 
-  @override
-  Widget build(context) {
-    //SystemChrome.setPreferredOrientations([
-    //  DeviceOrientation.landscapeLeft,
-    //  DeviceOrientation.landscapeRight,
-    //]);
-
-    return FutureBuilder<int>(
-        future: _future,
-        builder: (context, snapshot) {
-          //return Text(snapshot.data.toString());
-          print("hello!");
-          return getMainApplication();
-          return getMaterialApp();
+        await grid.put(themeRecord.id, themeRecord).then((value) {
+          print("Default grid inserted in db");
         });
-    return FutureBuilder<int>(
-        future: _future,
-        builder: (context, snapshot) {
-          //return Text(snapshot.data.toString());
-          print("hello!");
-
-          return getMaterialApp();
-        });
-  }
-*/
-  /***********APP DESIGN***********/
-/*
-  MaterialApp getMainApplication() {
-
-    return MaterialApp(
-      home: Scaffold(
-          resizeToAvoidBottomInset: false,
-          appBar: AppBar(
-            title: Text("nautica",style: GoogleFonts.lato(
-                textStyle: Theme.of(context).textTheme.headline6)),
-            leading: GestureDetector(
-              onTap: () {
-                /* Write listener code here */
-              },
-              child: Icon(
-                Icons.menu, // add custom icons also
-              ),
-            ),
-            actions: <Widget>[
-              Padding(
-                  padding: EdgeInsets.only(right: 20.0),
-                  child: GestureDetector(
-                    onTap: () {},
-                    child: Icon(
-                      Icons.search,
-                      size: 26.0,
-                    ),
-                  )),
-              Padding(
-                  padding: EdgeInsets.only(right: 20.0),
-                  child: GestureDetector(
-                    onTap: () {},
-                    child: Icon(Icons.more_vert),
-                  )),
-            ],
-          ),
-          body:  Container(
-            decoration: BoxDecoration(
-                border: Border.all(color: Colors.black)
-            ),
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-
-
-                  Expanded (
-                      flex:1,
-                      child:
-                      Row(
-                        children: [
-                          Expanded(
-                              flex: 5, // 20%
-                              child:
-                              Card(
-                                child: Center(child:
-                                PositionIndicator(
-                                  Position_Stream: this
-                                      .stream
-                                      .getStream("nav.position")
-                                      .asBroadcastStream(),
-                                  text: "vel",
-                                )),
-                              )
-                          ),
-                          Expanded(
-                              flex: 5, // 20%
-                              child:
-                              Card(
-                                child: Center(child:
-                                BoatVectorsIndicator(
-                                  ATW_Stream: this
-                                      .stream
-                                      .getStream("env.wind.angleTrueWater")
-                                      .asBroadcastStream(),
-                                  ST_Stream: this
-                                      .stream
-                                      .getStream("env.wind.speedTrue")
-                                      .asBroadcastStream(),
-                                  AA_Stream: this
-                                      .stream
-                                      .getStream("env.wind.angleApparent")
-                                      .asBroadcastStream(),
-                                  SA_Stream: this
-                                      .stream
-                                      .getStream("env.wind.speedApparent")
-                                      .asBroadcastStream(),
-                                  HT_Stream: this
-                                      .stream
-                                      .getStream("nav.headingTrue")
-                                      .asBroadcastStream(),
-                                  COG_Stream: this
-                                      .stream
-                                      .getStream("nav.courseOverGroundTrue")
-                                      .asBroadcastStream(),
-                                  SOG_Stream: this
-                                      .stream
-                                      .getStream("nav.speedOverGround")
-                                      .asBroadcastStream(),
-                                  text: "vel",
-                                )),
-                              )
-                            /*PositionIndicator(
-                              Position_Stream: this
-                                  .stream
-                                  .getStream("nav.position")
-                                  .asBroadcastStream(),
-                              text: "vel",
-                            )*/),
-                        ],
-                      )),
-                  //panded (
-                  //  flex:1,
-                  //  child:
-                  //  Row(
-                  //    children: [
-                  //      Expanded(
-                  //          flex: 5, // 20%
-                  //          child:
-                  //          Card(
-                  //            child: Center(child:
-                  //            PositionIndicator(
-                  //              Position_Stream: this
-                  //                  .stream
-                  //                  .getStream("nav.position")
-                  //                  .asBroadcastStream(),
-                  //              text: "vel",
-                  //            )),
-                  //          )
-                  //      ),
-                  //      Expanded(
-                  //          flex: 5, // 20%
-                  //          child:
-                  //          Card(
-                  //            child: Center(child:
-                  //            BoatVectorsIndicator(
-                  //              ATW_Stream: this
-                  //                  .stream
-                  //                  .getStream("env.wind.angleTrueWater")
-                  //                  .asBroadcastStream(),
-                  //              ST_Stream: this
-                  //                  .stream
-                  //                  .getStream("env.wind.speedTrue")
-                  //                  .asBroadcastStream(),
-                  //              AA_Stream: this
-                  //                  .stream
-                  //                  .getStream("env.wind.angleApparent")
-                  //                  .asBroadcastStream(),
-                  //              SA_Stream: this
-                  //                  .stream
-                  //                  .getStream("env.wind.speedApparent")
-                  //                  .asBroadcastStream(),
-                  //              text: "vel",
-                  //            )),
-                  //          )
-                  //        /*PositionIndicator(
-                  //          Position_Stream: this
-                  //              .stream
-                  //              .getStream("nav.position")
-                  //              .asBroadcastStream(),
-                  //          text: "vel",
-                  //        )*/),
-                  //    ],
-                  //  )),
-
-                  //Row(
-                  //  children: [
-                  //    PositionIndicator(
-                  //      Position_Stream: this
-                  //          .stream
-                  //          .getStream("nav.position")
-                  //          .asBroadcastStream(),
-                  //      text: "vel",
-                  //    ),
-                  //  ],
-                  //),
-                  //Row(children: [
-                  //  SpeedOverGroundIndicator(
-                  //    SOG_Stream: this
-                  //        .stream
-                  //        .getStream("env.wind.speedTrue")
-                  //        .asBroadcastStream(),
-                  //    text: "vel",
-                  //  ),
-                  //]),
-                  //Row(
-                  //  children: [
-                  //    SpeedThroughWaterIndicator(
-                  //      STW_Stream: this
-                  //          .stream
-                  //          .getStream("nav.speedThroughWater")
-                  //          .asBroadcastStream(),
-                  //      text: "vel",
-                  //    )
-                  //  ],
-                  //)
-
-                ]),
-          )),
-    );
-  }
-
-  MaterialApp getMaterialApp() {
-    return MaterialApp(
-      home: Scaffold(
-        //appBar: AppBar(
-        //  title: const Text('Websocket Manager Example'),
-        //),
-          body: Center(child: LayoutBuilder(builder: (context, constraints) {
-            if (constraints.maxWidth > 500) {
-              return ListView(
-                children: <Widget>[
-                  this.appWind.buildWidget(),
-                  this.gps.getBuildStream(),
-                ],
-              );
-            } else {
-              //narrow
-              return ListView(
-                children: <Widget>[
-                  this.gps.getBuildStream(),
-                  this.appWind.buildWidget(),
-                ],
-              );
-            }
-          }))),
-    );
-  }
-}
-*/
-
-/*
-
-class ListPage extends StatefulWidget {
-  @override
-  _ListPageState createState() => _ListPageState();
-}
-
-class _ListPageState extends State<ListPage> {
-  // This should actually be a List<MyClass> instead of widgets.
-  List<Widget> _list;
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchList();
-  }
-
-  Future _fetchList() async {
-    List<Widget> singleLineImages = new List();
-    List unit;
-    for (int i = 0; i <= widget.unitsList.length-1; i++){
-      for (int j = 1; j <= int.parse(widget.unitsList[i].quantity); j++){
-        print("${widget.unitsList[i].bulletin}, ${widget.unitsList[i].mountType}, ${widget.unitsList[i].disconnect}");
-        String fileName = await getfileName(widget.unitsList[i].bulletin, widget.unitsList[i].mountType, widget.unitsList[i].disconnect);
-      singleLineImages.add(
-          Image.asset("images/SD_Files_2100/$fileName.jpg", height: 400.0, width: 200.0,));
       }
-    }
 
-    // call setState here to set the actual list of items and rebuild the widget.
-    setState(() {
-      _list = singleLineImages;
+      var tempGrid = grid.get(2);
+      print(tempGrid.toString());
+
+      if (tempGrid == null) {
+        //insert grid
+        GridThemeRecord themeRecord = GridThemeRecord(id: 2, name: "Temporary Grid", schema: mainJSONGridTheme);
+
+        await grid.put(themeRecord.id, themeRecord).then((value) {
+          print("temporary grid inserted in db");
+        });
+      }
+
+      if (currentThemeIndex != null && currentThemeIndex != 1) {
+        //check if exit otherwise update current theme index
+        currentGrid = grid.get(currentThemeIndex);
+        if (currentGrid == null) {
+          //if current grid is corrupted go back to default theme
+          await settings.put("current_grid_index", 1).then((value) {
+            print("current_grid_index inserted (default was missing)!");
+          });
+        }
+      }
+      await settings.close();
+      await grid.close();
+      return Future.value(true);
+    }).onError((error, stackTrace) {
+      print("[grid] Having error " + error.toString());
+      return Future.value(false);
     });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // Build the list, or for example a CircularProcessIndicator if it is null.
-  }
+  }).onError((error, stackTrace) {
+    print("[settings] Having error " + error.toString());
+    return Future.value(false);
+  });
 }
-
- */

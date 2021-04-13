@@ -13,6 +13,7 @@ import 'package:nautica/Configuration.dart';
 
 import 'monitor/indicators/SpeedIndicator.dart';
 import 'monitor/indicators/WindIndicator.dart';
+enum WhyFarther { harder, smarter, selfStarter, tradingCharter }
 
 class DraggableCard extends StatefulWidget {
   StreamSubscriber StreamObject = null;
@@ -20,15 +21,29 @@ class DraggableCard extends StatefulWidget {
 
   BaseModel model;
   dynamic widgetData;
+  int currentPosition;
+  int currentWidgetIndex;
+  double currentWidgetWidth = 0.25;// 1/4
+  double currentWidgetHeight = 1.0; // 1/1
+
+
+  void bubu(){
+
+  }
+
+  final Future<int> Function(int cardId, int viewId) onCardStatusChangedCallback;
 
   final Function(String text, Icon icon) notifyParent;
 
   DraggableCard(
       {Key key,
       @required this.model,
+        @required this.currentPosition,
+        @required this.currentWidgetIndex,
       @required this.widgetData,
       @required this.StreamObject,
       @required this.currentVessel,
+        @required this.onCardStatusChangedCallback,
       this.notifyParent})
       : super(key: key);
 
@@ -42,19 +57,50 @@ class _DraggableCardState extends State<DraggableCard> {
 
   List<Widget> loadedWidgets = [];
   List<String> widgetTitles = [];
-  int currentWidgetIndex;
 
   void initState() {
 
     super.initState();
 
+
     //init widget data, indexes, .....
     try {
       //loop
-      print("LOAD STATE DRAG");
-
       dynamic w = widget.widgetData;
-      print(widget.widgetData.toString());
+      print(w['current'].toString());
+
+      var current = w['current'];//current index
+      dynamic elements = w['elements'];
+      if(elements != null){
+        for (dynamic single in elements) {
+          String eTitle = single['widgetTitle'];
+          String eClass = single['widgetClass'];
+          dynamic eSubscriptions = single['widgetSubscriptions'];
+          if (eTitle != null && eClass != null && eSubscriptions != null) {
+            print("here");
+            Widget pack = loadWidget(eClass, eSubscriptions);
+            widgetTitles.add(eTitle); //push to widgets
+            loadedWidgets.add(pack); //push to widgets
+          }
+        }
+
+      print(widget.currentPosition.toString()  + "THIS?");
+        setState(() {
+
+          widget.currentWidgetIndex = current;
+          print("Hi i'm " + widgetTitles[widget.currentWidgetIndex] + " --- position is " + widget.currentPosition.toString());
+
+
+          errorOccurred = false;
+          isLoadingWidget = false;
+        });
+
+      }
+
+
+
+      /*
+
 
       String wTitle = w['widgetTitle'];
       String wClass = w['widgetClass'];
@@ -90,13 +136,18 @@ class _DraggableCardState extends State<DraggableCard> {
         print(widgetTitles.toString());
         print(loadedWidgets.toString());
         setState(() {
-          currentWidgetIndex = 0;
+          widget.currentWidgetIndex = 0;
           errorOccurred = false;
           isLoadingWidget = false;
         });
       }
+       */
+
+
+
+
     } catch (e) {
-      print("error loading widget");
+      print("error loading widget " + e.toString());
       setState(() {
         errorOccurred = true;
         isLoadingWidget = false;
@@ -108,6 +159,7 @@ class _DraggableCardState extends State<DraggableCard> {
   @override
   void dispose() {
     super.dispose();
+    print("DISPOSE DRAG");
   }
 
   @override
@@ -135,10 +187,10 @@ class _DraggableCardState extends State<DraggableCard> {
                           borderRadius:
                               const BorderRadius.all(Radius.circular(12))),
                       child: SimpleCard(
-                          widgetTitles[currentWidgetIndex], _cardWidth, [
+                          widgetTitles[widget.currentWidgetIndex], _cardWidth, [
                         SizedBox(
                           height: 140,
-                          child: loadedWidgets[currentWidgetIndex],
+                          child: loadedWidgets[widget.currentWidgetIndex],
                         ),
                         //Text("bubu " + rng.nextInt(200).toString()),
                       ]),
@@ -231,33 +283,65 @@ class _DraggableCardState extends State<DraggableCard> {
         child: Column(children: <Widget>[
           Row(
             children: [
-              Material(
-                child: DropdownButton<String>(
-                  value: widgetTitles[currentWidgetIndex],
-                  icon: const Icon(Icons.arrow_downward),
-                  iconSize: 24,
-                  elevation: 0,
-                  style: const TextStyle(color: Colors.white),
-                  underline: Container(
-                    height: 0,
-                    color: widget.model.splashScreenBackground,
-                  ),
-                  onChanged: (String vessel) {
-                    setState(() {
-                      currentWidgetIndex = widgetTitles.indexOf(vessel);
-                    });
-                  },
-                  dropdownColor: Colors.black,
-                  items: widgetTitles
-                      .map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
+            Material(
+              child: PopupMenuButton<String>(
+                icon: Icon(Icons.add),
+                onSelected: (String vessel) {
+                  setState(() {
+                    widget.currentWidgetIndex = widgetTitles.indexOf(vessel);
+                    widget.onCardStatusChangedCallback(widget.currentPosition,widget.currentWidgetIndex).then((value) {
+                      print("Hi i changed state and got " + value.toString());
+                      //setState(() {
+                      //  widget.currentPosition = value;
+                      //});
+                    });//notify parent
+                  });
+                },
+                initialValue: widgetTitles[widget.currentWidgetIndex],
+                itemBuilder: (BuildContext context) => widgetTitles
+                    .map<PopupMenuEntry<String>>((String value) {
+                  return PopupMenuItem<String>(
                       value: value,
-                      child: Text("Mon #" +
-                          (widgetTitles.indexOf(value) + 1).toString()),
-                    );
-                  }).toList(),
-                ),
+                      child: Text(value) //(widgetTitles.indexOf(value) + 1).toString()),
+                  );
+                }).toList(),
+
               ),
+            ),
+
+
+        //     Material(
+        //       child: DropdownButton<String>(
+        //         value: widgetTitles[widget.currentWidgetIndex],
+        //         icon: const Icon(Icons.arrow_downward),
+        //         iconSize: 24,
+        //         elevation: 0,
+        //         style: const TextStyle(color: Colors.white),
+        //         underline: Container(
+        //           height: 0,
+        //           color: widget.model.splashScreenBackground,
+        //         ),
+        //         onChanged: (String vessel) {
+        //           setState(() {
+        //             widget.currentWidgetIndex = widgetTitles.indexOf(vessel);
+        //             widget.onCardStatusChangedCallback(widget.currentPosition,widget.currentWidgetIndex).then((value) {
+        //               print("Hi i changed state and got " + value.toString());
+        //             //setState(() {
+        //             //  widget.currentPosition = value;
+        //             //});
+        //             });//notify parent
+        //           });
+        //         },
+        //         dropdownColor: Colors.black,
+        //         items: widgetTitles
+        //             .map<DropdownMenuItem<String>>((String value) {
+        //           return DropdownMenuItem<String>(
+        //             value: value,
+        //             child: Text(value) //(widgetTitles.indexOf(value) + 1).toString()),
+        //           );
+        //         }).toList(),
+        //       ),
+        //     ),
               Container(
                 padding: const EdgeInsets.only(top: 5, bottom: 2),
                 child: Text(
@@ -268,6 +352,10 @@ class _DraggableCardState extends State<DraggableCard> {
                       fontFamily: 'Roboto-Bold'),
                 ),
               ),
+
+
+
+
             ],
           ),
           Divider(

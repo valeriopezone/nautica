@@ -98,7 +98,7 @@ class SignalKClient {
     wsConnected = false;
     disconnect();
     if (kIsWeb || Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
-      if (desktopSocket != null) desktopSocket.sink.close(status.goingAway);
+      if (desktopSocket != null) desktopSocket.sink.close(1000);
     } else {
       if (socket != null) this.socket.close();
     }

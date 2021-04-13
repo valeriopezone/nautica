@@ -2,6 +2,8 @@
 import 'dart:io' show Platform;
 
 
+import 'package:hive/hive.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:nautica/Configuration.dart';
 
 /// package imports
@@ -9,13 +11,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:nautica/models/database/models.dart';
 import 'package:nautica/widgets/AnimateOpacityWidget.dart';
 import 'package:nautica/widgets/monitor/MonitorDrag.dart';
 import 'package:nautica/widgets/monitor/MonitorGrid.dart';
 import 'package:nautica/widgets/monitor/SubscriptionsGrid.dart';
 import 'package:nautica/widgets/monitor/map/RealTimeMap.dart';
 import 'package:websocket_manager/websocket_manager.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
 
 import 'package:nautica/network/SignalKClient.dart';
 import 'package:nautica/network/StreamSubscriber.dart';
@@ -23,6 +26,53 @@ import 'package:nautica/network/StreamSubscriber.dart';
 
 import 'package:nautica/models/BaseModel.dart';
 import 'package:nautica/models/Helper.dart';
+
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+
+class ModalFit extends StatelessWidget {
+  const ModalFit({Key key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+        child: SafeArea(
+          top: false,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              ListTile(
+                title: Text('Edit'),
+                leading: Icon(Icons.edit),
+                onTap: () => Navigator.of(context).pop(),
+              ),
+              ListTile(
+                title: Text('Copy'),
+                leading: Icon(Icons.content_copy),
+                onTap: () => Navigator.of(context).pop(),
+              ),
+              ListTile(
+                title: Text('Cut'),
+                leading: Icon(Icons.content_cut),
+                onTap: () => Navigator.of(context).pop(),
+              ),
+              ListTile(
+                title: Text('Move'),
+                leading: Icon(Icons.folder_open),
+                onTap: () => Navigator.of(context).pop(),
+              ),
+              ListTile(
+                title: Text('Delete'),
+                leading: Icon(Icons.delete),
+                onTap: () => Navigator.of(context).pop(),
+              )
+            ],
+          ),
+        ));
+  }
+}
+
+
 
 
 /// Home page of the sample browser for both mobile and web
@@ -40,7 +90,7 @@ class _DashBoardState extends State<DashBoard> {
   BaseModel sampleListModel;
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   final ScrollController controller = ScrollController();
-  Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+
 
 
   SignalKClient signalK = null;
@@ -50,8 +100,9 @@ class _DashBoardState extends State<DashBoard> {
 
   String signalKServerAddress;
   int signalKServerPort;
+  int currentGridIndex;
 
-  String currentViewState = "monitors";
+  String currentViewState = "blank";
   String currentVessel;
 
   List<String> vesselsList;
@@ -59,6 +110,14 @@ class _DashBoardState extends State<DashBoard> {
 
 
   bool sectionLoaded = false;
+
+
+
+  //connect to db
+
+ // NauticaDB db;
+
+
   void _setViewState(String state) {
     setState(() {
       currentViewState = state;
@@ -76,6 +135,11 @@ class _DashBoardState extends State<DashBoard> {
 
   Widget _getCurrentView(){
     switch(currentViewState){
+
+      case "blank" :
+        return new Text("blank");
+        break;
+
 
 
       case "real_time_map" :
@@ -97,7 +161,8 @@ class _DashBoardState extends State<DashBoard> {
 
       return new MonitorDrag(key: UniqueKey(),
           StreamObject : this.SKFlow,
-          currentVessel : currentVessel);
+          currentVessel : currentVessel,
+      );
 
       return new MonitorGrid(key: UniqueKey(),
           StreamObject : this.SKFlow,
@@ -118,56 +183,73 @@ class _DashBoardState extends State<DashBoard> {
     super.initState();
 
 
-    _prefs.then((SharedPreferences prefs) {
-      signalKServerAddress =
-          prefs.getString('signalKServerAddress') ?? NAUTICA['signalK']['connection']['address'];
-      signalKServerPort = prefs.getInt('signalKServerPort') ?? NAUTICA['signalK']['connection']['port'];
-
-      print("INIT ONCE!");
-
-      signalK = SignalKClient(signalKServerAddress, signalKServerPort, loginData);
-      //signalK = SignalKClient("192.168.1.179", 3000, loginData);
-      SKFlow = StreamSubscriber(signalK);
-
-      signalK.loadSignalKData().then((x) {
-        SKFlow.startListening().then((isListening) {
-          print("we are listening!");
-          vesselsList = signalK.getVessels();
-          vesselsDataTable = signalK.getPaths();
 
 
-          setState(() {
-            // The listenable's state was changed already.
-            currentVessel = (vesselsList[0] != null) ? vesselsList[0] : null;
-            sectionLoaded = true;
+    Hive.openBox("settings").then((settings) {
+      signalKServerAddress = settings.get("signalk_address") ??
+          NAUTICA['signalK']['connection']['address'];
+      signalKServerPort = settings.get("signalk_port") ??
+          NAUTICA['signalK']['connection']['port'];
+      currentGridIndex = settings.get("current_grid_index") ?? 1; //remember for future updates
 
+      settings.close().then((e) {
+
+        print("INIT ONCE!");
+
+        signalK =
+            SignalKClient(signalKServerAddress, signalKServerPort, loginData);
+        //signalK = SignalKClient("192.168.1.179", 3000, loginData);
+        SKFlow = StreamSubscriber(signalK);
+
+        signalK.loadSignalKData().then((x) {
+          SKFlow.startListening().then((isListening) {
+            print("we are listening!");
+            vesselsList = signalK.getVessels();
+            vesselsDataTable = signalK.getPaths();
+
+
+            setState(() {
+              // The listenable's state was changed already.
+              currentVessel = (vesselsList[0] != null) ? vesselsList[0] : null;
+              sectionLoaded = true;
+
+            });
+
+          }).catchError((Object onError) {
+            print('[main] Unable to stream -- on error : $onError');
+            cleanPrefsAndGoToSetup().then((value) => goToSetup());
           });
-
         }).catchError((Object onError) {
-          print('[main] Unable to stream -- on error : $onError');
+          print('[main] Unable to connect -- on error : $onError');
           cleanPrefsAndGoToSetup().then((value) => goToSetup());
+
         });
-      }).catchError((Object onError) {
-        print('[main] Unable to connect -- on error : $onError');
-        cleanPrefsAndGoToSetup().then((value) => goToSetup());
+
 
       });
-
-
-
     });
-
 
 
   }
 
-  Future<void> cleanPrefsAndGoToSetup() async{
-    final SharedPreferences prefs = await _prefs;
-    return prefs.setBool("firstSetupDone", false).then((bool success) {
-      return Future.value(true);
+
+  Future<void> cleanPrefsAndGoToSetup() async {
+
+
+    return await Hive.openBox("settings").then((settings) async {
+
+      await settings.put("first_setup_done", false);
+      await settings.close();
+
     });
 
   }
+
+void goToSplashScreen(){
+  Navigator.pop(context);
+  Navigator.pushNamed(context, '/');
+}
+
 
   void goToSetup(){
     Navigator.pop(context);
@@ -421,6 +503,27 @@ class _DashBoardState extends State<DashBoard> {
                                                       color: Colors.white,
                                                     ),
                                                   ),
+                                                  SizedBox(
+                                                    child: MaterialButton(
+                                                      onPressed: (){
+                                                        //showMaterialModalBottomSheet(
+                                                        //  expand: false,
+                                                        //  context: context,
+                                                        //  backgroundColor: Colors.transparent,
+                                                        //  builder: (context) => ModalFit(),
+                                                        //);
+
+
+
+                                                      },//_setViewState("subscriptions"),
+                                                      child: Text("SAVE"),
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+
+
+
+
                                                   Padding(padding: EdgeInsets.only(left: 25)),
                                                   Row(
                                                     crossAxisAlignment: CrossAxisAlignment.stretch,

@@ -136,7 +136,7 @@ try{
 
   Stream<dynamic> getVesselStream(
       String vessel, String subscriptionName,Duration refreshRate) async* {
-    print("SOMEBODY SUBSCRIBED TO " + vessel + " : " + subscriptionName + " at " + refreshRate.toString());
+   // print("SOMEBODY SUBSCRIBED TO " + vessel + " : " + subscriptionName + " at " + refreshRate.toString());
     Duration interval = refreshRate;//Duration(microseconds: 2000);
     int i = 0;
     while (true) {
@@ -158,7 +158,7 @@ try{
 
   Stream<dynamic> getTimedVesselStream(
       String vessel, String subscriptionName,Duration refreshRate) async* {
-    print("SOMEBODY SUBSCRIBED TO " + vessel + " : " + subscriptionName + " at " + refreshRate.toString());
+   // print("SOMEBODY SUBSCRIBED TO " + vessel + " : " + subscriptionName + " at " + refreshRate.toString());
     Duration interval = refreshRate;//Duration(microseconds: 2000);
     int i = 0;
 
@@ -192,7 +192,7 @@ try{
   //}
 
   Stream<dynamic> subscribeEverything(String vessel,Duration refreshRate) async* {
-    print("SUBSCRIBE EVERYTHING AT " + refreshRate.toString());
+    //print("SUBSCRIBE EVERYTHING AT " + refreshRate.toString());
     Duration interval = refreshRate;//Duration(microseconds: 2000);
     int i = 0;
     while (true) {

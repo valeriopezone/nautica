@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hive/hive.dart';
 import 'package:nautica/Configuration.dart';
 import 'package:nautica/models/BaseModel.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:nautica/network/SignalKClient.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -19,7 +19,6 @@ class _SplashScreenState extends State<SplashScreen> {
   String viewStatus = "splashscreen";
   Widget currentView;
 
-  Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
   Future<int> _counter;
   bool isConnecting = false;
   bool connectionDone = false;
@@ -50,42 +49,42 @@ class _SplashScreenState extends State<SplashScreen> {
     Future.delayed(Duration(seconds: 1), () {
       // 5s over, navigate to a new page
 
-      _prefs.then((SharedPreferences prefs) {
-        // return (prefs.getInt('counter') ?? 0);
 
+      Hive.openBox("settings").then((settings){
+        signalKServerAddress = settings.get("signalk_address") ?? NAUTICA['signalK']['connection']['address'];
+        signalKServerPort = settings.get("signalk_port") ?? NAUTICA['signalK']['connection']['port'];
+        firstSetupDone = settings.get("first_setup_done") ?? false;
+        keepLoggedIn = settings.get("keep_logged_in") ?? false;
+        settings.close().then((e){
+          if (!firstSetupDone) {
+            initializeTextInputs();
+            //need to ask login data
+            _setViewStatus("ask_for_credentials");
+          } else {
+            if (keepLoggedIn) {
+              //go to dashboard
+              goToDashBoard();
+            } else {
+              initializeTextInputs();
+              _setViewStatus("ask_for_credentials");
+
+            }
+          }
+        });
         //  signalKUser = prefs.getString('signalKUser') ?? "";
         //  signalKPassword = prefs.getString('signalKPassword') ?? "";
         //  widgetRefreshRate = prefs.getInt('widgetRefreshRate') ?? 350;
         //  mapRefreshRate = prefs.getInt('mapRefreshRate') ?? 2;
-        signalKServerAddress =
-            prefs.getString('signalKServerAddress') ?? NAUTICA['signalK']['connection']['address'];
-        signalKServerPort = prefs.getInt('signalKServerPort') ?? NAUTICA['signalK']['connection']['port'];
-        firstSetupDone = prefs.getBool('firstSetupDone') ?? false;
-        keepLoggedIn = prefs.getBool('keepLoggedIn') ?? false;
 
-        if (!firstSetupDone) {
-          initializeTextInputs();
-          //need to ask login data
-          _setViewStatus("ask_for_credentials");
-        } else {
-          if (keepLoggedIn) {
-            //go to dashboard
-            goToDashBoard();
-          } else {
-            initializeTextInputs();
-            _setViewStatus("ask_for_credentials");
 
-          }
-        }
       });
+
+
+
+
+
     });
 
-    //look for preferences
-    //
-
-    //if no preference show login form and store values
-
-    //go to dashboard
   }
 
   void goToDashBoard() {
@@ -99,30 +98,13 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> updatePreferences() async {
-    final SharedPreferences prefs = await _prefs;
-
-    return prefs.setString("signalKServerAddress", addressTextController.text).then((bool success) {
-     return  prefs.setInt("signalKServerPort", int.parse(portTextController.text)).then((bool success) {
-       return  prefs.setBool("keepLoggedIn", keepLoggedIn).then((bool success) {
-         return  prefs.setBool("firstSetupDone", true).then((bool success) {
-           signalKServerAddress =
-               prefs.getString('signalKServerAddress') ?? "192.168.1.171";
-           signalKServerPort = prefs.getInt('signalKServerPort') ?? 3004;
-           firstSetupDone = prefs.getBool('firstSetupDone') ?? false;
-           keepLoggedIn = prefs.getBool('keepLoggedIn') ?? false;
-
-           print("read " + signalKServerAddress);
-           print("read " + signalKServerPort.toString());
-           print("read " + firstSetupDone.toString());
-           print("read " + keepLoggedIn.toString());
-
-
-         return Future.value(true);
-         });
-       });
-      });
+    return await Hive.openBox("settings").then((settings) async {
+      await settings.put("signalk_address", addressTextController.text);
+      await settings.put("signalk_port", int.parse(portTextController.text));
+      await settings.put("first_setup_done", true);
+      await settings.put("keep_logged_in", keepLoggedIn);
+      await settings.close();
     });
-
 
   }
 
