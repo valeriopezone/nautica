@@ -278,10 +278,7 @@ Widget showThemeSwitcher(BaseModel model) {
                     : ThemeData.dark();
                 _applyThemeAndPaletteColor(
                     model, context, value);
-                setState(() {
-                  /// update the theme changes
-                  /// tp [CupertinoSegmentedControl]
-                });
+
               },
             );
           }))

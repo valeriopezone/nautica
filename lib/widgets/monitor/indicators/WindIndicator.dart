@@ -55,7 +55,7 @@ class _WindIndicatorState extends State<WindIndicator> with DisposableWidget {
 
   @override
   void dispose() {
-    print("CANCEL WIND SUBSCRIPTION");
+   // print("CANCEL WIND SUBSCRIPTION");
     cancelSubscriptions();
     super.dispose();
   }

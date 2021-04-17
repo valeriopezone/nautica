@@ -16,11 +16,11 @@ class CompassIndicator extends StatefulWidget { //should rename
   /// Creates the gauge compass sample.
   BaseModel model;
   double COG_Value = 0;
-  Stream<dynamic> COG_Stream = null;
+  Stream<dynamic> Value_Stream = null;
   final Function(String text, Icon icon) notifyParent;
 
 
-  CompassIndicator({Key key, @required this.model,@required this.COG_Stream,this.notifyParent}) : super(key: key);
+  CompassIndicator({Key key, @required this.model,@required this.Value_Stream,this.notifyParent}) : super(key: key);
 
   @override
   _CompassIndicatorState createState() => _CompassIndicatorState();
@@ -33,8 +33,8 @@ class _CompassIndicatorState extends State<CompassIndicator> with DisposableWidg
   @override
   void initState(){
     super.initState();
-    if(widget.COG_Stream != null) {
-      widget.COG_Stream.listen((data) {
+    if(widget.Value_Stream != null) {
+      widget.Value_Stream.listen((data) {
         widget.COG_Value =  (data == null || data == 0) ? 0.0 : data*(180/pi);
       }).canceledBy(this);
     }
@@ -42,7 +42,7 @@ class _CompassIndicatorState extends State<CompassIndicator> with DisposableWidg
 
   @override
   void dispose() {
-    print("CANCEL COMPASS SUBSCRIPTION");
+   // print("CANCEL COMPASS SUBSCRIPTION");
     cancelSubscriptions();
     super.dispose();
   }
@@ -67,7 +67,7 @@ class _CompassIndicatorState extends State<CompassIndicator> with DisposableWidg
       //notifyParent(text, icon);
     },
     child: StreamBuilder(
-    stream: widget.COG_Stream,
+    stream: widget.Value_Stream,
     builder: (context, snap) {
     //if (!snap.hasData) {
     //return CircularProgressIndicator();

@@ -65,6 +65,8 @@ class _SubscriptionsGridState extends State<SubscriptionsGrid> {
             width: (isWebOrDesktop && model.isMobileResolution)
                 ? 150.0
                 : double.nan,
+
+
             label: Container(
               alignment: Alignment.centerLeft,
               child: Text('Path'),

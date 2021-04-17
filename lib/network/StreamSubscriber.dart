@@ -38,11 +38,11 @@ class StreamSubscriber {
         this.wsTimeTable[vessel][path] = null;
       }
     });
-    print("INIT DATATABLE PATH");
-    print(wsDataTable);
-    print("INIT TIMETABLE PATH");
+   //print("INIT DATATABLE PATH");
+   //print(wsDataTable);
+   //print("INIT TIMETABLE PATH");
 
-    print(wsTimeTable);
+   // print(wsTimeTable);
   }
 
   Future<void> reconnectToStream() async {
@@ -136,12 +136,15 @@ try{
 
   Stream<dynamic> getVesselStream(
       String vessel, String subscriptionName,Duration refreshRate) async* {
-   // print("SOMEBODY SUBSCRIBED TO " + vessel + " : " + subscriptionName + " at " + refreshRate.toString());
+   // if(vessel != null && subscriptionName != null) print("SOMEBODY SUBSCRIBED TO " + vessel + " : " + subscriptionName + " at " + refreshRate.toString());
+
     Duration interval = refreshRate;//Duration(microseconds: 2000);
     int i = 0;
     while (true) {
       await Future.delayed(interval);
-try{
+      if(vessel == null || subscriptionName == null) yield null;
+
+      try{
   if (this.wsDataTable[vessel] != null &&
       this.wsDataTable[vessel][subscriptionName] != null) {
     yield this.wsDataTable[vessel][subscriptionName];
@@ -167,7 +170,7 @@ try{
       try{
         if (this.wsDataTable[vessel] != null &&
             this.wsDataTable[vessel][subscriptionName] != null) {
-          print(this.wsTimeTable[vessel][subscriptionName]);
+          //print(this.wsTimeTable[vessel][subscriptionName]);
 
           yield {"value" : this.wsDataTable[vessel][subscriptionName], "timestamp" : this.wsTimeTable[vessel][subscriptionName]};
         } else {

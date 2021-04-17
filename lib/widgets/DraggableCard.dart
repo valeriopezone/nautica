@@ -5,7 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:nautica/network/StreamSubscriber.dart';
 import 'package:nautica/models/BaseModel.dart';
 
-import 'monitor/graph/BasicGraph.dart';
+import 'monitor/graph/DateValueAxisChart.dart';
 import 'monitor/indicators/BoatVectorsIndicator.dart';
 import 'monitor/indicators/CompassIndicator.dart';
 
@@ -16,7 +16,7 @@ import 'monitor/indicators/WindIndicator.dart';
 enum WhyFarther { harder, smarter, selfStarter, tradingCharter }
 
 class DraggableCard extends StatefulWidget {
-  StreamSubscriber StreamObject = null;
+  StreamSubscriber StreamObject;
   String currentVessel = ""; //
 
   BaseModel model;
@@ -27,11 +27,10 @@ class DraggableCard extends StatefulWidget {
   double currentWidgetHeight = 1.0; // 1/1
 
 
-  void bubu(){
 
-  }
-
-  final Future<int> Function(int cardId, int viewId) onCardStatusChangedCallback;
+  final Future<void> Function(int cardId, int viewId) onCardStatusChangedCallback;
+  final Future<void> Function(int cardId, int viewId) onGoingToEditCallback;
+  final Future<void> Function(int cardId, int viewId) onGoingToDeleteCallback;
 
   final Function(String text, Icon icon) notifyParent;
 
@@ -44,6 +43,8 @@ class DraggableCard extends StatefulWidget {
       @required this.StreamObject,
       @required this.currentVessel,
         @required this.onCardStatusChangedCallback,
+        @required this.onGoingToEditCallback,
+        @required this.onGoingToDeleteCallback,
       this.notifyParent})
       : super(key: key);
 
@@ -54,37 +55,55 @@ class DraggableCard extends StatefulWidget {
 class _DraggableCardState extends State<DraggableCard> {
   bool isLoadingWidget = true;
   bool errorOccurred = false;
+  String currentTitle;
+  String currentClass;
+  dynamic loadedWidgetData;
+  dynamic currentSubscriptions;
 
   List<Widget> loadedWidgets = [];
-  List<String> widgetTitles = [];
+ // List<String> widgetTitles = [];
+  Map<int, String> widgetTitles = {};
 
+  @override
   void initState() {
 
     super.initState();
 
+    setState(() {
+      isLoadingWidget = true;
+    });
+    widgetTitles = {};
 
     //init widget data, indexes, .....
     try {
       //loop
       dynamic w = widget.widgetData;
-      print(w['current'].toString());
-
+      //print(w['current'].toString());
       var current = w['current'];//current index
       dynamic elements = w['elements'];
-      if(elements != null){
+      if(current != null && current >= 0 && elements != null){
+        int i = 0;
         for (dynamic single in elements) {
           String eTitle = single['widgetTitle'];
           String eClass = single['widgetClass'];
           dynamic eSubscriptions = single['widgetSubscriptions'];
+
+
+
           if (eTitle != null && eClass != null && eSubscriptions != null) {
-            print("here");
-            Widget pack = loadWidget(eClass, eSubscriptions);
-            widgetTitles.add(eTitle); //push to widgets
-            loadedWidgets.add(pack); //push to widgets
+            if(i == current){
+              currentTitle = eTitle;
+              currentClass = eClass;
+              currentSubscriptions = eSubscriptions;
+              loadedWidgetData = single;
+            }
+            //Widget pack = loadWidget(eClass, eSubscriptions);
+            widgetTitles[i] = eTitle; //push to widgets
+            //loadedWidgets.add(pack); //push to widgets
+          i++;
           }
         }
 
-      print(widget.currentPosition.toString()  + "THIS?");
         setState(() {
 
           widget.currentWidgetIndex = current;
@@ -99,55 +118,9 @@ class _DraggableCardState extends State<DraggableCard> {
 
 
 
-      /*
 
-
-      String wTitle = w['widgetTitle'];
-      String wClass = w['widgetClass'];
-      dynamic wSubscriptions = w['widgetSubscriptions'];
-      dynamic extraWidgets = w['extraWidgets'];
-
-      if (wTitle != null && wClass != null && wSubscriptions != null) {
-        //handle class subscription
-        Widget currentWidgetHandle = loadWidget(wClass, wSubscriptions);
-        widgetTitles.add(wTitle); //push to widgets
-        loadedWidgets.add(currentWidgetHandle); //push to widgets
-
-        //loop others and push to widgets
-        try {
-          if (extraWidgets != null) {
-            print("LOAD SUBS ");
-            print(extraWidgets.toString());
-            for (dynamic extra in extraWidgets) {
-              String eTitle = extra['widgetTitle'];
-              String eClass = extra['widgetClass'];
-              dynamic eSubscriptions = extra['widgetSubscriptions'];
-              if (eTitle != null && eClass != null && eSubscriptions != null) {
-                Widget currentExtra = loadWidget(eClass, eSubscriptions);
-                widgetTitles.add(eTitle); //push to widgets
-                loadedWidgets.add(currentExtra); //push to widgets
-              }
-            }
-          }
-        } catch (e) {
-          print("error while adding extras - " + e.toString());
-        }
-
-        print(widgetTitles.toString());
-        print(loadedWidgets.toString());
-        setState(() {
-          widget.currentWidgetIndex = 0;
-          errorOccurred = false;
-          isLoadingWidget = false;
-        });
-      }
-       */
-
-
-
-
-    } catch (e) {
-      print("error loading widget " + e.toString());
+    } catch (e,s) {
+      print("error loading widget " + e.toString() + s.toString());
       setState(() {
         errorOccurred = true;
         isLoadingWidget = false;
@@ -159,41 +132,50 @@ class _DraggableCardState extends State<DraggableCard> {
   @override
   void dispose() {
     super.dispose();
-    print("DISPOSE DRAG");
+    print("dispose draggable");
+    //should call subwidget?
+
   }
 
   @override
   Widget build(BuildContext context) {
-    final _cardWidth = MediaQuery.of(context).size.width / 4;
+    final double deviceWidth = MediaQuery.of(context).size.width;
+//    final _cardWidth = MediaQuery.of(context).size.width / 4;
+
+    var padding = deviceWidth * 0.011;// 0.018;
+    final double _cardWidth = (deviceWidth * 0.9) / 4;//(deviceWidth * 0.9) / 2;
+    final double _sidePadding = (deviceWidth * 0.1) / 8;
 
     return GestureDetector(
       onTap: () {
         // notifyParent(text, icon);
       },
-      child: isLoadingWidget
-          ? Text("loading")
-          : errorOccurred
-              ? Text("error")
-              : FutureBuilder(builder: (context, snap) {
-                  return SizedBox(
-                    height: 240,
-                    width: _cardWidth,
-                    child: Container(
-                      decoration: BoxDecoration(
-                          color: widget.model.cardColor,
-                          border: Border.all(
-                              color: const Color.fromRGBO(0, 0, 0, 0.12),
-                              width: 1.1),
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(12))),
-                      child: SimpleCard(
-                          widgetTitles[widget.currentWidgetIndex], _cardWidth, [
-                        SizedBox(
-                          height: 140,
-                          child: loadedWidgets[widget.currentWidgetIndex],
-                        ),
-                        //Text("bubu " + rng.nextInt(200).toString()),
-                      ]),
+      child:  FutureBuilder(builder: (context, snap) {
+                  return Container(
+                     padding: EdgeInsets.only(left : _sidePadding , right : _sidePadding, top : 5, bottom : 5),
+                    child: SizedBox(
+                      height: 240,
+                      width: _cardWidth,
+                      child: isLoadingWidget
+                          ? Text("loading")
+                          : errorOccurred
+                          ? Text("error") : Container(
+                        decoration: BoxDecoration(
+                            color: widget.model.cardColor,
+                            border: Border.all(
+                                color: const Color.fromRGBO(0, 0, 0, 0.12),
+                                width: 1.1),
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(12))),
+                        child: SimpleCard(
+                            widgetTitles[widget.currentWidgetIndex], _cardWidth, [
+                          SizedBox(
+                            height: 140,
+                            child:  (loadedWidgetData != null) ? loadWidget(currentClass, currentSubscriptions) : Text("error"),
+                          ),
+                          //Text("bubu " + rng.nextInt(200).toString()),
+                        ]),
+                      ),
                     ),
                   );
                 }),
@@ -207,6 +189,7 @@ class _DraggableCardState extends State<DraggableCard> {
   }
 
   Stream<dynamic> _subscribeToStream(String path) {
+//    print("TRY SUBS TO STREAM WITH $path");
     return widget.StreamObject.getVesselStream(
             widget.currentVessel,
             path,
@@ -223,6 +206,8 @@ class _DraggableCardState extends State<DraggableCard> {
       switch (className) {
         case "WindIndicator":
           res = WindIndicator(
+              key:UniqueKey(),
+
               Angle_Stream: _subscribeToStream(subscriptions['Angle_Stream']),
               Intensity_Stream:
                   _subscribeToStream(subscriptions['Intensity_Stream']),
@@ -231,18 +216,23 @@ class _DraggableCardState extends State<DraggableCard> {
 
         case "CompassIndicator":
           res = CompassIndicator(
-              COG_Stream: _subscribeToStream(subscriptions['COG_Stream']),
+              key:UniqueKey(),
+
+              Value_Stream: _subscribeToStream(subscriptions['COG_Stream']),
               model: widget.model);
           break;
 
         case "SpeedIndicator":
           res = SpeedIndicator(
-              ST_Stream: _subscribeToStream(subscriptions['ST_Stream']),
+              key:UniqueKey(),
+              Speed_Stream: _subscribeToStream(subscriptions['ST_Stream']),
               model: widget.model);
           break;
 
         case "BoatVectorsIndicator":
           res = BoatVectorsIndicator(
+              key:UniqueKey(),
+
               ATW_Stream: _subscribeToStream(subscriptions['ATW_Stream']),
               ST_Stream: _subscribeToStream(subscriptions['ST_Stream']),
               AA_Stream: _subscribeToStream(subscriptions['AA_Stream']),
@@ -258,7 +248,8 @@ class _DraggableCardState extends State<DraggableCard> {
               model: widget.model);
           break;
         case "BasicGraph":
-          res = BasicGraph(
+          res = DateValueAxisChart(
+            key:UniqueKey(),
               DataValue_Stream:
                   _subscribeToStream(subscriptions['DataValue_Stream']),
               model: widget.model);
@@ -284,25 +275,36 @@ class _DraggableCardState extends State<DraggableCard> {
           Row(
             children: [
             Material(
-              child: PopupMenuButton<String>(
+              child: PopupMenuButton<int>(
                 icon: Icon(Icons.add),
-                onSelected: (String vessel) {
-                  setState(() {
-                    widget.currentWidgetIndex = widgetTitles.indexOf(vessel);
-                    widget.onCardStatusChangedCallback(widget.currentPosition,widget.currentWidgetIndex).then((value) {
-                      print("Hi i changed state and got " + value.toString());
-                      //setState(() {
-                      //  widget.currentPosition = value;
-                      //});
-                    });//notify parent
-                  });
+                onSelected: (int selectedWidget) {
+
+if(selectedWidget != widget.currentWidgetIndex){
+  setState(() {
+    isLoadingWidget = true;
+  });
+  print("$selectedWidget != ${widget.currentWidgetIndex}");
+  widget.onCardStatusChangedCallback(widget.currentPosition,selectedWidget).then((value) {
+    print("Hi i changed state and i'm [${widget.currentPosition}][${selectedWidget}]");
+    //setState(() {
+      isLoadingWidget = false;
+    //});
+
+  });//notify parent
+  setState(() {
+  widget.currentWidgetIndex = selectedWidget;
+});
+}
+
+
+
                 },
-                initialValue: widgetTitles[widget.currentWidgetIndex],
-                itemBuilder: (BuildContext context) => widgetTitles
-                    .map<PopupMenuEntry<String>>((String value) {
-                  return PopupMenuItem<String>(
-                      value: value,
-                      child: Text(value) //(widgetTitles.indexOf(value) + 1).toString()),
+                initialValue: widget.currentWidgetIndex,
+                itemBuilder: (BuildContext context) => widgetTitles.entries
+                    .map<PopupMenuEntry<int>>((w) {
+                  return PopupMenuItem<int>(
+                      value: w.key,
+                      child: Text(w.value)
                   );
                 }).toList(),
 
@@ -310,38 +312,44 @@ class _DraggableCardState extends State<DraggableCard> {
             ),
 
 
-        //     Material(
-        //       child: DropdownButton<String>(
-        //         value: widgetTitles[widget.currentWidgetIndex],
-        //         icon: const Icon(Icons.arrow_downward),
-        //         iconSize: 24,
-        //         elevation: 0,
-        //         style: const TextStyle(color: Colors.white),
-        //         underline: Container(
-        //           height: 0,
-        //           color: widget.model.splashScreenBackground,
-        //         ),
-        //         onChanged: (String vessel) {
-        //           setState(() {
-        //             widget.currentWidgetIndex = widgetTitles.indexOf(vessel);
-        //             widget.onCardStatusChangedCallback(widget.currentPosition,widget.currentWidgetIndex).then((value) {
-        //               print("Hi i changed state and got " + value.toString());
-        //             //setState(() {
-        //             //  widget.currentPosition = value;
-        //             //});
-        //             });//notify parent
-        //           });
-        //         },
-        //         dropdownColor: Colors.black,
-        //         items: widgetTitles
-        //             .map<DropdownMenuItem<String>>((String value) {
-        //           return DropdownMenuItem<String>(
-        //             value: value,
-        //             child: Text(value) //(widgetTitles.indexOf(value) + 1).toString()),
-        //           );
-        //         }).toList(),
-        //       ),
-        //     ),
+
+              Material(
+                child: PopupMenuButton<String>(
+                  icon: Icon(Icons.settings_applications_outlined),
+                  onSelected: (String option) {
+                    setState(() {
+
+                    //  widget.currentWidgetIndex = widgetTitles.indexOf(vessel);
+
+                      if(option == "edit"){
+                        widget.onGoingToEditCallback(widget.currentPosition,widget.currentWidgetIndex).then((value) {
+                         // print("Hi i changed state and i'm [${widget.currentPosition}][${widget.currentWidgetIndex}]");
+                        });//n
+                      }else if(option == "delete"){
+                        widget.onGoingToDeleteCallback(widget.currentPosition,widget.currentWidgetIndex).then((value) {
+                          // print("Hi i changed state and i'm [${widget.currentPosition}][${widget.currentWidgetIndex}]");
+                        });//n
+                      }
+
+
+
+                    });
+                  },
+                  itemBuilder: (context) => [
+                    PopupMenuItem<String>(
+                        value: "edit",
+                        child: Text("Edit widget")
+                    ),
+                    PopupMenuItem<String>(
+                        value: "delete",
+                        child: Text("Delete widget")
+                    ),]
+
+                ),
+              ),
+
+
+
               Container(
                 padding: const EdgeInsets.only(top: 5, bottom: 2),
                 child: Text(

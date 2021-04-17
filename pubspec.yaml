@@ -40,13 +40,12 @@ dependencies:
   shared_preferences: ^2.0.5
   reorderables: ^0.4.1
   web_socket_channel: ^2.0.0
-  sqflite: ^2.0.0+3
   hive: ^2.0.2
   hive_generator: ^1.0.1
   build_runner: ^1.12.2
   hive_flutter: ^1.0.0
-  modal_bottom_sheet: ^2.0.0
   flutter_speed_dial: ^3.0.5
+  dropdownfield: 1.0.0
 
 dev_dependencies:
   flutter_test:

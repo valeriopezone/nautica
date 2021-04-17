@@ -12,7 +12,7 @@ import 'package:syncfusion_flutter_charts/charts.dart';
 /// Local imports
 
 /// Renders the update data source chart sample.
-class BasicGraph extends StatefulWidget {
+class DateValueAxisChart extends StatefulWidget {
 
   /// Creates the update data source chart sample.
 
@@ -24,7 +24,7 @@ class BasicGraph extends StatefulWidget {
   bool haveData = false;
   final Function(String text, Icon icon) notifyParent;
 
-  BasicGraph(
+  DateValueAxisChart(
       {Key key,
         @required this.DataValue_Stream,
         @required this.model,
@@ -37,7 +37,7 @@ class BasicGraph extends StatefulWidget {
 }
 
 /// State class of the realtime line chart.
-class _LiveVerticalState extends State<BasicGraph> {
+class _LiveVerticalState extends State<DateValueAxisChart> {
   _LiveVerticalState() {
    // timer = Timer.periodic(const Duration(milliseconds: 100), _updateDataSource);
   }
@@ -79,28 +79,40 @@ class _LiveVerticalState extends State<BasicGraph> {
   }
 
   /// Returns the realtime Cartesian line chart.
-  SfCartesianChart _buildLiveLineChart() {
+  Widget _buildLiveLineChart() {
     //var x = DateTimeAxis();
     //dateTime
-    return SfCartesianChart(
-        isTransposed: true,
-        plotAreaBorderWidth: 0,
-        primaryXAxis: NumericAxis(majorGridLines: MajorGridLines(width: 0)),
-        primaryYAxis: NumericAxis(
-            axisLine: AxisLine(width: 0),
-            majorTickLines: MajorTickLines(size: 0)),
-        series: <LineSeries<_BasicChartCoords, int>>[
-          LineSeries<_BasicChartCoords, int>(
-            onRendererCreated: (ChartSeriesController controller) {
-              _chartSeriesController = controller;
-            },
-            dataSource: chartData,
-            color: const Color.fromRGBO(192, 108, 132, 1),
-            xValueMapper: (_BasicChartCoords sales, _) => sales.x,
-            yValueMapper: (_BasicChartCoords sales, _) => sales.y,
-            animationDuration: 0,
-          )
-        ]);
+    return  GestureDetector(
+        onTap: () {
+          //notifyParent(text, icon);
+        },
+      child: StreamBuilder(
+        stream: null,
+        builder: (context, snapshot) {
+          return SfCartesianChart(
+                  isTransposed: true,
+                  plotAreaBorderWidth: 0,
+                  primaryXAxis: NumericAxis(majorGridLines: MajorGridLines(width: 0)),
+                  primaryYAxis: NumericAxis(
+                      axisLine: AxisLine(width: 0),
+                      majorTickLines: MajorTickLines(size: 0)),
+                  series: <LineSeries<_BasicChartCoords, int>>[
+                    LineSeries<_BasicChartCoords, int>(
+                      onRendererCreated: (ChartSeriesController controller) {
+                        _chartSeriesController = controller;
+                      },
+                      dataSource: chartData,
+                      color: const Color.fromRGBO(192, 108, 132, 1),
+                      xValueMapper: (_BasicChartCoords sales, _) => sales.x,
+                      yValueMapper: (_BasicChartCoords sales, _) => sales.y,
+                      animationDuration: 0,
+                    )
+                  ]
+
+          );
+        }
+      ),
+    );
   }
 
 

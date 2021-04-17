@@ -19,7 +19,6 @@ class _SplashScreenState extends State<SplashScreen> {
   String viewStatus = "splashscreen";
   Widget currentView;
 
-  Future<int> _counter;
   bool isConnecting = false;
   bool connectionDone = false;
   bool couldNotConnect = false;
@@ -55,7 +54,7 @@ class _SplashScreenState extends State<SplashScreen> {
         signalKServerPort = settings.get("signalk_port") ?? NAUTICA['signalK']['connection']['port'];
         firstSetupDone = settings.get("first_setup_done") ?? false;
         keepLoggedIn = settings.get("keep_logged_in") ?? false;
-        settings.close().then((e){
+        //settings.close().then((e){
           if (!firstSetupDone) {
             initializeTextInputs();
             //need to ask login data
@@ -63,6 +62,7 @@ class _SplashScreenState extends State<SplashScreen> {
           } else {
             if (keepLoggedIn) {
               //go to dashboard
+              print("GOTODASHBOARDDD");
               goToDashBoard();
             } else {
               initializeTextInputs();
@@ -70,7 +70,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
             }
           }
-        });
+        //});
         //  signalKUser = prefs.getString('signalKUser') ?? "";
         //  signalKPassword = prefs.getString('signalKPassword') ?? "";
         //  widgetRefreshRate = prefs.getInt('widgetRefreshRate') ?? 350;
@@ -103,7 +103,7 @@ class _SplashScreenState extends State<SplashScreen> {
       await settings.put("signalk_port", int.parse(portTextController.text));
       await settings.put("first_setup_done", true);
       await settings.put("keep_logged_in", keepLoggedIn);
-      await settings.close();
+      //await settings.close();
     });
 
   }
@@ -174,6 +174,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
     switch (viewStatus) {
       case 'ask_for_credentials':
+       //tryConnection();
         currentView = Container(
             child: Center(
           child: Container(

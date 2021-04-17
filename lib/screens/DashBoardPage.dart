@@ -1,18 +1,12 @@
-/// dart imports
-import 'dart:io' show Platform;
-
 
 import 'package:hive/hive.dart';
-import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:nautica/Configuration.dart';
 
-/// package imports
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:nautica/models/database/models.dart';
-import 'package:nautica/widgets/AnimateOpacityWidget.dart';
 import 'package:nautica/widgets/monitor/MonitorDrag.dart';
 import 'package:nautica/widgets/monitor/MonitorGrid.dart';
 import 'package:nautica/widgets/monitor/SubscriptionsGrid.dart';
@@ -27,8 +21,7 @@ import 'package:nautica/network/StreamSubscriber.dart';
 import 'package:nautica/models/BaseModel.dart';
 import 'package:nautica/models/Helper.dart';
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+
 
 class ModalFit extends StatelessWidget {
   const ModalFit({Key key}) : super(key: key);
@@ -93,16 +86,16 @@ class _DashBoardState extends State<DashBoard> {
 
 
 
-  SignalKClient signalK = null;
+  SignalKClient signalK;
   WebsocketManager socket;
   StreamSubscriber SKFlow;
-  Authentication loginData = null;
+  Authentication loginData;
 
   String signalKServerAddress;
   int signalKServerPort;
   int currentGridIndex;
 
-  String currentViewState = "blank";
+  String currentViewState = "monitors";
   String currentVessel;
 
   List<String> vesselsList;
@@ -110,9 +103,11 @@ class _DashBoardState extends State<DashBoard> {
 
 
   bool sectionLoaded = false;
+  bool haveGridChanges = false;
 
+  Map<int,String> gridsList = { 1 : "Nautica"};
 
-
+  UniqueKey MonitorDragKey;
   //connect to db
 
  // NauticaDB db;
@@ -131,6 +126,7 @@ class _DashBoardState extends State<DashBoard> {
      // currentViewState = "monitors";
     });
   }
+
 
 
   Widget _getCurrentView(){
@@ -156,18 +152,30 @@ class _DashBoardState extends State<DashBoard> {
             vesselsDataTable : vesselsDataTable);
         break;
 
-      case "monitors" :
+      case "monitors_r" :
+        return new MonitorGrid(key: UniqueKey(),
+            StreamObject : this.SKFlow,
+            currentVessel : currentVessel,
+
+        );
+
+        break;
+
+    case "monitors" :
       default :
 
-      return new MonitorDrag(key: UniqueKey(),
+      return new MonitorDrag(
+          key: MonitorDragKey,
           StreamObject : this.SKFlow,
           currentVessel : currentVessel,
+          vesselsDataTable : vesselsDataTable,
+          onGridStatusChangeCallback : (vessel,gridId,hasChanged) async{
+        //if grid changed ask user if he wants to save current configuration
+            print("I'M PARENT -> ${vessel} ,${gridId} ,${hasChanged} ");
+              haveGridChanges = hasChanged;
+          }
       );
-
-      return new MonitorGrid(key: UniqueKey(),
-          StreamObject : this.SKFlow,
-          currentVessel : currentVessel);
-        break;
+break;
     }
   }
 
@@ -182,7 +190,12 @@ class _DashBoardState extends State<DashBoard> {
 
     super.initState();
 
-
+setState(() {
+  sectionLoaded = false;
+  if(currentViewState == "monitors"){
+    MonitorDragKey = UniqueKey();
+  }
+});
 
 
     Hive.openBox("settings").then((settings) {
@@ -190,9 +203,22 @@ class _DashBoardState extends State<DashBoard> {
           NAUTICA['signalK']['connection']['address'];
       signalKServerPort = settings.get("signalk_port") ??
           NAUTICA['signalK']['connection']['port'];
-      currentGridIndex = settings.get("current_grid_index") ?? 1; //remember for future updates
+      var gridIndex = settings.get("current_grid_index") ?? 1; //remember for future updates
+        print("OPENING GRID -> " + gridIndex.toString());
 
-      settings.close().then((e) {
+        //load all grid id=>name
+
+        Hive.openBox<GridThemeRecord>("grid_schema").then((grid) {
+          var allGrids = grid.values;
+          if(allGrids != null){
+            gridsList = {};
+            allGrids.forEach((element) {
+              if(element.id != 2) gridsList[element.id] = element.name;
+            });
+          }
+
+          //grid.close();
+          //settings.close();
 
         print("INIT ONCE!");
 
@@ -210,10 +236,12 @@ class _DashBoardState extends State<DashBoard> {
 
             setState(() {
               // The listenable's state was changed already.
+              currentGridIndex = gridIndex;
               currentVessel = (vesselsList[0] != null) ? vesselsList[0] : null;
               sectionLoaded = true;
 
             });
+
 
           }).catchError((Object onError) {
             print('[main] Unable to stream -- on error : $onError');
@@ -226,7 +254,10 @@ class _DashBoardState extends State<DashBoard> {
         });
 
 
-      });
+
+        });
+
+
     });
 
 
@@ -234,18 +265,26 @@ class _DashBoardState extends State<DashBoard> {
 
 
   Future<void> cleanPrefsAndGoToSetup() async {
-
-
     return await Hive.openBox("settings").then((settings) async {
-
       await settings.put("first_setup_done", false);
-      await settings.close();
-
+      //await settings.close();
     });
-
   }
 
-void goToSplashScreen(){
+
+  Future<void> _changeSelectedGrid(int themeId) async {
+    print("SAVING AS DEFAULT GRID -> " + themeId.toString());
+    return await Hive.openBox("settings").then((settings) async {
+      await settings.put("current_grid_index", themeId);
+      //await settings.close();
+    });
+  }
+
+
+
+
+
+  void goToSplashScreen(){
   Navigator.pop(context);
   Navigator.pushNamed(context, '/');
 }
@@ -275,16 +314,11 @@ void goToSplashScreen(){
   @override
   Widget build(BuildContext context) {
 
-   // print("START BUILDING DASHBOARD");
-    ///Checking the download button is currently hovered
-    bool isHoveringDownloadButton = false;
 
-    ///Checking the get packages is currently hovered
-    bool isHoveringPubDevButton = false;
     final bool isMaxxSize = MediaQuery.of(context).size.width >= 1000;
     final BaseModel model = sampleListModel;
     model.isMobileResolution = (MediaQuery.of(context).size.width) < 768;
-    //return Container();
+
     return !sectionLoaded ? getSpinnerPage(model) : FutureBuilder(
       builder: (context, snapshot) {
         return Container(
@@ -452,7 +486,18 @@ void goToSplashScreen(){
                                                           color: model.splashScreenBackground,
                                                         ),
                                                         onChanged: (String vessel) {
-                                                          _setCurrentVessel(vessel);
+                                                          if(haveGridChanges){
+                                                            showSaveAlertDialog();
+                                                            return null;
+                                                          }else{
+                                                            if(currentViewState == "monitors"){
+                                                              setState(() {
+                                                                MonitorDragKey = UniqueKey();
+                                                              });
+                                                            }
+                                                            _setCurrentVessel(vessel);
+                                                          }
+
                                                         },
                                                         dropdownColor: Colors.black,
                                                         items: vesselsList
@@ -469,6 +514,15 @@ void goToSplashScreen(){
                                                     child: MaterialButton(
                                                       onPressed: (){_setViewState("monitors");},//_setViewState("subscriptions"),
                                                       child: Text("MON"),
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+
+                                                  Padding(padding: EdgeInsets.only(left: 25)),
+                                                  SizedBox(
+                                                    child: MaterialButton(
+                                                      onPressed: (){_setViewState("monitors_r");},//_setViewState("subscriptions"),
+                                                      child: Text("MONV"),
                                                       color: Colors.white,
                                                     ),
                                                   ),
@@ -503,23 +557,59 @@ void goToSplashScreen(){
                                                       color: Colors.white,
                                                     ),
                                                   ),
-                                                  SizedBox(
-                                                    child: MaterialButton(
-                                                      onPressed: (){
-                                                        //showMaterialModalBottomSheet(
-                                                        //  expand: false,
-                                                        //  context: context,
-                                                        //  backgroundColor: Colors.transparent,
-                                                        //  builder: (context) => ModalFit(),
-                                                        //);
 
 
 
-                                                      },//_setViewState("subscriptions"),
-                                                      child: Text("SAVE"),
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
+                                                  (currentGridIndex != null ) ? SizedBox(
+                                                      child:  DropdownButton<int>(
+                                                        value: currentGridIndex,
+                                                        icon: const Icon(Icons.arrow_downward),
+                                                        iconSize: 24,
+                                                        elevation: 16,
+                                                        style: const TextStyle(color: Colors.white),
+                                                        underline: Container(
+                                                          height: 0,
+                                                          color: model.splashScreenBackground,
+                                                        ),
+                                                        onChanged: (int _selectedGrid) async {
+                                                          print("you chose : " + _selectedGrid.toString());
+
+                                                          if( _selectedGrid != currentGridIndex){
+                                                            //check if changes are made, if yes alert
+
+                                                            if(haveGridChanges){
+                                                              showSaveAlertDialog();
+                                                              return null;
+                                                            }else{
+                                                              await _changeSelectedGrid(_selectedGrid).then((value){
+                                                                //update view
+                                                                setState((){
+                                                                  currentGridIndex = _selectedGrid;
+                                                                });
+                                                                if(currentViewState == "monitors"){
+                                                                setState(() {
+                                                                    MonitorDragKey = UniqueKey();
+                                                                });
+                                                                }
+
+
+                                                                _setViewState("monitors");
+                                                              });
+                                                            }
+
+
+                                                          }
+                                                        },
+                                                        dropdownColor: Colors.black,
+                                                        items: gridsList.entries.map<DropdownMenuItem<int>>((g){
+                                                          return  DropdownMenuItem<int>(
+                                                            child: Text(g.value),
+                                                            value: g.key
+                                                          );
+                                                        }).toList()
+
+                                                      )
+                                                  ) : Container(),
 
 
 
@@ -622,6 +712,25 @@ void goToSplashScreen(){
           ),
         );
       }
+    );
+  }
+
+
+  void showSaveAlertDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => new CupertinoAlertDialog(
+        title: new Text("Attention"),
+        content: new Text("you cannot leave this grid before saving or discarding your updates"),
+        actions: [
+          CupertinoDialogAction(
+              isDefaultAction: true, child: new Text("Save"))
+          , CupertinoDialogAction(
+              isDefaultAction: true, child: new Text("Cancel updates")),
+          CupertinoDialogAction(
+              isDefaultAction: true, child: new Text("Go back"))
+        ],
+      ),
     );
   }
 

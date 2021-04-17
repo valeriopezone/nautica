@@ -3,22 +3,19 @@ import 'dart:io' show Platform, exit;
 
 /// package imports
 import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:nautica/screens/FirstSetup.dart';
 import 'package:nautica/screens/SplashScreen.dart';
 import 'package:nautica/screens/DashBoardPage.dart';
-import 'package:nautica/screens/SubscriptionsPage.dart';
 import 'Configuration.dart';
 import 'models/BaseModel.dart';
-import 'package:path_provider/path_provider.dart';
 
 import 'models/database/models.dart';
+import 'dart:convert' as convert;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -124,12 +121,15 @@ class _MyAppState extends State<MyApp> {
 
 Future<bool> initializeStorage() async {
   int currentThemeIndex;
-
+  GridThemeRecord themeRecord;
   await Hive.initFlutter();
   //final document = await getApplicationDocumentsDirectory();
   //Hive.init(document.path);
-  Hive.registerAdapter(SettingRecordAdapter());
   Hive.registerAdapter(GridThemeRecordAdapter());
+
+
+
+
 
   if(false){//clear
     var s1 = await Hive.openBox("settings");
@@ -138,7 +138,10 @@ Future<bool> initializeStorage() async {
     var s2 = await Hive.openBox("grid_schema");
     s2.clear();
     s2.close();
-
+    var s3 = await Hive.openBox("test");
+    s3.clear();
+    s3.close();
+exit(0);
   }
 
   print("Initialize Storage");
@@ -200,40 +203,89 @@ Future<bool> initializeStorage() async {
       //check if grid #1 exists
 
       var currentGrid = grid.get(1);
-  print(currentGrid.toString());
+      var mainGridSchema = convert.jsonDecode(mainJSONGridTheme);
+      try{
+        //print("G1 > "+ currentGrid.name + " " + currentGrid.id.toString() + " " + currentGrid.schema.toString());
+      }catch(e){print("G1 " + e.toString());}
       if (currentGrid == null) {
         //insert grid
-        GridThemeRecord themeRecord = GridThemeRecord(id: 1, name: "Nautica", schema: mainJSONGridTheme);
+        themeRecord = new GridThemeRecord(id: 1, name: "Nautica", schema: convert.jsonDecode(mainJSONGridTheme));
 
         await grid.put(themeRecord.id, themeRecord).then((value) {
           print("Default grid inserted in db");
         });
+      }else{
+        mainGridSchema = currentGrid.schema;
       }
 
       var tempGrid = grid.get(2);
-      print(tempGrid.toString());
-
+      try{
+        //print("G2 > " + tempGrid.name + " " + tempGrid.id.toString() + " " +  tempGrid.schema.toString());
+      }catch(e){print("G2 " + e.toString());}
       if (tempGrid == null) {
         //insert grid
-        GridThemeRecord themeRecord = GridThemeRecord(id: 2, name: "Temporary Grid", schema: mainJSONGridTheme);
+        themeRecord = new GridThemeRecord(id: 2, name: "Temporary Grid", schema: (mainGridSchema));
 
         await grid.put(themeRecord.id, themeRecord).then((value) {
           print("temporary grid inserted in db");
         });
       }
 
+      var newGrid = grid.get(3);
+      try{
+        //print("G3 > " + newGrid.name + " " + newGrid.id.toString() + " " +  newGrid.schema.toString());
+      }catch(e){print("G3 " + e.toString());}
+      if (newGrid == null) {
+        //insert grid
+        themeRecord = new GridThemeRecord(id: 3, name: "Nautica 2", schema: convert.jsonDecode(demoTheme));
+
+        await grid.put(themeRecord.id, themeRecord).then((value) {
+          print("new 1 grid inserted in db");
+        });
+      }
+
+
+      var newGrid2 = grid.get(4);
+      try{
+        //print("G4 > " + newGrid2.name + " " + newGrid2.id.toString() + " " +  newGrid2.schema.toString());
+      }catch(e){print("G4 " + e.toString());}
+      if (newGrid2 == null) {
+        //insert grid
+        themeRecord = new GridThemeRecord(id: 4, name: "Nautica 3", schema: convert.jsonDecode(demoTheme));
+
+        await grid.put(themeRecord.id, themeRecord).then((value) {
+          print("new 1 grid inserted in db");
+        });
+      }
+
+
+
       if (currentThemeIndex != null && currentThemeIndex != 1) {
         //check if exit otherwise update current theme index
+
+
+
         currentGrid = grid.get(currentThemeIndex);
         if (currentGrid == null) {
           //if current grid is corrupted go back to default theme
           await settings.put("current_grid_index", 1).then((value) {
             print("current_grid_index inserted (default was missing)!");
           });
+        }else{
+          //load current grid in temp
+          themeRecord = GridThemeRecord(id: 2, name: "Temporary Grid", schema: currentGrid.schema);
+
+          await grid.put(themeRecord.id, themeRecord).then((value) {
+            print("temporary grid inserted in db");
+          });
+
         }
       }
-      await settings.close();
-      await grid.close();
+
+
+
+      //await settings.close();
+      //await grid.close();
       return Future.value(true);
     }).onError((error, stackTrace) {
       print("[grid] Having error " + error.toString());

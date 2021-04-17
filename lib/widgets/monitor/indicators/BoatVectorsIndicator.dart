@@ -160,7 +160,7 @@ class _BoatVectorsIndicatorState extends State<BoatVectorsIndicator> with Dispos
 
   @override
   void dispose() {
-    print("CANCEL BOAT VECTORS SUBSCRIPTION");
+   // print("CANCEL BOAT VECTORS SUBSCRIPTION");
     cancelSubscriptions();
     super.dispose();
   }
@@ -173,9 +173,9 @@ class _BoatVectorsIndicatorState extends State<BoatVectorsIndicator> with Dispos
   Future<ui.Image> loadImage(List<int> img) async {
     final Completer<ui.Image> completer = new Completer();
     ui.decodeImageFromList(img, (ui.Image img) {
-      setState(() {
+      //setState(() {
         isImageloaded = true;
-      });
+      //});
       return completer.complete(img);
     });
     return completer.future;

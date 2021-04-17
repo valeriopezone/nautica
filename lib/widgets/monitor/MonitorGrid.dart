@@ -16,7 +16,7 @@ import 'package:nautica/models/BaseModel.dart';
 
 import 'package:nautica/Configuration.dart';
 
-import 'graph/BasicGraph.dart';
+import 'graph/DateValueAxisChart.dart';
 
 
 
@@ -26,9 +26,7 @@ class MonitorGrid extends StatefulWidget {
   StreamSubscriber StreamObject = null;
   String currentVessel = "";//vessels.urn:mrn:imo:mmsi:503999999
 
-  MonitorGrid({Key key,@required this.StreamObject,@required this.currentVessel}) : super(key: key){
-
-  }
+  MonitorGrid({Key key,@required this.StreamObject,@required this.currentVessel}) : super(key: key);
 
   @override
   _MonitorGridState createState() => _MonitorGridState();
@@ -47,10 +45,7 @@ class _MonitorGridState extends State<MonitorGrid> {
     //});
   }
 
-  _MonitorGridState(){
-
-  }
-
+  _MonitorGridState();
   @override
   void dispose(){
     super.dispose();
@@ -142,7 +137,7 @@ engine{
                 //    Intensity_Stream: _subscribeToStream("environment.wind.speedApparent"),
                 //    model : model
                 //),
-                BasicGraph(
+                DateValueAxisChart(
                     DataValue_Stream: _subscribeToStream("environment.wind.speedApparent"),
                     model : model),
               )
@@ -155,7 +150,7 @@ engine{
               height:180,
               child: CompassIndicator(
                 model : model,
-                COG_Stream: _subscribeToStream("navigation.courseOverGroundMagnetic"),
+                Value_Stream: _subscribeToStream("navigation.courseOverGroundMagnetic"),
               ),
             ))]),
             Padding(padding: EdgeInsets.only(bottom: _sidePadding)),
@@ -165,7 +160,7 @@ engine{
             SizedBox(
               height:180,
               child: SpeedIndicator(
-                  ST_Stream: _subscribeToStream("propulsion.engine_1.revolutions"),
+                  Speed_Stream: _subscribeToStream("propulsion.engine_1.revolutions"),
                   model : model
               ),
             ))]),
@@ -195,7 +190,7 @@ engine{
               height:180,
               child: CompassIndicator(
                 model : model,
-                COG_Stream: _subscribeToStream("navigation.courseOverGroundTrue"),
+                Value_Stream: _subscribeToStream("navigation.courseOverGroundTrue"),
               ),
             ))]),
             Padding(padding: EdgeInsets.only(bottom: _sidePadding)),
@@ -204,7 +199,7 @@ engine{
             SizedBox(
               height:180,
               child: SpeedIndicator(
-                  ST_Stream: _subscribeToStream("propulsion.engine_2.revolutions"),
+                  Speed_Stream: _subscribeToStream("propulsion.engine_2.revolutions"),
                   model : model
               ),
             ))]),
@@ -231,7 +226,7 @@ engine{
             SizedBox(
               height:180,
               child: SpeedIndicator(
-                  ST_Stream: _subscribeToStream("navigation.speedThroughWater"),
+                  Speed_Stream: _subscribeToStream("navigation.speedThroughWater"),
                   model : model
               ),
             ))]),

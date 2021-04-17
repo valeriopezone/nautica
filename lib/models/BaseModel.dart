@@ -178,6 +178,30 @@ Widget getLoadingPage(){
   );
 }
 
+
+  Widget getErrorPage(String errorTitle, String errorDescription){
+    return Container(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+
+            children: [
+              Stack(
+                children: [
+                  Text(errorTitle + " -> " + errorDescription),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
 final Set<VoidCallback> _listeners = Set<VoidCallback>();
 @override
 

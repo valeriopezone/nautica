@@ -120,7 +120,7 @@ class SignalKClient {
     //launch first request
     dynamic response = await this.execHTTPRequest(path: 'signalk');
     //.then((response) {
-    print("[loadSignalKData] RECEIVED : " + response.toString());
+    print("[loadSignalKData] RECEIVED RESPONSE");
     this.serverId = response['server']['id'];
     this.serverVersion = response['endpoints'][this.apiVersion]['version'];
 
@@ -164,6 +164,7 @@ class SignalKClient {
 
           vessels.forEach((vessel) {
             var i = vessel.toString();
+            print("GOING TO ADD $i");
             vesselsPaths[i] = new Map();
 
             var t = new APITreeExplorer(
@@ -176,7 +177,7 @@ class SignalKClient {
       }
     }
 
-    print(vesselsPaths.toString());
+    //print(vesselsPaths.toString());
 
     //set current available paths
   }

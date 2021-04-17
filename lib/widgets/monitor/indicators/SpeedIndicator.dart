@@ -7,13 +7,13 @@ import 'package:syncfusion_flutter_gauges/gauges.dart';
 
 
 class SpeedIndicator extends StatefulWidget {
-  dynamic ST_Value = 0.0;
-  Stream<dynamic> ST_Stream = null;
+  dynamic Speed_Value = 0.0;
+  Stream<dynamic> Speed_Stream = null;
   BaseModel model;
   final Function(String text, Icon icon) notifyParent;
 
   SpeedIndicator(
-      {Key key, @required this.ST_Stream, @required this.model, this.notifyParent})
+      {Key key, @required this.Speed_Stream, @required this.model, this.notifyParent})
       : super(key: key);
 
 
@@ -27,16 +27,16 @@ class _SpeedIndicatorState extends State<SpeedIndicator> with DisposableWidget{
   @override
   void initState(){
     super.initState();
-    if(widget.ST_Stream != null) {
-      widget.ST_Stream.listen((data) {
-        widget.ST_Value =  (data == null || data == 0) ? 0.0 : data + .0;
+    if(widget.Speed_Stream != null) {
+      widget.Speed_Stream.listen((data) {
+        widget.Speed_Value =  (data == null || data == 0) ? 0.0 : data + .0;
       }).canceledBy(this);
     }
   }
 
   @override
   void dispose() {
-    print("CANCEL SPEED INDICATOR SUBSCRIPTION");
+ //   print("CANCEL SPEED INDICATOR SUBSCRIPTION");
     cancelSubscriptions();
     super.dispose();
   }
@@ -48,7 +48,7 @@ class _SpeedIndicatorState extends State<SpeedIndicator> with DisposableWidget{
         //notifyParent(text, icon);
       },
       child: StreamBuilder(
-          stream: widget.ST_Stream,
+          stream: widget.Speed_Stream,
           builder: (context, snap) {
 
             return  SfRadialGauge(
@@ -80,7 +80,7 @@ class _SpeedIndicatorState extends State<SpeedIndicator> with DisposableWidget{
                       NeedlePointer(
                           needleStartWidth: 1,
                           enableAnimation: true,
-                          value: widget.ST_Value,
+                          value: widget.Speed_Value,
 
                           needleEndWidth: 5,
                           needleLength: 0.7,

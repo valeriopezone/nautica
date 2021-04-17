@@ -2,7 +2,7 @@ class APITreeExplorer {
   Map<String, Map> paths = new Map();
   dynamic map;
 
-  APITreeExplorer(this.map) {}
+  APITreeExplorer(this.map);
 
   Map<String, Map> retrieveAllRoutes() {
     findTree(this.map, "", "", "");
