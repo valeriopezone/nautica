@@ -4,7 +4,6 @@ import 'package:flutter/cupertino.dart';
 
 import 'package:nautica/models/BaseModel.dart';
 
-import 'package:nautica/Configuration.dart';
 
 class SubWidgetSelectionTile extends StatefulWidget {
   BaseModel model;
@@ -13,8 +12,7 @@ class SubWidgetSelectionTile extends StatefulWidget {
   String avoidWidget = "";
   int currentPositionIndex;
 
-  final void Function(int positionId, String selectedWidget)
-      onGoingToEditCallback;
+  final void Function(int positionId, String selectedWidget) onGoingToEditCallback;
   final void Function(int positionId) onGoingToDeleteCallback;
 
   SubWidgetSelectionTile(
@@ -29,8 +27,7 @@ class SubWidgetSelectionTile extends StatefulWidget {
       : super(key: key);
 
   void changeCurrentPosition(int positionId) {
-    print(
-        "Hi, i am ${subWidgetsNames[currentWidgetSelectedIndex]} $currentPositionIndex and now i'm $positionId");
+    print("Hi, i am ${subWidgetsNames[currentWidgetSelectedIndex]} $currentPositionIndex and now i'm $positionId");
     currentPositionIndex = positionId;
   }
 
@@ -62,8 +59,7 @@ class _SubWidgetSelectionTileState extends State<SubWidgetSelectionTile> {
         IconButton(
             icon: Icon(Icons.remove_circle_outline, color: Colors.red),
             onPressed: () {
-              print(
-                  "going to delete ${widget.subWidgetsNames[widget.currentWidgetSelectedIndex]} at ${widget.currentPositionIndex}");
+              print("going to delete ${widget.subWidgetsNames[widget.currentWidgetSelectedIndex]} at ${widget.currentPositionIndex}");
               widget.onGoingToDeleteCallback(widget.currentPositionIndex);
               //widget.currentPositionIndex, _selectedWidget);
             }),
@@ -88,18 +84,8 @@ class _SubWidgetSelectionTileState extends State<SubWidgetSelectionTile> {
                 hintStyle: TextStyle(
                   color: Colors.red,
                 ),
-                enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(4.0),
-                    borderSide: BorderSide(
-                        color: Colors.red,
-                        width: 1.0,
-                        style: BorderStyle.solid)),
-                focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(4.0),
-                    borderSide: BorderSide(
-                        color: Colors.red,
-                        width: 1.0,
-                        style: BorderStyle.solid)),
+                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(4.0), borderSide: BorderSide(color: Colors.red, width: 1.0, style: BorderStyle.solid)),
+                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(4.0), borderSide: BorderSide(color: Colors.red, width: 1.0, style: BorderStyle.solid)),
                 hintText: "Select a type"),
             value: widget.currentWidgetSelectedIndex,
             icon: const Icon(Icons.arrow_downward),
@@ -109,16 +95,14 @@ class _SubWidgetSelectionTileState extends State<SubWidgetSelectionTile> {
               print("you chose widget type : " + _selectedWidget.toString());
               widget.currentWidgetSelectedIndex = _selectedWidget;
               //call edit callback
-              widget.onGoingToEditCallback(
-                  widget.currentPositionIndex, _selectedWidget);
+              widget.onGoingToEditCallback(widget.currentPositionIndex, _selectedWidget);
             },
             dropdownColor: Colors.white,
             items: widget.subWidgetsNames.keys.map<DropdownMenuItem<String>>((String k) {
               //print("$k != ${widget.avoidWidget} curr : ${widget.currentWidgetSelectedIndex}");
               //if (k != widget.avoidWidget) {
-                return DropdownMenuItem<String>(
-                    child: Text(widget.subWidgetsNames[k]), value: k);
-             // }
+              return DropdownMenuItem<String>(child: Text(widget.subWidgetsNames[k]), value: k);
+              // }
             }).toList()),
       )),
     );

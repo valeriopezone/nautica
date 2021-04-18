@@ -17,6 +17,10 @@ import 'models/BaseModel.dart';
 import 'models/database/models.dart';
 import 'dart:convert' as convert;
 
+import 'package:path_provider/path_provider.dart';
+
+
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -123,8 +127,12 @@ Future<bool> initializeStorage() async {
   int currentThemeIndex;
   GridThemeRecord themeRecord;
   await Hive.initFlutter();
-  //final document = await getApplicationDocumentsDirectory();
-  //Hive.init(document.path);
+
+  if(!kIsWeb){
+    final document = await getApplicationDocumentsDirectory();
+    Hive.init(document.path);
+  }
+
   Hive.registerAdapter(GridThemeRecordAdapter());
 
 

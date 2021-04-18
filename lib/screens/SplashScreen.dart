@@ -145,8 +145,9 @@ class _SplashScreenState extends State<SplashScreen> {
 
            //save credentials
 
-           goToDashBoard();
          });
+         goToDashBoard();
+
        });
 
 
@@ -174,7 +175,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
     switch (viewStatus) {
       case 'ask_for_credentials':
-       //tryConnection();
+      // tryConnection();
         currentView = Container(
             child: Center(
           child: Container(
@@ -184,19 +185,13 @@ class _SplashScreenState extends State<SplashScreen> {
               mainAxisAlignment: MainAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
+
                 Expanded(
-                  flex: 3, // 20%
-                  child: Container(color: model.splashScreenBackground),
-                ),
-                Expanded(
-                  flex: 4, // 60%
+                  flex: 1, // 60%
                   child: Container(
                     child: Column(
                       children: [
-                        Expanded(
-                          flex: 2, // 20%
-                          child: Container(color: model.splashScreenBackground),
-                        ),
+
                         Expanded(
                           flex: 6, // 20%
                           child: Container(
@@ -353,18 +348,12 @@ class _SplashScreenState extends State<SplashScreen> {
                             ),
                           ),
                         ),
-                        Expanded(
-                          flex: 2, // 20%
-                          child: Container(color: model.splashScreenBackground),
-                        ),
+
                       ],
                     ),
                   ),
                 ),
-                Expanded(
-                  flex: 3, // 20%
-                  child: Container(color: model.splashScreenBackground),
-                )
+
               ],
             ),
           ),
