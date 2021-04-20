@@ -222,8 +222,7 @@ setState(() {
 
         print("INIT ONCE!");
 
-        signalK =
-            SignalKClient(signalKServerAddress, signalKServerPort, loginData);
+        signalK = SignalKClient(signalKServerAddress, signalKServerPort, loginData);
         //signalK = SignalKClient("192.168.1.179", 3000, loginData);
         SKFlow = StreamSubscriber(signalK);
 

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nautica/models/BaseModel.dart';
 import 'package:nautica/models/Helper.dart';
+import 'package:nautica/utils/HexColor.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 
 
@@ -11,9 +12,10 @@ class SpeedIndicator extends StatefulWidget {
   Stream<dynamic> Speed_Stream = null;
   BaseModel model;
   final Function(String text, Icon icon) notifyParent;
+  dynamic widgetGraphics;
 
   SpeedIndicator(
-      {Key key, @required this.Speed_Stream, @required this.model, this.notifyParent})
+      {Key key, @required this.Speed_Stream, @required this.model,@required this.widgetGraphics,this.notifyParent})
       : super(key: key);
 
 
@@ -23,9 +25,36 @@ class SpeedIndicator extends StatefulWidget {
 
 
 class _SpeedIndicatorState extends State<SpeedIndicator> with DisposableWidget{
-
+  Map graphics = new Map();
+  String currentTheme = "light";
   @override
   void initState(){
+
+    widget.model.addListener((){
+      print("THEME WIND CHANGE");
+      _loadWidgetGraphics();
+    });
+
+
+
+    graphics['radiusFactor'] = 1.0;
+    graphics['majorTickLength'] = 0.04;
+    graphics['majorTickThickness'] = 1.5;
+    graphics['minorTickLength'] = 0.04;
+    graphics['minorTickThickness'] = 1.5;
+    graphics['labelOffset']  = 15;
+    graphics['rangeOffset']  = 0.08;
+    graphics['gradientFrom']  = HexColor("#FF4CAF50");
+    graphics['gradientTo']  = HexColor("#FFF44336");
+    graphics['textColor'] = widget.model.textColor;
+
+
+
+    _loadWidgetGraphics();
+
+
+
+
     super.initState();
     if(widget.Speed_Stream != null) {
       widget.Speed_Stream.listen((data) {
@@ -33,6 +62,35 @@ class _SpeedIndicatorState extends State<SpeedIndicator> with DisposableWidget{
       }).canceledBy(this);
     }
   }
+
+
+
+  void _loadWidgetGraphics(){
+    currentTheme = widget.model.isDark ? "darkTheme" : "lightTheme";
+
+    if (widget.widgetGraphics != null) {
+      try {
+
+        graphics['radiusFactor'] = (widget.widgetGraphics[currentTheme]['radiusFactor'] is double) ? widget.widgetGraphics[currentTheme]['radiusFactor'] : double.parse(widget.widgetGraphics[currentTheme]['radiusFactor']);
+        graphics['majorTickLength'] = (widget.widgetGraphics[currentTheme]['majorTickLength'] is double) ? widget.widgetGraphics[currentTheme]['majorTickLength'] : double.parse(widget.widgetGraphics[currentTheme]['majorTickLength']);
+        graphics['majorTickThickness'] = (widget.widgetGraphics[currentTheme]['majorTickThickness'] is double) ? widget.widgetGraphics[currentTheme]['majorTickThickness'] : double.parse(widget.widgetGraphics[currentTheme]['majorTickThickness']);
+        graphics['minorTickLength'] = (widget.widgetGraphics[currentTheme]['minorTickLength'] is double) ? widget.widgetGraphics[currentTheme]['minorTickLength'] : double.parse(widget.widgetGraphics[currentTheme]['minorTickLength']);
+        graphics['minorTickThickness'] = (widget.widgetGraphics[currentTheme]['minorTickThickness'] is double) ? widget.widgetGraphics[currentTheme]['minorTickThickness'] : double.parse(widget.widgetGraphics[currentTheme]['minorTickThickness']);
+        graphics['labelOffset'] = (widget.widgetGraphics[currentTheme]['labelOffset'] is double) ? widget.widgetGraphics[currentTheme]['labelOffset'] : double.parse(widget.widgetGraphics[currentTheme]['labelOffset']);
+        graphics['gradientFrom'] =  HexColor(widget.widgetGraphics[currentTheme]['gradientFrom']);
+        graphics['gradientTo'] =  HexColor(widget.widgetGraphics[currentTheme]['gradientTo']);
+        graphics['textColor'] =  HexColor(widget.widgetGraphics[currentTheme]['textColor']);
+        graphics['rangeOffset'] = (widget.widgetGraphics[currentTheme]['rangeOffset'] is double) ? widget.widgetGraphics[currentTheme]['rangeOffset'] : double.parse(widget.widgetGraphics[currentTheme]['rangeOffset']);
+
+
+
+
+      } catch (e) {
+        print("WindIndicator error while loading graphics -> " + e.toString());
+      }
+    }
+  }
+
 
   @override
   void dispose() {
@@ -51,6 +109,18 @@ class _SpeedIndicatorState extends State<SpeedIndicator> with DisposableWidget{
           stream: widget.Speed_Stream,
           builder: (context, snap) {
 
+
+
+
+
+
+
+
+
+
+
+
+
             return  SfRadialGauge(
               axes: <RadialAxis>[
                 RadialAxis(
@@ -59,21 +129,21 @@ class _SpeedIndicatorState extends State<SpeedIndicator> with DisposableWidget{
                     maximum: 100,
                     ticksPosition: ElementsPosition.outside,
                     labelsPosition: ElementsPosition.outside,
-                    radiusFactor: 1.0,
+                    radiusFactor: graphics['radiusFactor'],
                     canRotateLabels: true,
                     majorTickStyle: MajorTickStyle(
-                      length: 0.04,
-                      thickness: 1.5,
+                      length: graphics['majorTickLength'],
+                      thickness: graphics['majorTickThickness'],
                       lengthUnit: GaugeSizeUnit.factor,
                     ),
                     minorTickStyle: MinorTickStyle(
-                      length: 0.04,
-                      thickness: 1.5,
+                      length: graphics['minorTickLength'],
+                      thickness: graphics['minorTickThickness'],
                       lengthUnit: GaugeSizeUnit.factor,
                     ),
                     minorTicksPerInterval: 5,
                     interval: 10,
-                    labelOffset: 15,
+                    labelOffset: graphics['labelOffset'],
                     axisLabelStyle: GaugeTextStyle(fontSize: 12),
                     useRangeColorForAxis: true,
                     pointers: <GaugePointer>[
@@ -95,11 +165,11 @@ class _SpeedIndicatorState extends State<SpeedIndicator> with DisposableWidget{
                           startValue: 0,
                           endValue: 100,
                           startWidth: 0.05,
-                          gradient: const SweepGradient(
-                              colors: <Color>[Colors.green, Colors.red],
+                          gradient:  SweepGradient(
+                              colors: <Color>[graphics['gradientFrom'], graphics['gradientTo']],
                               stops: <double>[0.25, 0.75]),
-                          color: widget.model.textColor,
-                          rangeOffset: 0.08,
+                          color: graphics['textColor'],
+                          rangeOffset: graphics['rangeOffset'],
                           endWidth: 0.1,
                           sizeUnit: GaugeSizeUnit.factor)
                     ]),

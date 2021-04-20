@@ -76,93 +76,324 @@ const Map IndicatorOptionsSpecs = {
 const Map IndicatorGraphicSpecs = {
   'WindIndicator': {
     'lightTheme': {
-      'labelFontSize': {
-        'type' : 'double',
-        'default' : 20
-      },
-      'labelFontColor': {
-        'type' : 'color',
-        'default' : "#003366ff"
-      },
 
-      'labelFontColor2': {
-        'type' : 'color',
-        'default' : "#33333333"
-      },
-      'labelFontColor3': {
-        'type' : 'color',
-        'default' : "#33333333"
-      },
-      'genericText': {
-        'type' : 'text',
-        'default' : "BLA BLA 123"
-      }
+        'radiusFactor': {
+          'type': 'double',
+          'default': 1.05
+        },
+        'radialLabelFontColor': {
+          'type': 'color',
+          'default': '#ff333333'
+        },
+        'majorTickSize': {
+          'type': 'double',
+          'default': 1.5
+        },
+        'majorTickLength': {
+          'type': 'double',
+          'default': 0.1
+        },
+        'angleLabelFontSize': {
+          'type': 'double',
+          'default': 25
+        },
+        'angleLabelFontColor': {
+          'type': 'color',
+          'default': '#ff333333'
+        },
+        'intensityLabelFontSize': {
+          'type': 'double',
+          'default': 18
+        },
+        'intensityLabelFontColor': {
+          'type': 'color',
+          'default': '#ff333333'
+        },
+        'needlePointerColor': {
+          'type': 'color',
+          'default': '#ff02897b'
+        },
+        'gaugePositiveColor': {
+          'type': 'color',
+          'default': '#ff149400'
+        },
+        'gaugeNegativeColor': {
+          'type': 'color',
+          'default': '#ff8d000a'
+        },
+        'minorTickSize': {
+          'type': 'double',
+          'default': 1.5
+        },
+        'minorTickLength': {
+          'type': 'double',
+          'default': 0.04
+        }
+
     },
     'darkTheme': {
-      'labelFontSize': {
-        'type' : 'double',
-        'default' : 55
-      },
-      'labelFontColor': {
-        'type' : 'color',
-        'default' : "#11223344"
-      },
 
-      'labelFontColor2': {
-        'type' : 'color',
-        'default' : "#44332211"
-      },
-      'labelFontColor3': {
-        'type' : 'color',
-        'default' : "#11332244"
-      },
-      'genericText': {
-        'type' : 'text',
-        'default' : "qww3"
-      }
+
+        'radiusFactor': {
+          'type': 'double',
+          'default': 1.05
+        },
+        'radialLabelFontColor': {
+          'type': 'color',
+          'default': '#fff2f2f2'
+        },
+        'majorTickSize': {
+          'type': 'double',
+          'default': 1.5
+        },
+        'majorTickLength': {
+          'type': 'double',
+          'default': 0.1
+        },
+        'angleLabelFontSize': {
+          'type': 'double',
+          'default': 25
+        },
+        'angleLabelFontColor': {
+          'type': 'color',
+          'default': '#fff2f2f2'
+        },
+        'intensityLabelFontSize': {
+          'type': 'double',
+          'default': 18
+        },
+        'intensityLabelFontColor': {
+          'type': 'color',
+          'default': '#fff2f2f2'
+        },
+        'needlePointerColor': {
+          'type': 'color',
+          'default': '#ff02897b'
+        },
+        'gaugePositiveColor': {
+          'type': 'color',
+          'default': '#ff149400'
+        },
+        'gaugeNegativeColor': {
+          'type': 'color',
+          'default': '#ff8d000a'
+        },
+        'minorTickSize': {
+          'type': 'double',
+          'default': 1.5
+        },
+        'minorTickLength': {
+          'type': 'double',
+          'default': 0.04
+        }
+
     }
   },
   'CompassIndicator': {
     'lightTheme': {
-      'labelFontSize': {
+      'axisRadiusFactor' : {
         'type' : 'double',
-        'default' : 220
+        'default' : 1.3
       },
-      'labelFontColor': {
+      'axisLabelFontColor' : {
         'type' : 'color',
-        'default' : "#3366ff00"
+        'default' : '#FF949494'
+      },
+      'axisLabelFontSize' : {
+        'type' : 'double',
+        'default' : 10
+      },
+      'minorTickColor' : {
+        'type' : 'color',
+        'default' : '#FF616161'
+      },
+      'minorTickThickness' : {
+        'type' : 'double',
+        'default' : 1.0
+      },
+      'minorTickLength' : {
+        'type' : 'double',
+        'default' :  0.058
+      },
+      'majorTickColor' : {
+        'type' : 'color',
+        'default' : '#FF949494'
+      },
+      'majorTickThickness' : {
+        'type' : 'double',
+        'default' : 2.3
+      },
+      'majorTickLength' : {
+        'type' : 'double',
+        'default' : 0.087
+      },
+      'markerOffset' : {
+        'type' : 'double',
+        'default' : 0.69
+      },
+      'markerHeight' : {
+        'type' : 'double',
+        'default' : 5
+      },
+      'markerWidth' : {
+        'type' : 'double',
+        'default' : 10
+      },
+      'gaugeFontColor' : {
+        'type' : 'color',
+        'default' : '#FFDF5F2D'
+      },
+      'gaugeFontSize' : {
+        'type' : 'double',
+        'default' : 16
       }
+
     },
     'darkTheme': {
-      'labelFontSize': {
+      'axisRadiusFactor' : {
         'type' : 'double',
-        'default' : 21
+        'default' : 1.3
       },
-      'labelFontColor': {
+      'axisLabelFontColor' : {
         'type' : 'color',
-        'default' : "#ffffff"
+        'default' : '#FF949494'
+      },
+      'axisLabelFontSize' : {
+        'type' : 'double',
+        'default' : 10
+      },
+      'minorTickColor' : {
+        'type' : 'color',
+        'default' : '#FF616161'
+      },
+      'minorTickThickness' : {
+        'type' : 'double',
+        'default' : 1.0
+      },
+      'minorTickLength' : {
+        'type' : 'double',
+        'default' :  0.058
+      },
+      'majorTickColor' : {
+        'type' : 'color',
+        'default' : '#FF949494'
+      },
+      'majorTickThickness' : {
+        'type' : 'double',
+        'default' : 2.3
+      },
+      'majorTickLength' : {
+        'type' : 'double',
+        'default' : 0.087
+      },
+      'markerOffset' : {
+        'type' : 'double',
+        'default' : 0.69
+      },
+      'markerHeight' : {
+        'type' : 'double',
+        'default' : 5
+      },
+      'markerWidth' : {
+        'type' : 'double',
+        'default' : 10
+      },
+      'gaugeFontColor' : {
+        'type' : 'color',
+        'default' : '#FFDF5F2D'
+      },
+      'gaugeFontSize' : {
+        'type' : 'double',
+        'default' : 16
       }
+
     }
   },
   'SpeedIndicator': {
     'lightTheme': {
-      'labelFontSize': {
+
+      'radiusFactor' : {
         'type' : 'double',
-        'default' : 20
+        'default' : 1.0
       },
-      'labelFontColor': {
+      'majorTickLength' : {
+        'type' : 'double',
+        'default' : 0.04
+      },
+      'majorTickThickness' : {
+        'type' : 'double',
+        'default' : 1.5
+      },
+      'minorTickLength' : {
+        'type' : 'double',
+        'default' : 0.04
+      },
+      'minorTickThickness' : {
+        'type' : 'double',
+        'default' : 1.5
+      },
+      'labelOffset' : {
+        'type' : 'double',
+        'default' : 15
+      },
+      'rangeOffset' : {
+        'type' : 'double',
+        'default' : 0.08
+      },
+      'gradientFrom' : {
         'type' : 'color',
-        'default' : "#3366ff00"
+        'default' : '#FF4CAF50'
+      },
+      'gradientTo' : {
+        'type' : 'color',
+        'default' : '#FFF44336'
+      },
+      'textColor' : {
+        'type' : 'color',
+        'default' : '#FF000000'
       }
     },
     'darkTheme': {
-      'labelFontSize': {
+
+      'radiusFactor' : {
         'type' : 'double',
-        'default' : 21
+        'default' : 1.0
       },
-      'labelFontColor': {
+      'majorTickLength' : {
+        'type' : 'double',
+        'default' : 0.04
+      },
+      'majorTickThickness' : {
+        'type' : 'double',
+        'default' : 1.5
+      },
+      'minorTickLength' : {
+        'type' : 'double',
+        'default' : 0.04
+      },
+      'minorTickThickness' : {
+        'type' : 'double',
+        'default' : 1.5
+      },
+      'labelOffset' : {
+        'type' : 'double',
+        'default' : 15
+      },
+      'rangeOffset' : {
+        'type' : 'double',
+        'default' : 0.08
+      },
+      'gradientFrom' : {
         'type' : 'color',
-        'default' : "#ffffff"
+        'default' : '#FF4CAF50'
+      },
+      'gradientTo' : {
+        'type' : 'color',
+        'default' : '#FFF44336'
+      },
+      'textColor' : {
+        'type' : 'color',
+        'default' : '#FFFFFFFF'
       }
     }
   },

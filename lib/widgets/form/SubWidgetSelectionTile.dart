@@ -53,8 +53,9 @@ class _SubWidgetSelectionTileState extends State<SubWidgetSelectionTile> {
     // TODO: implement build
     return ListTile(
       dense: true,
+      tileColor: widget.model.backgroundForm,
 
-      trailing: Icon(Icons.drag_indicator),
+      trailing: Icon(Icons.drag_indicator, color : widget.model.formLabelTextColor),
       leading: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
         IconButton(
             icon: Icon(Icons.remove_circle_outline, color: Colors.red),
@@ -77,27 +78,37 @@ class _SubWidgetSelectionTileState extends State<SubWidgetSelectionTile> {
               return null;
             },
             isExpanded: true,
+
             decoration: InputDecoration(
-                //labelText: 'Widget type',
+                labelText: 'Sub-Widget',
                 filled: true,
-                fillColor: Colors.white,
+                fillColor: widget.model.backgroundForm,
                 hintStyle: TextStyle(
-                  color: Colors.red,
+                  color: widget.model.formInputTextColor,
                 ),
-                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(4.0), borderSide: BorderSide(color: Colors.red, width: 1.0, style: BorderStyle.solid)),
-                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(4.0), borderSide: BorderSide(color: Colors.red, width: 1.0, style: BorderStyle.solid)),
-                hintText: "Select a type"),
+                labelStyle: TextStyle(
+                  color: widget.model.formLabelTextColor,
+                ),
+                enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(4.0),
+                    borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid)),
+                focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(4.0),
+                    borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid)),
+                hintText: "Select a widget"),
+
+            dropdownColor: widget.model.backgroundForm,
+
             value: widget.currentWidgetSelectedIndex,
-            icon: const Icon(Icons.arrow_downward),
+            icon:  Icon(Icons.arrow_downward , color: widget.model.formLabelTextColor),
             iconSize: 24,
-            style: TextStyle(height: 0.85, fontSize: 14.0, color: Colors.red),
+            style: TextStyle(height: 0.85, fontSize: 14.0, fontWeight : FontWeight.bold,color: widget.model.formLabelTextColor),
             onChanged: (String _selectedWidget) {
               print("you chose widget type : " + _selectedWidget.toString());
               widget.currentWidgetSelectedIndex = _selectedWidget;
               //call edit callback
               widget.onGoingToEditCallback(widget.currentPositionIndex, _selectedWidget);
             },
-            dropdownColor: Colors.white,
             items: widget.subWidgetsNames.keys.map<DropdownMenuItem<String>>((String k) {
               //print("$k != ${widget.avoidWidget} curr : ${widget.currentWidgetSelectedIndex}");
               //if (k != widget.avoidWidget) {

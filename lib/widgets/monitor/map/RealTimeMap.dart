@@ -110,7 +110,7 @@ class MapSampleState extends State<MapSample> with DisposableWidget {
   void setCustomMapPin() async {
     pinLocationIcon = await BitmapDescriptor.fromAssetImage(
         ImageConfiguration(devicePixelRatio: 2.5),
-        'assets/boat_indicator_small.png');
+        'assets/boat_indicator_mini.png');
 
     setState(() {
       pinMarkerLoaded = true;

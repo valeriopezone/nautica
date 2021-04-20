@@ -65,6 +65,13 @@ class _MonitorDragState extends State<MonitorDrag> {
   void initState() {
     super.initState();
     vessel = widget.currentVessel;
+
+    //shoule insert a listener for theme
+    //every theme change -> notify card -> rebuild single indicator
+    //use for(...) mainWidgetList.notify(themechanged);
+
+
+
     getMainGrid();
   }
 
@@ -720,8 +727,8 @@ Future<void> _persistentSaveCurrentGridChanges() async{
       /// both default to 16
       marginEnd: 18,
       marginBottom: 20,
-      icon: Icons.settings,
-      activeIcon: Icons.settings,
+      icon: Icons.grid_on_rounded,
+      activeIcon: Icons.grid_on_rounded,
       buttonSize: 56.0,
       visible: true,
       closeManually: false,
@@ -730,14 +737,16 @@ Future<void> _persistentSaveCurrentGridChanges() async{
       overlayOpacity: 0.2,
       onOpen: () => print('OPENING DIAL'),
       onClose: () => print('DIAL CLOSED'),
-      backgroundColor: Colors.green,
+      backgroundColor: model.formSectionLabelColor,
       foregroundColor: Colors.white,
       elevation: 8.0,
       children: [
         SpeedDialChild(
           child: Icon(Icons.undo_outlined),
           backgroundColor: Colors.red,
-          label: 'cancel changes',
+            foregroundColor: Colors.white,
+
+            label: 'cancel changes',
           labelStyle: TextStyle(fontSize: 18.0),
             onTap: () async{
               //rebuild current space

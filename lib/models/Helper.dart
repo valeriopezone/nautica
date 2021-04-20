@@ -153,6 +153,16 @@ Widget showWebThemeSettings(BaseModel model) {
                                 fontFamily: 'Roboto-Regular'),
                           )),
 
+                      Container(
+                          padding: const EdgeInsets.only(top: 25, left: 15),
+                          child: const Text(
+                            'Refresh rate | grid | col height',
+                            style: TextStyle(
+                                color: Color.fromRGBO(128, 128, 128, 1),
+                                fontSize: 14,
+                                fontFamily: 'Roboto-Regular'),
+                          )),
+
 
                       Container(
                         height: 44,
@@ -415,7 +425,7 @@ void showBottomSettingsPanel(BaseModel model, BuildContext context) {
                                       ? ThemeData.light()
                                       : ThemeData.dark();
                                 } else if (value == 1) {
-                                  model.currentThemeData = ThemeData.light();
+                                  model.currentThemeData = ThemeData.dark();//light
                                 } else {
                                   model.currentThemeData = ThemeData.dark();
                                 }

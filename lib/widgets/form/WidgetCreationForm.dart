@@ -6,6 +6,7 @@ import 'package:nautica/models/BaseModel.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:nautica/utils/HexColor.dart';
 import 'package:nautica/widgets/form/InputColorPicker.dart';
+import 'package:basic_utils/basic_utils.dart';
 
 import '../../Configuration.dart';
 import 'SubWidgetSelectionTile.dart';
@@ -38,11 +39,7 @@ class WidgetCreationForm extends StatefulWidget {
   }
 }
 
-
-
 class _WidgetCreationFormState extends State<WidgetCreationForm> {
-
-
   final _formKey = GlobalKey<FormState>();
 
   bool isLoadingForSaving = false;
@@ -56,12 +53,15 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
   String selectedWidget;
   Map<String, String> selectedSubscriptions = new Map();
   List<SubWidgetSelectionTile> subWidgets = [];
-
   TextEditingController widgetNameController = TextEditingController();
-
+  int widgetWidth = 1;
+  int widgetHeight = 1;
   dynamic widgetGraphicControllers = new Map();
 
   String widgetToAvoid = "";
+
+  List<int> availableWidgetWidths = [1, 2, 3, 4];
+  List<int> availableWidgetHeights = [1, 2, 3, 4];
 
   @override
   void initState() {
@@ -119,6 +119,12 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
       widgetNameController.text = editingW['widgetTitle'];
       selectedWidget = editingW['widgetClass'];
 
+      try {
+        widgetWidth = (mainList['width'] != null && mainList['width'] is int) ? mainList['width'] : int.parse(mainList['width']);
+        widgetHeight = (mainList['height'] != null && mainList['height'] is int) ? mainList['height'] : int.parse(mainList['height']);
+      } catch (e) {
+        print("Unable to parse width|height of object");
+      }
 
       int j = 0, l = 0;
       widgetToAvoid = widget.currentPositionId.toString() + "_" + currentToEdit.toString();
@@ -138,11 +144,10 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
       isLoadingForSaving = true;
     });
 
-
     dynamic composed = {};
     composed['current'] = 0; //(widget.currentPositionId == null || widget.currentPositionId == -1) ? 0 : widget.currentPositionId;
-    composed['width'] = 1;
-    composed['height'] = 1;
+    composed['width'] = widgetWidth;
+    composed['height'] = widgetHeight;
     composed['elements'] = <dynamic>[];
 
     dynamic firstEl = Map();
@@ -155,7 +160,6 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
     firstEl['widgetOptions']['graphics']['lightTheme'] = {};
     firstEl['widgetOptions']['graphics']['darkTheme'] = {};
     composed['elements'].add(firstEl);
-
 
     for (dynamic options in widgetGraphicControllers['lightTheme'].keys) {
       firstEl['widgetOptions']['graphics']['lightTheme'][options] = widgetGraphicControllers['lightTheme'][options].text.toString();
@@ -240,23 +244,35 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
 
   Widget _displayColorPicker(TextEditingController controller) {
     Color currentColor = (controller.text.isNotEmpty) ? HexColor(controller.text) : Colors.black;
+    //todo fix color change
 
-    return ElevatedButton(
-      onPressed: () {
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return InputColorPicker(
-                key: UniqueKey(),
-                currentColor: currentColor,
-                currentController: controller,
-                onColorChanged: (String newColor) {
-                  controller.text = newColor;
-                });
-          },
-        );
-      },
-      child: Icon(Icons.color_lens_outlined),
+    return SizedBox(
+      width:35,
+      child: ElevatedButton(
+
+        style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.all<Color>(currentColor),
+          shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.zero)),
+
+        ),
+
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return InputColorPicker(
+                  key: UniqueKey(),
+                  currentColor: currentColor,
+                  currentController: controller,
+                  onColorChanged: (String newColor) {
+                    controller.text = newColor;
+                    currentColor = HexColor(newColor);
+                  });
+            },
+          );
+        },
+        child: Text(""), //Icon(Icons.color_lens_outlined),
+      ),
     );
   }
 
@@ -264,49 +280,105 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
     title = (title == null) ? "" : title;
 
     controller.text = defaultValue.toString();
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        Expanded(
-          flex: 2,
-          child: Text(title, style: TextStyle(color: Colors.red, fontSize: 15, fontWeight: FontWeight.bold, fontFamily: 'Roboto-Medium')),
-        ),
-        (type == "color") ? _displayColorPicker(controller) : Container(),
-        Expanded(
-          flex: 2,
-          child: TextFormField(
-            controller: controller,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return '';
-              }
-              return null;
-            },
+    return Column(
+      children: [
+        Container(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Expanded(
+                flex: 2,
+                child: Container(
+                    padding: EdgeInsets.only(left : 5.0, right : 5.0),
 
-            inputFormatters: (type == "double")
-                ? <TextInputFormatter>[FilteringTextInputFormatter.allow(RegExp("[.0-9]"))]
-                : (type == "color")
-                    ? <TextInputFormatter>[FilteringTextInputFormatter.allow(RegExp("[#a-fA-F0-9]"))]
-                    : <TextInputFormatter>[],
+                    child: Text(
+                        StringUtils.capitalize(StringUtils.camelCaseToUpperUnderscore(title).replaceAll("_"," "), allWords: true),
 
-            cursorColor: Colors.red,
-            style: TextStyle(height: 0.85, fontSize: 14.0, color: Colors.red),
-            textAlignVertical: TextAlignVertical(y: 0.6),
-            autofocus: false,
-            //ecoration: InputDecoration(
-            //   labelText: defaultValue.toString(),
-            //   filled: true,
-            //   fillColor: Colors.white,
+                        style: TextStyle(color: widget.model.formInputTextColor, fontSize: 11.5, fontWeight: FontWeight.normal, fontFamily: 'Roboto-Medium'))),
+              ),
+              Expanded(
+                flex: 2,
+                child: Container(
+                  padding: EdgeInsets.only(left : 5.0, right : 0.0),
 
-            //   enabledBorder: OutlineInputBorder(
-            //       borderRadius: BorderRadius.circular(4.0),
-            //       borderSide: BorderSide(color: Colors.red, width: 1.0, style: BorderStyle.solid)),
-            //   focusedBorder: OutlineInputBorder(
-            //       borderRadius: BorderRadius.circular(4.0),
-            //       borderSide: BorderSide(color: Colors.red, width: 1.0, style: BorderStyle.solid)),
-            //  )
+                  child: TextFormField(
+                    controller: controller,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return '';
+                      }
+                      return null;
+                    },
+
+                    decoration: (type == "color") ?
+                    InputDecoration(
+
+                        fillColor: widget.model.backgroundForm,
+                        hintStyle: TextStyle(
+                          color: widget.model.formLabelTextColor,
+                          fontSize: 18,
+                        ),
+                        labelStyle: TextStyle(
+                          color: widget.model.formLabelTextColor,
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.zero,
+                            borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid)),
+                        focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.zero,
+                            borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid)),
+                        suffixIcon:  _displayColorPicker(controller)) :
+
+                    InputDecoration(
+                      filled: true,
+                      fillColor: widget.model.backgroundForm,
+                      hintStyle: TextStyle(
+                        color: widget.model.formLabelTextColor,
+                        fontSize: 18,
+                      ),
+                      labelStyle: TextStyle(
+                        color: widget.model.formLabelTextColor,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.zero,
+                          borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid)),
+                      focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.zero,
+                          borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid))),
+
+                    inputFormatters: (type == "double")
+                        ? <TextInputFormatter>[FilteringTextInputFormatter.allow(RegExp("[.0-9]"))]
+                        : (type == "color")
+                            ? <TextInputFormatter>[FilteringTextInputFormatter.allow(RegExp("[#a-fA-F0-9]"))]
+                            : <TextInputFormatter>[],
+
+                    cursorColor: Colors.red,
+                    style: TextStyle(height: 0.85, fontSize: 14.0, color: Colors.red),
+                    textAlignVertical: TextAlignVertical(y: 0.6),
+                    autofocus: false,
+
+                  ),
+                ),
+              ),
+
+
+
+
+
+            ],
           ),
-        )
+        ),
+         Padding(
+           padding: const EdgeInsets.all(0.0),//left:10, right : 10, top : 0, bottom :
+           child: Divider(
+             height : 1,
+              color: widget.model.themeData != null && widget.model.themeData.brightness == Brightness.dark
+                  ?  const Color.fromRGBO(238, 238, 238, 1)
+                  :const Color.fromRGBO(61, 61, 61, 1),
+              thickness: 0.8,
+            ),
+         ),
+
       ],
     );
   }
@@ -323,11 +395,8 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
     List<Widget> lightThemeOptions = [];
     List<Widget> darkThemeOptions = [];
 
-
     if (lightThemeList.keys.length > 0) {
-
       for (dynamic option in lightThemeList.keys) {
-
         var type = lightThemeList[option]['type'];
         var defaultValue = lightThemeList[option]['default'];
         if (currentGraphicData != null) {
@@ -344,9 +413,7 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
     }
 
     if (darkThemeList.keys.length > 0) {
-
       for (dynamic option in darkThemeList.keys) {
-
         var type = darkThemeList[option]['type'];
         var defaultValue = darkThemeList[option]['default'];
         if (currentGraphicData != null) {
@@ -361,14 +428,16 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
       }
     }
 
-
     return Column(
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            Text(' Light Theme', style: TextStyle(color: Colors.red, fontSize: 15, fontWeight: FontWeight.bold, fontFamily: 'Roboto-Medium')),
-            Text(' Dark Theme', style: TextStyle(color: Colors.red, fontSize: 15, fontWeight: FontWeight.bold, fontFamily: 'Roboto-Medium')),
+            Expanded(child: Text(' Light Theme', style: TextStyle(color: widget.model.formSectionLabelColor, fontSize: 12, fontWeight: FontWeight.bold, fontFamily: 'Roboto-Medium'))),
+            Expanded(child: Padding(
+              padding: const EdgeInsets.only(left : 8.0),
+              child: Text(' Dark Theme', style: TextStyle(color: widget.model.formSectionLabelColor, fontSize: 12, fontWeight: FontWeight.bold, fontFamily: 'Roboto-Medium')),
+            )),
           ],
         ),
         Row(
@@ -377,7 +446,9 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
             Expanded(
               flex: 2,
               child: Container(
-                color: Colors.yellow,
+                margin: const EdgeInsets.only(right: 8.0),
+                decoration: BoxDecoration(
+                    border: Border.all(color: widget.model.formLabelTextColor, width: 1), borderRadius: const BorderRadius.all(Radius.circular(4.0)), boxShadow: <BoxShadow>[]),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: lightThemeOptions,
@@ -387,7 +458,9 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
             Expanded(
               flex: 2,
               child: Container(
-                color: Colors.green,
+                margin: const EdgeInsets.only(left: 8.0),
+                decoration: BoxDecoration(
+                    border: Border.all(color: widget.model.formLabelTextColor, width: 1), borderRadius: const BorderRadius.all(Radius.circular(4.0)), boxShadow: <BoxShadow>[]),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: darkThemeOptions,
@@ -418,12 +491,14 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
                   child: Column(
                     children: [
                       Container(
+                        color: widget.model.backgroundForm,
                         height: screenHeight * 0.7,
                         width: screenWidth * 0.7,
                         padding: EdgeInsets.all(8.0),
                         child: CustomScrollView(
                           slivers: <Widget>[
                             SliverAppBar(
+                              backgroundColor: widget.model.paletteColor,
                               leading: IconButton(
                                   icon: Icon(Icons.close),
                                   onPressed: () {
@@ -452,7 +527,7 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
                                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                 children: <Widget>[
                                                   Text(' Informations',
-                                                      style: TextStyle(color: Colors.red, fontSize: 15, fontWeight: FontWeight.bold, fontFamily: 'Roboto-Medium')),
+                                                      style: TextStyle(color: widget.model.formSectionLabelColor, fontSize: 15, fontWeight: FontWeight.bold, fontFamily: 'Roboto-Medium')),
                                                 ],
                                               ),
                                             ),
@@ -467,22 +542,26 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
                                                     return null;
                                                   },
                                                   cursorColor: Colors.red,
-                                                  style: TextStyle(height: 0.85, fontSize: 14.0, color: Colors.red),
+                                                  style: TextStyle(height: 0.85, fontSize: 14.0, color: widget.model.formInputTextColor),
                                                   textAlignVertical: TextAlignVertical(y: 0.6),
                                                   autofocus: false,
                                                   decoration: InputDecoration(
                                                       labelText: 'Widget name',
                                                       filled: true,
-                                                      fillColor: Colors.white,
+                                                      fillColor: widget.model.backgroundForm,
                                                       hintStyle: TextStyle(
-                                                        color: Colors.red,
+                                                        color: widget.model.formLabelTextColor,
+                                                        fontSize: 18,
+                                                      ),
+                                                      labelStyle: TextStyle(
+                                                        color: widget.model.formLabelTextColor,
                                                       ),
                                                       enabledBorder: OutlineInputBorder(
                                                           borderRadius: BorderRadius.circular(4.0),
-                                                          borderSide: BorderSide(color: Colors.red, width: 1.0, style: BorderStyle.solid)),
+                                                          borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid)),
                                                       focusedBorder: OutlineInputBorder(
                                                           borderRadius: BorderRadius.circular(4.0),
-                                                          borderSide: BorderSide(color: Colors.red, width: 1.0, style: BorderStyle.solid)),
+                                                          borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid)),
                                                       hintText: "Define a name for this widget")),
                                             ),
                                             Padding(
@@ -498,21 +577,24 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
                                                   decoration: InputDecoration(
                                                       labelText: 'Widget type',
                                                       filled: true,
-                                                      fillColor: Colors.white,
+                                                      fillColor: widget.model.backgroundForm,
                                                       hintStyle: TextStyle(
-                                                        color: Colors.red,
+                                                        color: widget.model.formInputTextColor,
+                                                      ),
+                                                      labelStyle: TextStyle(
+                                                        color: widget.model.formLabelTextColor,
                                                       ),
                                                       enabledBorder: OutlineInputBorder(
                                                           borderRadius: BorderRadius.circular(4.0),
-                                                          borderSide: BorderSide(color: Colors.red, width: 1.0, style: BorderStyle.solid)),
+                                                          borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid)),
                                                       focusedBorder: OutlineInputBorder(
                                                           borderRadius: BorderRadius.circular(4.0),
-                                                          borderSide: BorderSide(color: Colors.red, width: 1.0, style: BorderStyle.solid)),
+                                                          borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid)),
                                                       hintText: "Select a type"),
                                                   value: selectedWidget,
                                                   icon: const Icon(Icons.arrow_downward),
                                                   iconSize: 24,
-                                                  style: TextStyle(height: 0.85, fontSize: 14.0, color: Colors.red),
+                                                  style: TextStyle(height: 0.85, fontSize: 14.0, color: widget.model.formInputTextColor),
                                                   onChanged: (String _selectedWidget) {
                                                     print("you chose widget type : " + _selectedWidget.toString());
                                                     setState(() {
@@ -522,7 +604,7 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
                                                       //widgetGraphicControllers.add()
                                                     });
                                                   },
-                                                  dropdownColor: Colors.white,
+                                                  dropdownColor: widget.model.backgroundForm,
                                                   items: IndicatorSpecs.entries.map<DropdownMenuItem<String>>((g) {
                                                     return DropdownMenuItem<String>(child: Text(g.key), value: g.key);
                                                   }).toList()),
@@ -533,17 +615,17 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
                                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                 children: <Widget>[
                                                   Text(' Stream Subscriptions',
-                                                      style: TextStyle(color: Colors.red, fontSize: 15, fontWeight: FontWeight.bold, fontFamily: 'Roboto-Medium')),
+                                                      style: TextStyle(color: widget.model.formSectionLabelColor, fontSize: 15, fontWeight: FontWeight.bold, fontFamily: 'Roboto-Medium')),
                                                 ],
                                               ),
                                             ),
                                             Padding(
                                               padding: const EdgeInsets.all(8.0),
                                               child: Container(
-                                                decoration: BoxDecoration(
-                                                    border: Border.all(color: Colors.red, width: 1.1),
-                                                    borderRadius: const BorderRadius.all(Radius.circular(12.0)),
-                                                    boxShadow: <BoxShadow>[]),
+                                                // decoration: BoxDecoration(
+                                                //     border: Border.all(color: Colors.red, width: 1.1),
+                                                //     borderRadius: const BorderRadius.all(Radius.circular(12.0)),
+                                                //     boxShadow: <BoxShadow>[]),
                                                 child: Builder(builder: (BuildContext context) {
                                                   print(IndicatorSpecs[selectedWidget].toString());
                                                   if (selectedWidget == null || IndicatorSpecs[selectedWidget] == null) {
@@ -571,7 +653,7 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
                                                       }
 
                                                       subscriptionFormList.add(Padding(
-                                                          padding: const EdgeInsets.all(8.0),
+                                                          padding:  EdgeInsets.only(top : 0, left : 0, right : 0, bottom : 15.0),
                                                           child: DropdownButtonFormField<String>(
                                                               validator: (value) {
                                                                 if (value == null || value.isEmpty) {
@@ -583,69 +665,54 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
                                                               decoration: InputDecoration(
                                                                   labelText: subscription.replaceAll("_", " "),
                                                                   filled: true,
-                                                                  fillColor: Colors.white,
+                                                                  fillColor: widget.model.backgroundForm,
                                                                   hintStyle: TextStyle(
-                                                                    color: Colors.red,
+                                                                    color: widget.model.formInputTextColor,
+                                                                  ),
+                                                                  labelStyle: TextStyle(
+                                                                    color: widget.model.formLabelTextColor,
                                                                   ),
                                                                   enabledBorder: OutlineInputBorder(
                                                                       borderRadius: BorderRadius.circular(4.0),
-                                                                      borderSide: BorderSide(color: Colors.red, width: 1.0, style: BorderStyle.solid)),
+                                                                      borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid)),
                                                                   focusedBorder: OutlineInputBorder(
                                                                       borderRadius: BorderRadius.circular(4.0),
-                                                                      borderSide: BorderSide(color: Colors.red, width: 1.0, style: BorderStyle.solid)),
+                                                                      borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid)),
                                                                   hintText: "Select a type"),
                                                               value: selectedSubscriptions[subscription],
                                                               icon: const Icon(Icons.arrow_downward),
                                                               iconSize: 24,
-                                                              style: TextStyle(height: 0.85, fontSize: 14.0, color: Colors.red),
+                                                              style: TextStyle(height: 0.85, fontSize: 14.0, color: widget.model.formInputTextColor),
                                                               onChanged: (String value) {
                                                                 print("selected : $value");
 
                                                                 selectedSubscriptions[subscription] = value;
                                                               },
-                                                              dropdownColor: Colors.white,
+                                                              dropdownColor: widget.model.backgroundForm,
                                                               items: allSubscriptionsList.map<DropdownMenuItem<String>>((g) {
                                                                 print("INSERTING -> " + g.toString());
-                                                                return DropdownMenuItem<String>(child: Text(g), value : g);
+                                                                return DropdownMenuItem<String>(child: Text(g), value: g);
                                                               }).toList())
 
+                                                          //  DropDownField(
+                                                          //      strict: false,
+                                                          //      itemsVisibleInDropdown: 5,
 
+                                                          //      //key:UniqueKey(),
+                                                          //      required: true,
+                                                          //      onValueChanged: (dynamic value) {
+                                                          //        print("selected : $value");
 
+                                                          //        selectedSubscriptions[subscription] = value;
+                                                          //      },
+                                                          //      labelStyle: TextStyle(height: 0.85, fontSize: 14.0, color: Colors.red),
+                                                          //      value: SuggestedIndicatorStreams[subscription],
+                                                          //      //selectedWidget,
+                                                          //      hintText: 'Select a subscription for this stream',
+                                                          //      labelText: subscription.replaceAll("_", " "),
+                                                          //      items: allSubscriptionsList)
 
-
-
-
-
-
-
-                                                       //  DropDownField(
-                                                       //      strict: false,
-                                                       //      itemsVisibleInDropdown: 5,
-
-                                                       //      //key:UniqueKey(),
-                                                       //      required: true,
-                                                       //      onValueChanged: (dynamic value) {
-                                                       //        print("selected : $value");
-
-                                                       //        selectedSubscriptions[subscription] = value;
-                                                       //      },
-                                                       //      labelStyle: TextStyle(height: 0.85, fontSize: 14.0, color: Colors.red),
-                                                       //      value: SuggestedIndicatorStreams[subscription],
-                                                       //      //selectedWidget,
-                                                       //      hintText: 'Select a subscription for this stream',
-                                                       //      labelText: subscription.replaceAll("_", " "),
-                                                       //      items: allSubscriptionsList)
-
-
-
-
-
-
-
-
-
-
-                                                      ));
+                                                          ));
                                                     }
                                                     return Column(
                                                       children: subscriptionFormList,
@@ -660,17 +727,131 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
                                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                 children: <Widget>[
                                                   Text(' Style and settings',
-                                                      style: TextStyle(color: Colors.red, fontSize: 15, fontWeight: FontWeight.bold, fontFamily: 'Roboto-Medium')),
+                                                      style: TextStyle(color: widget.model.formSectionLabelColor, fontSize: 15, fontWeight: FontWeight.bold, fontFamily: 'Roboto-Medium')),
                                                 ],
                                               ),
                                             ),
+                                          //  Padding(
+                                          //    padding: const EdgeInsets.only(left: 8.0, top: 5, right: 8, bottom: 3),
+                                          //    child: Row(
+                                          //      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          //      children: <Widget>[
+                                          //        Expanded(
+                                          //          flex: 2,
+                                          //          child: Container(
+                                          //            padding: EdgeInsets.only(right: 10),
+//
+                                          //            //color: Colors.yellow,
+                                          //            child: Column(
+                                          //              mainAxisAlignment: MainAxisAlignment.start,
+                                          //              children: [
+                                          //                DropdownButtonFormField<int>(
+                                          //                    validator: (value) {
+                                          //                      if (value == null || value <= 0 || value > availableWidgetWidths.last) {
+                                          //                        return 'Please select a valid width';
+                                          //                      }
+                                          //                      return null;
+                                          //                    },
+                                          //                    isExpanded: true,
+                                          //                    decoration: InputDecoration(
+                                          //                        labelText: "Width",
+                                          //                        filled: true,
+                                          //                        fillColor: widget.model.backgroundForm,
+                                          //                        hintStyle: TextStyle(
+                                          //                          color: widget.model.formInputTextColor,
+                                          //                        ),
+                                          //                        labelStyle: TextStyle(
+                                          //                          color: widget.model.formLabelTextColor,
+                                          //                        ),
+                                          //                        enabledBorder: OutlineInputBorder(
+                                          //                            borderRadius: BorderRadius.circular(4.0),
+                                          //                            borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid)),
+                                          //                        focusedBorder: OutlineInputBorder(
+                                          //                            borderRadius: BorderRadius.circular(4.0),
+                                          //                            borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid)),
+                                          //                        hintText: "Select a type"),
+                                          //                    value: widgetWidth,
+                                          //                    icon: const Icon(Icons.arrow_downward),
+                                          //                    iconSize: 24,
+                                          //                    style: TextStyle(height: 0.85, fontSize: 14.0, color: widget.model.formLabelTextColor),
+                                          //                    onChanged: (int value) {
+                                          //                      print("selected : $value");
+                                          //                      widgetWidth = value;
+                                          //                      //selectedSubscriptions[subscription] = value;
+                                          //                    },
+                                          //                    dropdownColor: Colors.white,
+                                          //                    items: availableWidgetWidths.map<DropdownMenuItem<int>>((int g) {
+                                          //                      print("INSERTING -> " + g.toString());
+                                          //                      return DropdownMenuItem<int>(child: Text(g.toString() + "/" + availableWidgetWidths.last.toString()), value: g);
+                                          //                    }).toList())
+                                          //              ],
+                                          //            ),
+                                          //          ),
+                                          //        ),
+                                          //        Expanded(
+                                          //          flex: 2,
+                                          //          child: Container(
+                                          //            padding: EdgeInsets.only(left: 10),
+                                          //            child: Column(
+                                          //              mainAxisAlignment: MainAxisAlignment.start,
+                                          //              children: [
+                                          //                DropdownButtonFormField<int>(
+                                          //                    validator: (value) {
+                                          //                      if (value == null || value <= 0 || value > availableWidgetHeights.last) {
+                                          //                        return 'Please select a valid width';
+                                          //                      }
+                                          //                      return null;
+                                          //                    },
+                                          //                    isExpanded: true,
+                                          //                    decoration: InputDecoration(
+                                          //                        labelText: "Height",
+                                          //                        filled: true,
+                                          //                        fillColor: widget.model.backgroundForm,
+                                          //                        hintStyle: TextStyle(
+                                          //                          color: widget.model.formInputTextColor,
+                                          //                        ),
+                                          //                        labelStyle: TextStyle(
+                                          //                          color: widget.model.formLabelTextColor,
+                                          //                        ),
+                                          //                        enabledBorder: OutlineInputBorder(
+                                          //                            borderRadius: BorderRadius.circular(4.0),
+                                          //                            borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid)),
+                                          //                        focusedBorder: OutlineInputBorder(
+                                          //                            borderRadius: BorderRadius.circular(4.0),
+                                          //                            borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid)),
+                                          //                        hintText: "Select a type"),
+                                          //                    value: widgetHeight,
+                                          //                    icon: const Icon(Icons.arrow_downward),
+                                          //                    iconSize: 24,
+                                          //                    style: TextStyle(height: 0.85, fontSize: 14.0, color: widget.model.formLabelTextColor),
+                                          //                    onChanged: (int value) {
+                                          //                      print("selected : $value");
+                                          //                      widgetHeight = value;
+                                          //                      //selectedSubscriptions[subscription] = value;
+                                          //                    },
+                                          //                    dropdownColor: Colors.white,
+                                          //                    items: availableWidgetHeights.map<DropdownMenuItem<int>>((int g) {
+                                          //                      print("INSERTING -> " + g.toString());
+                                          //                      return DropdownMenuItem<int>(child: Text(g.toString() + " Row"), value: g);
+                                          //                    }).toList())
+                                          //              ],
+                                          //            ),
+                                          //          ),
+                                          //        ),
+                                          //      ],
+                                          //    ),
+                                          //  ),
+
+
+
+
                                             Padding(
                                               padding: const EdgeInsets.all(8.0),
                                               child: Container(
-                                                decoration: BoxDecoration(
-                                                    border: Border.all(color: Colors.red, width: 1.1),
-                                                    borderRadius: const BorderRadius.all(Radius.circular(12.0)),
-                                                    boxShadow: <BoxShadow>[]),
+                                                //  decoration: BoxDecoration(
+                                                //      border: Border.all(color: Colors.red, width: 1.1),
+                                                //      borderRadius: const BorderRadius.all(Radius.circular(12.0)),
+                                                //      boxShadow: <BoxShadow>[]),
                                                 child: Builder(builder: (BuildContext context) {
                                                   if (selectedWidget == null || IndicatorGraphicSpecs[selectedWidget] == null) {
                                                     return Text("This widget have no settings");
@@ -710,11 +891,11 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
                                         Row(
                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: <Widget>[
-                                            Text(' Sub-widgets', style: TextStyle(color: Colors.red, fontSize: 15, fontWeight: FontWeight.bold, fontFamily: 'Roboto-Medium')),
+                                            Text(' Sub-widgets', style: TextStyle(color: widget.model.formSectionLabelColor, fontSize: 15, fontWeight: FontWeight.bold, fontFamily: 'Roboto-Medium')),
                                             (subWidgetsNames.length == 0 || (subWidgetsNames.length == 1 && subWidgetsNames[widgetToAvoid] != null))
                                                 ? Text("")
                                                 : IconButton(
-                                                    icon: Icon(Icons.add, color: Colors.red),
+                                                    icon: Icon(Icons.add, color: widget.model.formSectionLabelColor),
                                                     onPressed: () {
                                                       _addNewWidgetToSubWidgetForm(subWidgets.length, "[FIRST_ONE]", widgetToAvoid);
                                                     }),
@@ -724,11 +905,11 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
                                             ? Container()
                                             : Container(
                                                 width: screenWidth * 0.7,
-                                                height: (subWidgets.length < 7) ? subWidgets.length * 70.0 : 490.0,
-                                                decoration: BoxDecoration(
-                                                    border: Border.all(color: Colors.red, width: 1.1),
-                                                    borderRadius: const BorderRadius.all(Radius.circular(12.0)),
-                                                    boxShadow: <BoxShadow>[]),
+                                                height: (subWidgets.length > 0) ? subWidgets.length * 70.0 : 0.0,
+                                                //decoration: BoxDecoration(
+                                                //    border: Border.all(color: Colors.red, width: 1.1),
+                                                //    borderRadius: const BorderRadius.all(Radius.circular(12.0)),
+                                                //    boxShadow: <BoxShadow>[]),
                                                 child: FutureBuilder(builder: (context, snapshot) {
                                                   return ReorderableListView(
                                                     children: <Widget>[
@@ -766,10 +947,9 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
                       Container(
                         width: screenWidth * 0.7,
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: widget.model.backgroundForm,
+                            border: Border.all(color: Colors.transparent), borderRadius: const BorderRadius.all(Radius.zero), boxShadow: <BoxShadow>[]),
 
-                          //borderRadius: const BorderRadius.all(Radius.circular(12))
-                        ),
                         child: Row(
                           children: [
                             Expanded(
