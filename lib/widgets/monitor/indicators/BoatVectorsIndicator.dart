@@ -79,63 +79,63 @@ class _BoatVectorsIndicatorState extends State<BoatVectorsIndicator> with Dispos
 
     if(widget.ST_Stream != null) {
       widget.ST_Stream.listen((data) {
-        widget.ST_Value = (data == null || data == 0) ? 0.0 : data;
+        widget.ST_Value = (data == null || data == 0) ? 0.0 : data.toDouble();
       }).canceledBy(this);
     }
 
     if(widget.ATW_Stream != null) {
       widget.ATW_Stream.listen((data) {
-        widget.ATW_Value = (data == null || data == 0) ? 0.0 : data;
+        widget.ATW_Value = (data == null || data == 0) ? 0.0 : data.toDouble();
       }).canceledBy(this);
     }
 
     if(widget.AA_Stream != null) {
       widget.AA_Stream.listen((data) {
-        widget.AA_Value = (data == null || data == 0) ? 0.0 : data;
+        widget.AA_Value = (data == null || data == 0) ? 0.0 : data.toDouble();
       }).canceledBy(this);
     }
 
     if(widget.SA_Stream != null) {
       widget.SA_Stream.listen((data) {
-        widget.SA_Value = (data == null || data == 0) ? 0.0 : data;
+        widget.SA_Value = (data == null || data == 0) ? 0.0 : data.toDouble();
       }).canceledBy(this);
     }
 
     if(widget.HT_Stream != null) {
       widget.HT_Stream.listen((data) {
-        widget.HT_Value = (data == null || data == 0) ? 0.0 : data;
+        widget.HT_Value = (data == null || data == 0) ? 0.0 : data.toDouble();
       }).canceledBy(this);
     }
 
     if(widget.COG_Stream != null) {
       widget.COG_Stream.listen((data) {
-        widget.COG_Value = (data == null || data == 0) ? 0.0 : data;
+        widget.COG_Value = (data == null || data == 0) ? 0.0 : data.toDouble();
       }).canceledBy(this);
     }
 
     if(widget.SOG_Stream != null) {
       widget.SOG_Stream.listen((data) {
-        widget.SOG_Value = (data == null || data == 0) ? 0.0 : data;
+        widget.SOG_Value = (data == null || data == 0) ? 0.0 : data.toDouble();
       }).canceledBy(this);
     }
     if(widget.DBK_Stream != null) {
       widget.DBK_Stream.listen((data) {
-        widget.DBK_Value = (data == null || data == 0) ? 0.0 : data;
+        widget.DBK_Value = (data == null || data == 0) ? 0.0 : data.toDouble();
       }).canceledBy(this);
     }
     if(widget.DBS_Stream != null) {
       widget.DBS_Stream.listen((data) {
-        widget.DBS_Value = (data == null || data == 0) ? 0.0 : data;
+        widget.DBS_Value = (data == null || data == 0) ? 0.0 : data.toDouble();
       }).canceledBy(this);
     }
     if(widget.DBT_Stream != null) {
       widget.DBT_Stream.listen((data) {
-        widget.DBT_Value = (data == null || data == 0) ? 0.0 : data;
+        widget.DBT_Value = (data == null || data == 0) ? 0.0 : data.toDouble();
       }).canceledBy(this);
     }
     if(widget.DBST_Stream != null) {
       widget.DBST_Stream.listen((data) {
-        widget.DBST_Value = (data == null || data == 0) ? 0.0 : data;
+        widget.DBST_Value = (data == null || data == 0) ? 0.0 : data.toDouble();
       }).canceledBy(this);
     }
 

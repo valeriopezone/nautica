@@ -42,7 +42,9 @@ const Map IndicatorSpecs = {
     'DBT_Stream',
     'DBST_Stream'
   ],
-  'DateValueAxisChart': ['DataValue_Stream']
+  'DateValueAxisChart': ['DataValue_Stream'],
+  'RealTimeMap': ['LatLng_Stream'],
+  'TextIndicator': ['Text_Stream']
 };
 
 const Map SuggestedIndicatorStreams = {
@@ -61,387 +63,148 @@ const Map SuggestedIndicatorStreams = {
   'DBK_Stream': 'environment.depth.belowKeel',
   'DBS_Stream': 'environment.depth.belowSurface',
   'DBT_Stream': 'environment.depth.belowTransducer',
-  'DBST_Stream': 'environment.depth.surfaceToTransducer'
-};
-
-const Map IndicatorOptionsSpecs = {
-  'WindIndicator': {'labelFontSize': 20},
-  'CompassIndicator': {'labelFontSize': 20},
-  'SpeedIndicator': {'labelFontSize': 20},
-  'BoatVectorsIndicator': {'labelFontSize': 20},
-  'DateValueAxisChart': {'labelFontSize': 20}
+  'DBST_Stream': 'environment.depth.surfaceToTransducer',
+  'Text_Stream': 'environment.depth.belowKeel'
 };
 
 //types : color | text | double
 const Map IndicatorGraphicSpecs = {
   'WindIndicator': {
     'lightTheme': {
-
-        'radiusFactor': {
-          'type': 'double',
-          'default': 1.05
-        },
-        'radialLabelFontColor': {
-          'type': 'color',
-          'default': '#ff333333'
-        },
-        'majorTickSize': {
-          'type': 'double',
-          'default': 1.5
-        },
-        'majorTickLength': {
-          'type': 'double',
-          'default': 0.1
-        },
-        'angleLabelFontSize': {
-          'type': 'double',
-          'default': 25
-        },
-        'angleLabelFontColor': {
-          'type': 'color',
-          'default': '#ff333333'
-        },
-        'intensityLabelFontSize': {
-          'type': 'double',
-          'default': 18
-        },
-        'intensityLabelFontColor': {
-          'type': 'color',
-          'default': '#ff333333'
-        },
-        'needlePointerColor': {
-          'type': 'color',
-          'default': '#ff02897b'
-        },
-        'gaugePositiveColor': {
-          'type': 'color',
-          'default': '#ff149400'
-        },
-        'gaugeNegativeColor': {
-          'type': 'color',
-          'default': '#ff8d000a'
-        },
-        'minorTickSize': {
-          'type': 'double',
-          'default': 1.5
-        },
-        'minorTickLength': {
-          'type': 'double',
-          'default': 0.04
-        }
-
+      'radiusFactor': {'type': 'double', 'default': 1.05},
+      'radialLabelFontColor': {'type': 'color', 'default': '#ff333333'},
+      'majorTickSize': {'type': 'double', 'default': 1.5},
+      'majorTickLength': {'type': 'double', 'default': 0.1},
+      'angleLabelFontSize': {'type': 'double', 'default': 25},
+      'angleLabelFontColor': {'type': 'color', 'default': '#ff333333'},
+      'intensityLabelFontSize': {'type': 'double', 'default': 18},
+      'intensityLabelFontColor': {'type': 'color', 'default': '#ff333333'},
+      'needlePointerColor': {'type': 'color', 'default': '#ff02897b'},
+      'gaugePositiveColor': {'type': 'color', 'default': '#ff149400'},
+      'gaugeNegativeColor': {'type': 'color', 'default': '#ff8d000a'},
+      'minorTickSize': {'type': 'double', 'default': 1.5},
+      'minorTickLength': {'type': 'double', 'default': 0.04}
     },
     'darkTheme': {
-
-
-        'radiusFactor': {
-          'type': 'double',
-          'default': 1.05
-        },
-        'radialLabelFontColor': {
-          'type': 'color',
-          'default': '#fff2f2f2'
-        },
-        'majorTickSize': {
-          'type': 'double',
-          'default': 1.5
-        },
-        'majorTickLength': {
-          'type': 'double',
-          'default': 0.1
-        },
-        'angleLabelFontSize': {
-          'type': 'double',
-          'default': 25
-        },
-        'angleLabelFontColor': {
-          'type': 'color',
-          'default': '#fff2f2f2'
-        },
-        'intensityLabelFontSize': {
-          'type': 'double',
-          'default': 18
-        },
-        'intensityLabelFontColor': {
-          'type': 'color',
-          'default': '#fff2f2f2'
-        },
-        'needlePointerColor': {
-          'type': 'color',
-          'default': '#ff02897b'
-        },
-        'gaugePositiveColor': {
-          'type': 'color',
-          'default': '#ff149400'
-        },
-        'gaugeNegativeColor': {
-          'type': 'color',
-          'default': '#ff8d000a'
-        },
-        'minorTickSize': {
-          'type': 'double',
-          'default': 1.5
-        },
-        'minorTickLength': {
-          'type': 'double',
-          'default': 0.04
-        }
-
+      'radiusFactor': {'type': 'double', 'default': 1.05},
+      'radialLabelFontColor': {'type': 'color', 'default': '#fff2f2f2'},
+      'majorTickSize': {'type': 'double', 'default': 1.5},
+      'majorTickLength': {'type': 'double', 'default': 0.1},
+      'angleLabelFontSize': {'type': 'double', 'default': 25},
+      'angleLabelFontColor': {'type': 'color', 'default': '#fff2f2f2'},
+      'intensityLabelFontSize': {'type': 'double', 'default': 18},
+      'intensityLabelFontColor': {'type': 'color', 'default': '#fff2f2f2'},
+      'needlePointerColor': {'type': 'color', 'default': '#ff02897b'},
+      'gaugePositiveColor': {'type': 'color', 'default': '#ff149400'},
+      'gaugeNegativeColor': {'type': 'color', 'default': '#ff8d000a'},
+      'minorTickSize': {'type': 'double', 'default': 1.5},
+      'minorTickLength': {'type': 'double', 'default': 0.04}
     }
   },
   'CompassIndicator': {
     'lightTheme': {
-      'axisRadiusFactor' : {
-        'type' : 'double',
-        'default' : 1.3
-      },
-      'axisLabelFontColor' : {
-        'type' : 'color',
-        'default' : '#FF949494'
-      },
-      'axisLabelFontSize' : {
-        'type' : 'double',
-        'default' : 10
-      },
-      'minorTickColor' : {
-        'type' : 'color',
-        'default' : '#FF616161'
-      },
-      'minorTickThickness' : {
-        'type' : 'double',
-        'default' : 1.0
-      },
-      'minorTickLength' : {
-        'type' : 'double',
-        'default' :  0.058
-      },
-      'majorTickColor' : {
-        'type' : 'color',
-        'default' : '#FF949494'
-      },
-      'majorTickThickness' : {
-        'type' : 'double',
-        'default' : 2.3
-      },
-      'majorTickLength' : {
-        'type' : 'double',
-        'default' : 0.087
-      },
-      'markerOffset' : {
-        'type' : 'double',
-        'default' : 0.69
-      },
-      'markerHeight' : {
-        'type' : 'double',
-        'default' : 5
-      },
-      'markerWidth' : {
-        'type' : 'double',
-        'default' : 10
-      },
-      'gaugeFontColor' : {
-        'type' : 'color',
-        'default' : '#FFDF5F2D'
-      },
-      'gaugeFontSize' : {
-        'type' : 'double',
-        'default' : 16
-      }
-
+      'axisRadiusFactor': {'type': 'double', 'default': 1.3},
+      'axisLabelFontColor': {'type': 'color', 'default': '#FF949494'},
+      'axisLabelFontSize': {'type': 'double', 'default': 10},
+      'minorTickColor': {'type': 'color', 'default': '#FF616161'},
+      'minorTickThickness': {'type': 'double', 'default': 1.0},
+      'minorTickLength': {'type': 'double', 'default': 0.058},
+      'majorTickColor': {'type': 'color', 'default': '#FF949494'},
+      'majorTickThickness': {'type': 'double', 'default': 2.3},
+      'majorTickLength': {'type': 'double', 'default': 0.087},
+      'markerOffset': {'type': 'double', 'default': 0.69},
+      'markerHeight': {'type': 'double', 'default': 5},
+      'markerWidth': {'type': 'double', 'default': 10},
+      'gaugeFontColor': {'type': 'color', 'default': '#FFDF5F2D'},
+      'gaugeFontSize': {'type': 'double', 'default': 16}
     },
     'darkTheme': {
-      'axisRadiusFactor' : {
-        'type' : 'double',
-        'default' : 1.3
-      },
-      'axisLabelFontColor' : {
-        'type' : 'color',
-        'default' : '#FF949494'
-      },
-      'axisLabelFontSize' : {
-        'type' : 'double',
-        'default' : 10
-      },
-      'minorTickColor' : {
-        'type' : 'color',
-        'default' : '#FF616161'
-      },
-      'minorTickThickness' : {
-        'type' : 'double',
-        'default' : 1.0
-      },
-      'minorTickLength' : {
-        'type' : 'double',
-        'default' :  0.058
-      },
-      'majorTickColor' : {
-        'type' : 'color',
-        'default' : '#FF949494'
-      },
-      'majorTickThickness' : {
-        'type' : 'double',
-        'default' : 2.3
-      },
-      'majorTickLength' : {
-        'type' : 'double',
-        'default' : 0.087
-      },
-      'markerOffset' : {
-        'type' : 'double',
-        'default' : 0.69
-      },
-      'markerHeight' : {
-        'type' : 'double',
-        'default' : 5
-      },
-      'markerWidth' : {
-        'type' : 'double',
-        'default' : 10
-      },
-      'gaugeFontColor' : {
-        'type' : 'color',
-        'default' : '#FFDF5F2D'
-      },
-      'gaugeFontSize' : {
-        'type' : 'double',
-        'default' : 16
-      }
-
+      'axisRadiusFactor': {'type': 'double', 'default': 1.3},
+      'axisLabelFontColor': {'type': 'color', 'default': '#FF949494'},
+      'axisLabelFontSize': {'type': 'double', 'default': 10},
+      'minorTickColor': {'type': 'color', 'default': '#FF616161'},
+      'minorTickThickness': {'type': 'double', 'default': 1.0},
+      'minorTickLength': {'type': 'double', 'default': 0.058},
+      'majorTickColor': {'type': 'color', 'default': '#FF949494'},
+      'majorTickThickness': {'type': 'double', 'default': 2.3},
+      'majorTickLength': {'type': 'double', 'default': 0.087},
+      'markerOffset': {'type': 'double', 'default': 0.69},
+      'markerHeight': {'type': 'double', 'default': 5},
+      'markerWidth': {'type': 'double', 'default': 10},
+      'gaugeFontColor': {'type': 'color', 'default': '#FFDF5F2D'},
+      'gaugeFontSize': {'type': 'double', 'default': 16}
     }
   },
   'SpeedIndicator': {
     'lightTheme': {
-
-      'radiusFactor' : {
-        'type' : 'double',
-        'default' : 1.0
-      },
-      'majorTickLength' : {
-        'type' : 'double',
-        'default' : 0.04
-      },
-      'majorTickThickness' : {
-        'type' : 'double',
-        'default' : 1.5
-      },
-      'minorTickLength' : {
-        'type' : 'double',
-        'default' : 0.04
-      },
-      'minorTickThickness' : {
-        'type' : 'double',
-        'default' : 1.5
-      },
-      'labelOffset' : {
-        'type' : 'double',
-        'default' : 15
-      },
-      'rangeOffset' : {
-        'type' : 'double',
-        'default' : 0.08
-      },
-      'gradientFrom' : {
-        'type' : 'color',
-        'default' : '#FF4CAF50'
-      },
-      'gradientTo' : {
-        'type' : 'color',
-        'default' : '#FFF44336'
-      },
-      'textColor' : {
-        'type' : 'color',
-        'default' : '#FF000000'
-      }
+      'gaugeFontColor': {'type': 'color', 'default': "#FF000000"},
+      'gaugeFontSize': {'type': 'double', 'default': 17.0},
+      'radiusFactor': {'type': 'double', 'default': 1.0},
+      'majorTickLength': {'type': 'double', 'default': 0.04},
+      'majorTickThickness': {'type': 'double', 'default': 1.5},
+      'minorTickLength': {'type': 'double', 'default': 0.04},
+      'minorTickThickness': {'type': 'double', 'default': 1.5},
+      'labelOffset': {'type': 'double', 'default': 15.0},
+      'rangeOffset': {'type': 'double', 'default': 0.08},
+      'gradientFrom': {'type': 'color', 'default': '#FF4CAF50'},
+      'gradientTo': {'type': 'color', 'default': '#FFF44336'},
+      'textColor': {'type': 'color', 'default': '#FF000000'}
     },
     'darkTheme': {
-
-      'radiusFactor' : {
-        'type' : 'double',
-        'default' : 1.0
-      },
-      'majorTickLength' : {
-        'type' : 'double',
-        'default' : 0.04
-      },
-      'majorTickThickness' : {
-        'type' : 'double',
-        'default' : 1.5
-      },
-      'minorTickLength' : {
-        'type' : 'double',
-        'default' : 0.04
-      },
-      'minorTickThickness' : {
-        'type' : 'double',
-        'default' : 1.5
-      },
-      'labelOffset' : {
-        'type' : 'double',
-        'default' : 15
-      },
-      'rangeOffset' : {
-        'type' : 'double',
-        'default' : 0.08
-      },
-      'gradientFrom' : {
-        'type' : 'color',
-        'default' : '#FF4CAF50'
-      },
-      'gradientTo' : {
-        'type' : 'color',
-        'default' : '#FFF44336'
-      },
-      'textColor' : {
-        'type' : 'color',
-        'default' : '#FFFFFFFF'
-      }
+      'gaugeFontColor': {'type': 'color', 'default': "#ffffffff"},
+      'gaugeFontSize': {'type': 'double', 'default': 17.0},
+      'radiusFactor': {'type': 'double', 'default': 1.0},
+      'majorTickLength': {'type': 'double', 'default': 0.04},
+      'majorTickThickness': {'type': 'double', 'default': 1.5},
+      'minorTickLength': {'type': 'double', 'default': 0.04},
+      'minorTickThickness': {'type': 'double', 'default': 1.5},
+      'labelOffset': {'type': 'double', 'default': 15.0},
+      'rangeOffset': {'type': 'double', 'default': 0.08},
+      'gradientFrom': {'type': 'color', 'default': '#FF4CAF50'},
+      'gradientTo': {'type': 'color', 'default': '#FFF44336'},
+      'textColor': {'type': 'color', 'default': '#FFFFFFFF'}
     }
   },
   'BoatVectorsIndicator': {
-    'lightTheme':{
-      'labelFontSize': {
-        'type' : 'double',
-        'default' : 20
-      },
-      'labelFontColor': {
-        'type' : 'color',
-        'default' : "#3366ff00"
-      }
+    'lightTheme': {
+      'labelFontSize': {'type': 'double', 'default': 20},
+      'labelFontColor': {'type': 'color', 'default': "#3366ff00"}
     },
-    'darkTheme':{
-      'labelFontSize': {
-        'type' : 'double',
-        'default' : 21
-      },
-      'labelFontColor': {
-        'type' : 'color',
-        'default' : "#ffffff"
-      }
+    'darkTheme': {
+      'labelFontSize': {'type': 'double', 'default': 21},
+      'labelFontColor': {'type': 'color', 'default': "#ffffff"}
     }
   },
   'DateValueAxisChart': {
     'lightTheme': {
-      'labelFontSize': {
-        'type' : 'double',
-        'default' : 20
-      },
-      'labelFontColor': {
-        'type' : 'color',
-        'default' : "#3366ff00"
-      }
+      'labelFontSize': {'type': 'double', 'default': 20},
+      'labelFontColor': {'type': 'color', 'default': "#3366ff00"}
     },
     'darkTheme': {
-      'labelFontSize': {
-        'type' : 'double',
-        'default' : 21
-      },
-      'labelFontColor': {
-        'type' : 'color',
-        'default' : "#ffffff"
-      }
+      'labelFontSize': {'type': 'double', 'default': 21},
+      'labelFontColor': {'type': 'color', 'default': "#ffffff"}
     }
+  },
+  'RealTimeMap': {
+    'lightTheme': {},
+    'darkTheme': {},
+  },
+  'TextIndicator': {
+    'lightTheme': {
+      'labelFontSize': {'type': 'double', 'default': 45},
+      'labelFontColor': {'type': 'color', 'default': '#FF333333'},
+      'unitFontSize': {'type': 'double', 'default': 12},
+      'unitFontColor': {'type': 'color', 'default': '#FF333333'}
+    },
+    'darkTheme': {
+      'labelFontSize': {'type': 'double', 'default': 45},
+      'labelFontColor': {'type': 'color', 'default': '#FFF2F2F2'},
+      'unitFontSize': {'type': 'double', 'default': 12},
+      'unitFontColor': {'type': 'color', 'default': '#FFF2F2F2'}
+    },
   }
 };
+
 /*
 Map models = {"Player": Player.instatiate};
 var player = models["Player"]();
@@ -457,11 +220,11 @@ class Player{
 */
 
 String mainJSONGridTheme = '''
-{"name":"Nautica","description":"Basic grid","author":"Valerio Pezone","widgets":[{"current":0,"width":1,"height":1,"elements":[{"widgetTitle":"Apparent Wind","widgetClass":"WindIndicator","widgetSubscriptions":{"Angle_Stream":"environment.wind.angleApparent","Intensity_Stream":"environment.wind.speedApparent"}},{"widgetTitle":"Angle","widgetClass":"DateValueAxisChart","widgetSubscriptions":{"DataValue_Stream":"environment.wind.speedApparent"}},{"widgetTitle":"Speed","widgetClass":"DateValueAxisChart","widgetSubscriptions":{"DataValue_Stream":"environment.wind.speedApparent"}}]},{"current":0,"width":1,"height":1,"elements":[{"widgetTitle":"RPM #1","widgetClass":"SpeedIndicator","widgetSubscriptions":{"COG_Stream":"propulsion.engine_1.revolutions"}},{"widgetTitle":"about COG(m)","widgetClass":"DateValueAxisChart","widgetSubscriptions":{"DataValue_Stream":"propulsion.engine_1.revolutions"}}]},{"current":0,"width":1,"height":1,"elements":[{"widgetTitle":"RPM #2","widgetClass":"SpeedIndicator","widgetSubscriptions":{"COG_Stream":"propulsion.engine_2.revolutions"}},{"widgetTitle":"about COG(m)","widgetClass":"DateValueAxisChart","widgetSubscriptions":{"DataValue_Stream":"propulsion.engine_2.revolutions"}}]},{"current":0,"width":1,"height":1,"elements":[{"widgetTitle":"True wind through water","widgetClass":"WindIndicator","widgetSubscriptions":{"Angle_Stream":"environment.wind.angleTrueWater","Intensity_Stream":"environment.wind.speedTrue"}},{"widgetTitle":"Angle","widgetClass":"DateValueAxisChart","widgetSubscriptions":{"DataValue_Stream":"environment.wind.angleTrueWater"}},{"widgetTitle":"Speed","widgetClass":"DateValueAxisChart","widgetSubscriptions":{"DataValue_Stream":"environment.wind.speedTrue"}}]},{"current":0,"width":1,"height":1,"elements":[{"widgetTitle":"COG(m)","widgetClass":"CompassIndicator","widgetSubscriptions":{"COG_Stream":"navigation.courseOverGroundMagnetic"}},{"widgetTitle":"Angle","widgetClass":"DateValueAxisChart","widgetSubscriptions":{"DataValue_Stream":"navigation.courseOverGroundMagnetic"}}]},{"current":0,"width":1,"height":1,"elements":[{"widgetTitle":"COG(t)","widgetClass":"CompassIndicator","widgetSubscriptions":{"COG_Stream":"navigation.courseOverGroundMagnetic"}},{"widgetTitle":"Angle","widgetClass":"DateValueAxisChart","widgetSubscriptions":{"DataValue_Stream":"navigation.courseOverGroundMagnetic"}}]},{"current":0,"width":1,"height":1,"elements":[{"widgetTitle":"True wind over ground","widgetClass":"WindIndicator","widgetSubscriptions":{"Angle_Stream":"environment.wind.angleTrueGround","Intensity_Stream":"environment.wind.speedOverGround"}},{"widgetTitle":"Angle","widgetClass":"DateValueAxisChart","widgetSubscriptions":{"DataValue_Stream":"environment.wind.angleTrueGround"}},{"widgetTitle":"Speed","widgetClass":"DateValueAxisChart","widgetSubscriptions":{"DataValue_Stream":"environment.wind.speedOverGround"}}]},{"current":0,"width":1,"height":1,"elements":[{"widgetTitle":"Speed Through Water","widgetClass":"SpeedIndicator","widgetSubscriptions":{"COG_Stream":"navigation.speedThroughWater"}},{"widgetTitle":"about COG(m)","widgetClass":"DateValueAxisChart","widgetSubscriptions":{"DataValue_Stream":"navigation.speedThroughWater"}}]},{"current":0,"width":1,"height":1,"elements":[{"widgetTitle":"Real time boat","widgetClass":"BoatVectorsIndicator","widgetSubscriptions":{"ATW_Stream":"environment.wind.angleTrueWater","ST_Stream":"environment.wind.speedTrue","AA_Stream":"environment.wind.angleApparent","SA_Stream":"environment.wind.speedApparent","HT_Stream":"navigation.headingTrue","COG_Stream":"navigation.courseOverGroundTrue","SOG_Stream":"navigation.speedOverGround","LatLng_Stream":"navigation.position","DBK_Stream":"environment.depth.belowKeel","DBS_Stream":"environment.depth.belowSurface","DBT_Stream":"environment.depth.belowTransducer","DBST_Stream":"environment.depth.surfaceToTransducer"}},{"widgetTitle":"about COG(m)","widgetClass":"DateValueAxisChart","widgetSubscriptions":{"DataValue_Stream":"navigation.speedThroughWater"}}]}]}
+{"name":"Nautica","description":"Default grid","author":"Valerio Pezone","widgets":[{"current":0,"width":1,"height":2,"elements":[{"widgetTitle":"Apparent Wind","widgetClass":"WindIndicator","widgetSubscriptions":{"Angle_Stream":"environment.wind.angleApparent","Intensity_Stream":"environment.wind.speedApparent"},"widgetOptions":{"graphics":{"lightTheme":{"radiusFactor":"1.05","radialLabelFontColor":"#ff333333","majorTickSize":"1.5","majorTickLength":"0.1","angleLabelFontSize":"25","angleLabelFontColor":"#ff333333","intensityLabelFontSize":"18","intensityLabelFontColor":"#ff333333","needlePointerColor":"#ff02897b","gaugePositiveColor":"#ff149400","gaugeNegativeColor":"#ff8d000a","minorTickSize":"1.5","minorTickLength":"0.04"},"darkTheme":{"radiusFactor":"1.05","radialLabelFontColor":"#fff2f2f2","majorTickSize":"1.5","majorTickLength":"0.1","angleLabelFontSize":"25","angleLabelFontColor":"#fff2f2f2","intensityLabelFontSize":"18","intensityLabelFontColor":"#fff2f2f2","needlePointerColor":"#ff02897b","gaugePositiveColor":"#ff149400","gaugeNegativeColor":"#ff8d000a","minorTickSize":"1.5","minorTickLength":"0.04"}}}},{"widgetTitle":"Angle","widgetClass":"DateValueAxisChart","widgetSubscriptions":{"DataValue_Stream":"environment.wind.speedApparent"}},{"widgetTitle":"Speed","widgetClass":"DateValueAxisChart","widgetSubscriptions":{"DataValue_Stream":"environment.wind.speedApparent"}}]},{"current":0,"width":1,"height":1,"elements":[{"widgetTitle":"Speed through water","widgetClass":"TextIndicator","widgetSubscriptions":{"Text_Stream":"navigation.speedThroughWater"},"widgetOptions":{"graphics":{"lightTheme":{"labelFontSize":"45","labelFontColor":"#FF333333","unitFontSize":"12","unitFontColor":"#FF333333"},"darkTheme":{"labelFontSize":"45","labelFontColor":"#FFF2F2F2","unitFontSize":"12","unitFontColor":"#FFF2F2F2"}}}}]},{"current":0,"width":1,"height":1,"elements":[{"widgetTitle":"Water temperature","widgetClass":"TextIndicator","widgetSubscriptions":{"Text_Stream":"environment.water.temperature"},"widgetOptions":{"graphics":{"lightTheme":{"labelFontSize":"45","labelFontColor":"#FF333333","unitFontSize":"12","unitFontColor":"#FF333333"},"darkTheme":{"labelFontSize":"45","labelFontColor":"#FFF2F2F2","unitFontSize":"12","unitFontColor":"#FFF2F2F2"}}}}]},{"current":0,"width":1,"height":2,"elements":[{"widgetTitle":"COG(m)","widgetClass":"CompassIndicator","widgetSubscriptions":{"Value_Stream":"navigation.headingTrue"},"widgetOptions":{"graphics":{"lightTheme":{"axisRadiusFactor":"1.3","axisLabelFontColor":"#FF949494","axisLabelFontSize":"10","minorTickColor":"#FF616161","minorTickThickness":"1","minorTickLength":"0.058","majorTickColor":"#FF949494","majorTickThickness":"2.3","majorTickLength":"0.087","markerOffset":"0.69","markerHeight":"5","markerWidth":"10","gaugeFontColor":"#FFDF5F2D","gaugeFontSize":"16"},"darkTheme":{"axisRadiusFactor":"1.3","axisLabelFontColor":"#FF949494","axisLabelFontSize":"10","minorTickColor":"#FF616161","minorTickThickness":"1","minorTickLength":"0.058","majorTickColor":"#FF949494","majorTickThickness":"2.3","majorTickLength":"0.087","markerOffset":"0.69","markerHeight":"5","markerWidth":"10","gaugeFontColor":"#FFDF5F2D","gaugeFontSize":"16"}}}},{"widgetTitle":"Angle","widgetClass":"DateValueAxisChart","widgetSubscriptions":{"DataValue_Stream":"navigation.courseOverGroundMagnetic"}}]},{"current":0,"width":2,"height":2,"elements":[{"widgetTitle":"Real Time Map","widgetClass":"RealTimeMap","widgetSubscriptions":{"LatLng_Stream":"navigation.position"},"widgetOptions":{"graphics":{"lightTheme":{},"darkTheme":{}}}},{"widgetTitle":"about COG(m)","widgetClass":"DateValueAxisChart","widgetSubscriptions":{"DataValue_Stream":"navigation.speedThroughWater"}}]},{"current":0,"width":1,"height":2,"elements":[{"widgetTitle":"True wind over ground","widgetClass":"WindIndicator","widgetSubscriptions":{"Angle_Stream":"environment.wind.angleTrueWater","Intensity_Stream":"navigation.speedOverGround"},"widgetOptions":{"graphics":{"lightTheme":{"radiusFactor":"1.05","radialLabelFontColor":"#ff333333","majorTickSize":"1.5","majorTickLength":"0.1","angleLabelFontSize":"25","angleLabelFontColor":"#ff333333","intensityLabelFontSize":"18","intensityLabelFontColor":"#ff333333","needlePointerColor":"#ff02897b","gaugePositiveColor":"#ff149400","gaugeNegativeColor":"#ff8d000a","minorTickSize":"1.5","minorTickLength":"0.04"},"darkTheme":{"radiusFactor":"1.05","radialLabelFontColor":"#fff2f2f2","majorTickSize":"1.5","majorTickLength":"0.1","angleLabelFontSize":"25","angleLabelFontColor":"#fff2f2f2","intensityLabelFontSize":"18","intensityLabelFontColor":"#fff2f2f2","needlePointerColor":"#ff02897b","gaugePositiveColor":"#ff149400","gaugeNegativeColor":"#ff8d000a","minorTickSize":"1.5","minorTickLength":"0.04"}}}},{"widgetTitle":"Angle","widgetClass":"DateValueAxisChart","widgetSubscriptions":{"DataValue_Stream":"environment.wind.angleTrueGround"}},{"widgetTitle":"Speed","widgetClass":"DateValueAxisChart","widgetSubscriptions":{"DataValue_Stream":"environment.wind.speedOverGround"}}]},{"current":0,"width":1,"height":2,"elements":[{"widgetTitle":"COG(t)","widgetClass":"CompassIndicator","widgetSubscriptions":{"Value_Stream":"navigation.headingTrue"},"widgetOptions":{"graphics":{"lightTheme":{"axisRadiusFactor":"1.3","axisLabelFontColor":"#FF949494","axisLabelFontSize":"10","minorTickColor":"#FF616161","minorTickThickness":"1","minorTickLength":"0.058","majorTickColor":"#FF949494","majorTickThickness":"2.3","majorTickLength":"0.087","markerOffset":"0.69","markerHeight":"5","markerWidth":"10","gaugeFontColor":"#FFDF5F2D","gaugeFontSize":"16"},"darkTheme":{"axisRadiusFactor":"1.3","axisLabelFontColor":"#FF949494","axisLabelFontSize":"10","minorTickColor":"#FF616161","minorTickThickness":"1","minorTickLength":"0.058","majorTickColor":"#FF949494","majorTickThickness":"2.3","majorTickLength":"0.087","markerOffset":"0.69","markerHeight":"5","markerWidth":"10","gaugeFontColor":"#FFDF5F2D","gaugeFontSize":"16"}}}},{"widgetTitle":"Angle","widgetClass":"DateValueAxisChart","widgetSubscriptions":{"DataValue_Stream":"navigation.courseOverGroundMagnetic"}}]},{"current":0,"width":1,"height":1,"elements":[{"widgetTitle":"Depth below surface","widgetClass":"TextIndicator","widgetSubscriptions":{"Text_Stream":"environment.depth.belowSurface"},"widgetOptions":{"graphics":{"lightTheme":{"labelFontSize":"45","labelFontColor":"#FF333333","unitFontSize":"12","unitFontColor":"#FF333333"},"darkTheme":{"labelFontSize":"45","labelFontColor":"#FFF2F2F2","unitFontSize":"12","unitFontColor":"#FFF2F2F2"}}}}]},{"current":0,"width":1,"height":1,"elements":[{"widgetTitle":"Depth below keel","widgetClass":"TextIndicator","widgetSubscriptions":{"Text_Stream":"environment.depth.belowKeel"},"widgetOptions":{"graphics":{"lightTheme":{"labelFontSize":"45","labelFontColor":"#FF333333","unitFontSize":"12","unitFontColor":"#FF333333"},"darkTheme":{"labelFontSize":"45","labelFontColor":"#FFF2F2F2","unitFontSize":"12","unitFontColor":"#FFF2F2F2"}}}}]},{"current":0,"width":1,"height":2,"elements":[{"widgetTitle":"True wind through water","widgetClass":"WindIndicator","widgetSubscriptions":{"Angle_Stream":"environment.wind.angleTrueWater","Intensity_Stream":"environment.wind.speedTrue"},"widgetOptions":{"graphics":{"lightTheme":{"radiusFactor":"1.05","radialLabelFontColor":"#ff333333","majorTickSize":"1.5","majorTickLength":"0.1","angleLabelFontSize":"25","angleLabelFontColor":"#ff333333","intensityLabelFontSize":"18","intensityLabelFontColor":"#ff333333","needlePointerColor":"#ff02897b","gaugePositiveColor":"#ff149400","gaugeNegativeColor":"#ff8d000a","minorTickSize":"1.5","minorTickLength":"0.04"},"darkTheme":{"radiusFactor":"1.05","radialLabelFontColor":"#fff2f2f2","majorTickSize":"1.5","majorTickLength":"0.1","angleLabelFontSize":"25","angleLabelFontColor":"#fff2f2f2","intensityLabelFontSize":"18","intensityLabelFontColor":"#fff2f2f2","needlePointerColor":"#ff02897b","gaugePositiveColor":"#ff149400","gaugeNegativeColor":"#ff8d000a","minorTickSize":"1.5","minorTickLength":"0.04"}}}},{"widgetTitle":"Angle","widgetClass":"DateValueAxisChart","widgetSubscriptions":{"DataValue_Stream":"environment.wind.angleTrueWater"}},{"widgetTitle":"Speed","widgetClass":"DateValueAxisChart","widgetSubscriptions":{"DataValue_Stream":"environment.wind.speedTrue"}}]},{"current":0,"width":1,"height":2,"elements":[{"widgetTitle":"Engine 1","widgetClass":"SpeedIndicator","widgetSubscriptions":{"Speed_Stream":"propulsion.engine_1.revolutions"},"widgetOptions":{"graphics":{"lightTheme":{"radiusFactor":"1","majorTickLength":"0.04","majorTickThickness":"1.5","minorTickLength":"0.04","minorTickThickness":"1.5","labelOffset":"15","rangeOffset":"0.08","gradientFrom":"#FF4CAF50","gradientTo":"#FFF44336","textColor":"#FF000000"},"darkTheme":{"radiusFactor":"1","majorTickLength":"0.04","majorTickThickness":"1.5","minorTickLength":"0.04","minorTickThickness":"1.5","labelOffset":"15","rangeOffset":"0.08","gradientFrom":"#FF4CAF50","gradientTo":"#FFF44336","textColor":"#FFFFFFFF"}}}}]},{"current":0,"width":1,"height":2,"elements":[{"widgetTitle":"Engine 2","widgetClass":"SpeedIndicator","widgetSubscriptions":{"Speed_Stream":"propulsion.engine_2.revolutions"},"widgetOptions":{"graphics":{"lightTheme":{"radiusFactor":"1","majorTickLength":"0.04","majorTickThickness":"1.5","minorTickLength":"0.04","minorTickThickness":"1.5","labelOffset":"15","rangeOffset":"0.08","gradientFrom":"#FF4CAF50","gradientTo":"#FFF44336","textColor":"#FF000000"},"darkTheme":{"radiusFactor":"1","majorTickLength":"0.04","majorTickThickness":"1.5","minorTickLength":"0.04","minorTickThickness":"1.5","labelOffset":"15","rangeOffset":"0.08","gradientFrom":"#FF4CAF50","gradientTo":"#FFF44336","textColor":"#FFFFFFFF"}}}},{"widgetTitle":"RPM 2 Chart","widgetClass":"DateValueAxisChart","widgetSubscriptions":{"DataValue_Stream":"propulsion.engine_2.revolutions"},"widgetOptions":{"graphics":{"lightTheme":{"labelFontSize":"20","labelFontColor":"#3366ff00"},"darkTheme":{"labelFontSize":"21","labelFontColor":"#ffffff"}}}}]},{"current":0,"width":1,"height":1,"elements":[{"widgetTitle":"Position","widgetClass":"TextIndicator","widgetSubscriptions":{"Text_Stream":"navigation.position"},"widgetOptions":{"graphics":{"lightTheme":{"labelFontSize":"19","labelFontColor":"#FF333333"},"darkTheme":{"labelFontSize":"19","labelFontColor":"#FFF2F2F2"}}}}]},{"current":0,"width":1,"height":1,"elements":[{"widgetTitle":"True wind monitor","widgetClass":"DateValueAxisChart","widgetSubscriptions":{"DataValue_Stream":"environment.water.temperature"},"widgetOptions":{"graphics":{"lightTheme":{"labelFontSize":"20","labelFontColor":"#3366ff00"},"darkTheme":{"labelFontSize":"21","labelFontColor":"#ffffff"}}}}]}]}
 ''';
 
 String demoTheme = '''
-{"name":"grid1","description":"Descrizione demo","author":"Valerio Pezone","widgets":[{"current":0,"width":1,"height":1,"elements":[{"widgetTitle":"Apparent Wind","widgetClass":"WindIndicator","widgetSubscriptions":{"Angle_Stream":"environment.wind.angleApparent","Intensity_Stream":"environment.wind.speedApparent"},"widgetOptions":{"settings":[],"graphics":{"lightTheme":{"pointerColor":"#3366FF","textColor":"#3366AA","angleLabelFontSize":15.5,"angleLabelFontColor":"#3366BB","speedLabelFontSize":12.4,"speedLabelFontColor":"#3366EE"},"darkTheme":{"pointerColor":"#FFFFFF","textColor":"#333333","angleLabelFontSize":15.5,"angleLabelFontColor":"#BBBBBB","speedLabelFontSize":12.4,"speedLabelFontColor":"#AAAAAA"}}}},{"widgetTitle":"Apparent Wind1","widgetClass":"WindIndicator","widgetSubscriptions":{"Angle_Stream":"environment.wind.angleApparent","Intensity_Stream":"environment.wind.speedApparent"},"widgetOptions":{"settings":[],"graphics":{"lightTheme":{"pointerColor":"#3366FF","textColor":"#3366AA","angleLabelFontSize":15.5,"angleLabelFontColor":"#3366BB","speedLabelFontSize":12.4,"speedLabelFontColor":"#3366EE"},"darkTheme":{"pointerColor":"#FFFFFF","textColor":"#333333","angleLabelFontSize":15.5,"angleLabelFontColor":"#BBBBBB","speedLabelFontSize":12.4,"speedLabelFontColor":"#AAAAAA"}}}},{"widgetTitle":"Apparent Wind2","widgetClass":"WindIndicator","widgetSubscriptions":{"Angle_Stream":"environment.wind.angleApparent","Intensity_Stream":"environment.wind.speedApparent"},"widgetOptions":{"settings":[],"graphics":{"lightTheme":{"pointerColor":"#3366FF","textColor":"#3366AA","angleLabelFontSize":15.5,"angleLabelFontColor":"#3366BB","speedLabelFontSize":12.4,"speedLabelFontColor":"#3366EE"},"darkTheme":{"pointerColor":"#FFFFFF","textColor":"#333333","angleLabelFontSize":15.5,"angleLabelFontColor":"#BBBBBB","speedLabelFontSize":12.4,"speedLabelFontColor":"#AAAAAA"}}}}]},{"current":0,"width":1,"height":1,"elements":[{"widgetTitle":"SPEED Wind","widgetClass":"WindIndicator","widgetSubscriptions":{"Angle_Stream":"environment.wind.angleApparent","Intensity_Stream":"environment.wind.speedApparent"},"widgetOptions":{"settings":[],"graphics":{"lightTheme":{"pointerColor":"#3366FF","textColor":"#3366AA","angleLabelFontSize":15.5,"angleLabelFontColor":"#3366BB","speedLabelFontSize":12.4,"speedLabelFontColor":"#3366EE"},"darkTheme":{"pointerColor":"#FFFFFF","textColor":"#333333","angleLabelFontSize":15.5,"angleLabelFontColor":"#BBBBBB","speedLabelFontSize":12.4,"speedLabelFontColor":"#AAAAAA"}}}},{"widgetTitle":"SPEED Wind1","widgetClass":"WindIndicator","widgetSubscriptions":{"Angle_Stream":"environment.wind.angleApparent","Intensity_Stream":"environment.wind.speedApparent"},"widgetOptions":{"settings":[],"graphics":{"lightTheme":{"pointerColor":"#3366FF","textColor":"#3366AA","angleLabelFontSize":15.5,"angleLabelFontColor":"#3366BB","speedLabelFontSize":12.4,"speedLabelFontColor":"#3366EE"},"darkTheme":{"pointerColor":"#FFFFFF","textColor":"#333333","angleLabelFontSize":15.5,"angleLabelFontColor":"#BBBBBB","speedLabelFontSize":12.4,"speedLabelFontColor":"#AAAAAA"}}}},{"widgetTitle":"SPEED Wind2","widgetClass":"WindIndicator","widgetSubscriptions":{"Angle_Stream":"environment.wind.angleApparent","Intensity_Stream":"environment.wind.speedApparent"},"widgetOptions":{"settings":[],"graphics":{"lightTheme":{"pointerColor":"#3366FF","textColor":"#3366AA","angleLabelFontSize":15.5,"angleLabelFontColor":"#3366BB","speedLabelFontSize":12.4,"speedLabelFontColor":"#3366EE"},"darkTheme":{"pointerColor":"#FFFFFF","textColor":"#333333","angleLabelFontSize":15.5,"angleLabelFontColor":"#BBBBBB","speedLabelFontSize":12.4,"speedLabelFontColor":"#AAAAAA"}}}}]}]}
+{"name":"Nautica","description":"Default grid","author":"Valerio Pezone","widgets":[{"current":0,"width":1,"height":2,"elements":[{"widgetTitle":"Apparent Wind","widgetClass":"WindIndicator","widgetSubscriptions":{"Angle_Stream":"environment.wind.angleApparent","Intensity_Stream":"environment.wind.speedApparent"},"widgetOptions":{"graphics":{"lightTheme":{"radiusFactor":"1.05","radialLabelFontColor":"#ff333333","majorTickSize":"1.5","majorTickLength":"0.1","angleLabelFontSize":"25","angleLabelFontColor":"#ff333333","intensityLabelFontSize":"18","intensityLabelFontColor":"#ff333333","needlePointerColor":"#ff02897b","gaugePositiveColor":"#ff149400","gaugeNegativeColor":"#ff8d000a","minorTickSize":"1.5","minorTickLength":"0.04"},"darkTheme":{"radiusFactor":"1.05","radialLabelFontColor":"#fff2f2f2","majorTickSize":"1.5","majorTickLength":"0.1","angleLabelFontSize":"25","angleLabelFontColor":"#fff2f2f2","intensityLabelFontSize":"18","intensityLabelFontColor":"#fff2f2f2","needlePointerColor":"#ff02897b","gaugePositiveColor":"#ff149400","gaugeNegativeColor":"#ff8d000a","minorTickSize":"1.5","minorTickLength":"0.04"}}}},{"widgetTitle":"Angle","widgetClass":"DateValueAxisChart","widgetSubscriptions":{"DataValue_Stream":"environment.wind.speedApparent"}},{"widgetTitle":"Speed","widgetClass":"DateValueAxisChart","widgetSubscriptions":{"DataValue_Stream":"environment.wind.speedApparent"}}]},{"current":0,"width":1,"height":1,"elements":[{"widgetTitle":"Speed through water","widgetClass":"TextIndicator","widgetSubscriptions":{"Text_Stream":"navigation.speedThroughWater"},"widgetOptions":{"graphics":{"lightTheme":{"labelFontSize":"45","labelFontColor":"#FF333333","unitFontSize":"12","unitFontColor":"#FF333333"},"darkTheme":{"labelFontSize":"45","labelFontColor":"#FFF2F2F2","unitFontSize":"12","unitFontColor":"#FFF2F2F2"}}}}]},{"current":0,"width":1,"height":1,"elements":[{"widgetTitle":"Water temperature","widgetClass":"TextIndicator","widgetSubscriptions":{"Text_Stream":"environment.water.temperature"},"widgetOptions":{"graphics":{"lightTheme":{"labelFontSize":"45","labelFontColor":"#FF333333","unitFontSize":"12","unitFontColor":"#FF333333"},"darkTheme":{"labelFontSize":"45","labelFontColor":"#FFF2F2F2","unitFontSize":"12","unitFontColor":"#FFF2F2F2"}}}}]},{"current":0,"width":1,"height":2,"elements":[{"widgetTitle":"COG(m)","widgetClass":"CompassIndicator","widgetSubscriptions":{"Value_Stream":"navigation.headingTrue"},"widgetOptions":{"graphics":{"lightTheme":{"axisRadiusFactor":"1.3","axisLabelFontColor":"#FF949494","axisLabelFontSize":"10","minorTickColor":"#FF616161","minorTickThickness":"1","minorTickLength":"0.058","majorTickColor":"#FF949494","majorTickThickness":"2.3","majorTickLength":"0.087","markerOffset":"0.69","markerHeight":"5","markerWidth":"10","gaugeFontColor":"#FFDF5F2D","gaugeFontSize":"16"},"darkTheme":{"axisRadiusFactor":"1.3","axisLabelFontColor":"#FF949494","axisLabelFontSize":"10","minorTickColor":"#FF616161","minorTickThickness":"1","minorTickLength":"0.058","majorTickColor":"#FF949494","majorTickThickness":"2.3","majorTickLength":"0.087","markerOffset":"0.69","markerHeight":"5","markerWidth":"10","gaugeFontColor":"#FFDF5F2D","gaugeFontSize":"16"}}}},{"widgetTitle":"Angle","widgetClass":"DateValueAxisChart","widgetSubscriptions":{"DataValue_Stream":"navigation.courseOverGroundMagnetic"}}]},{"current":0,"width":2,"height":2,"elements":[{"widgetTitle":"Real Time Map","widgetClass":"RealTimeMap","widgetSubscriptions":{"LatLng_Stream":"navigation.position"},"widgetOptions":{"graphics":{"lightTheme":{},"darkTheme":{}}}},{"widgetTitle":"about COG(m)","widgetClass":"DateValueAxisChart","widgetSubscriptions":{"DataValue_Stream":"navigation.speedThroughWater"}}]},{"current":0,"width":1,"height":2,"elements":[{"widgetTitle":"True wind over ground","widgetClass":"WindIndicator","widgetSubscriptions":{"Angle_Stream":"environment.wind.angleTrueWater","Intensity_Stream":"navigation.speedOverGround"},"widgetOptions":{"graphics":{"lightTheme":{"radiusFactor":"1.05","radialLabelFontColor":"#ff333333","majorTickSize":"1.5","majorTickLength":"0.1","angleLabelFontSize":"25","angleLabelFontColor":"#ff333333","intensityLabelFontSize":"18","intensityLabelFontColor":"#ff333333","needlePointerColor":"#ff02897b","gaugePositiveColor":"#ff149400","gaugeNegativeColor":"#ff8d000a","minorTickSize":"1.5","minorTickLength":"0.04"},"darkTheme":{"radiusFactor":"1.05","radialLabelFontColor":"#fff2f2f2","majorTickSize":"1.5","majorTickLength":"0.1","angleLabelFontSize":"25","angleLabelFontColor":"#fff2f2f2","intensityLabelFontSize":"18","intensityLabelFontColor":"#fff2f2f2","needlePointerColor":"#ff02897b","gaugePositiveColor":"#ff149400","gaugeNegativeColor":"#ff8d000a","minorTickSize":"1.5","minorTickLength":"0.04"}}}},{"widgetTitle":"Angle","widgetClass":"DateValueAxisChart","widgetSubscriptions":{"DataValue_Stream":"environment.wind.angleTrueGround"}},{"widgetTitle":"Speed","widgetClass":"DateValueAxisChart","widgetSubscriptions":{"DataValue_Stream":"environment.wind.speedOverGround"}}]},{"current":0,"width":1,"height":2,"elements":[{"widgetTitle":"COG(t)","widgetClass":"CompassIndicator","widgetSubscriptions":{"Value_Stream":"navigation.headingTrue"},"widgetOptions":{"graphics":{"lightTheme":{"axisRadiusFactor":"1.3","axisLabelFontColor":"#FF949494","axisLabelFontSize":"10","minorTickColor":"#FF616161","minorTickThickness":"1","minorTickLength":"0.058","majorTickColor":"#FF949494","majorTickThickness":"2.3","majorTickLength":"0.087","markerOffset":"0.69","markerHeight":"5","markerWidth":"10","gaugeFontColor":"#FFDF5F2D","gaugeFontSize":"16"},"darkTheme":{"axisRadiusFactor":"1.3","axisLabelFontColor":"#FF949494","axisLabelFontSize":"10","minorTickColor":"#FF616161","minorTickThickness":"1","minorTickLength":"0.058","majorTickColor":"#FF949494","majorTickThickness":"2.3","majorTickLength":"0.087","markerOffset":"0.69","markerHeight":"5","markerWidth":"10","gaugeFontColor":"#FFDF5F2D","gaugeFontSize":"16"}}}},{"widgetTitle":"Angle","widgetClass":"DateValueAxisChart","widgetSubscriptions":{"DataValue_Stream":"navigation.courseOverGroundMagnetic"}}]},{"current":0,"width":1,"height":1,"elements":[{"widgetTitle":"Depth below surface","widgetClass":"TextIndicator","widgetSubscriptions":{"Text_Stream":"environment.depth.belowSurface"},"widgetOptions":{"graphics":{"lightTheme":{"labelFontSize":"45","labelFontColor":"#FF333333","unitFontSize":"12","unitFontColor":"#FF333333"},"darkTheme":{"labelFontSize":"45","labelFontColor":"#FFF2F2F2","unitFontSize":"12","unitFontColor":"#FFF2F2F2"}}}}]},{"current":0,"width":1,"height":1,"elements":[{"widgetTitle":"Depth below keel","widgetClass":"TextIndicator","widgetSubscriptions":{"Text_Stream":"environment.depth.belowKeel"},"widgetOptions":{"graphics":{"lightTheme":{"labelFontSize":"45","labelFontColor":"#FF333333","unitFontSize":"12","unitFontColor":"#FF333333"},"darkTheme":{"labelFontSize":"45","labelFontColor":"#FFF2F2F2","unitFontSize":"12","unitFontColor":"#FFF2F2F2"}}}}]},{"current":0,"width":1,"height":2,"elements":[{"widgetTitle":"True wind through water","widgetClass":"WindIndicator","widgetSubscriptions":{"Angle_Stream":"environment.wind.angleTrueWater","Intensity_Stream":"environment.wind.speedTrue"},"widgetOptions":{"graphics":{"lightTheme":{"radiusFactor":"1.05","radialLabelFontColor":"#ff333333","majorTickSize":"1.5","majorTickLength":"0.1","angleLabelFontSize":"25","angleLabelFontColor":"#ff333333","intensityLabelFontSize":"18","intensityLabelFontColor":"#ff333333","needlePointerColor":"#ff02897b","gaugePositiveColor":"#ff149400","gaugeNegativeColor":"#ff8d000a","minorTickSize":"1.5","minorTickLength":"0.04"},"darkTheme":{"radiusFactor":"1.05","radialLabelFontColor":"#fff2f2f2","majorTickSize":"1.5","majorTickLength":"0.1","angleLabelFontSize":"25","angleLabelFontColor":"#fff2f2f2","intensityLabelFontSize":"18","intensityLabelFontColor":"#fff2f2f2","needlePointerColor":"#ff02897b","gaugePositiveColor":"#ff149400","gaugeNegativeColor":"#ff8d000a","minorTickSize":"1.5","minorTickLength":"0.04"}}}},{"widgetTitle":"Angle","widgetClass":"DateValueAxisChart","widgetSubscriptions":{"DataValue_Stream":"environment.wind.angleTrueWater"}},{"widgetTitle":"Speed","widgetClass":"DateValueAxisChart","widgetSubscriptions":{"DataValue_Stream":"environment.wind.speedTrue"}}]},{"current":0,"width":1,"height":2,"elements":[{"widgetTitle":"Engine 1","widgetClass":"SpeedIndicator","widgetSubscriptions":{"Speed_Stream":"propulsion.engine_1.revolutions"},"widgetOptions":{"graphics":{"lightTheme":{"radiusFactor":"1","majorTickLength":"0.04","majorTickThickness":"1.5","minorTickLength":"0.04","minorTickThickness":"1.5","labelOffset":"15","rangeOffset":"0.08","gradientFrom":"#FF4CAF50","gradientTo":"#FFF44336","textColor":"#FF000000"},"darkTheme":{"radiusFactor":"1","majorTickLength":"0.04","majorTickThickness":"1.5","minorTickLength":"0.04","minorTickThickness":"1.5","labelOffset":"15","rangeOffset":"0.08","gradientFrom":"#FF4CAF50","gradientTo":"#FFF44336","textColor":"#FFFFFFFF"}}}}]},{"current":0,"width":1,"height":2,"elements":[{"widgetTitle":"Engine 2","widgetClass":"SpeedIndicator","widgetSubscriptions":{"Speed_Stream":"propulsion.engine_2.revolutions"},"widgetOptions":{"graphics":{"lightTheme":{"radiusFactor":"1","majorTickLength":"0.04","majorTickThickness":"1.5","minorTickLength":"0.04","minorTickThickness":"1.5","labelOffset":"15","rangeOffset":"0.08","gradientFrom":"#FF4CAF50","gradientTo":"#FFF44336","textColor":"#FF000000"},"darkTheme":{"radiusFactor":"1","majorTickLength":"0.04","majorTickThickness":"1.5","minorTickLength":"0.04","minorTickThickness":"1.5","labelOffset":"15","rangeOffset":"0.08","gradientFrom":"#FF4CAF50","gradientTo":"#FFF44336","textColor":"#FFFFFFFF"}}}},{"widgetTitle":"RPM 2 Chart","widgetClass":"DateValueAxisChart","widgetSubscriptions":{"DataValue_Stream":"propulsion.engine_2.revolutions"},"widgetOptions":{"graphics":{"lightTheme":{"labelFontSize":"20","labelFontColor":"#3366ff00"},"darkTheme":{"labelFontSize":"21","labelFontColor":"#ffffff"}}}}]},{"current":0,"width":1,"height":1,"elements":[{"widgetTitle":"Position","widgetClass":"TextIndicator","widgetSubscriptions":{"Text_Stream":"navigation.position"},"widgetOptions":{"graphics":{"lightTheme":{"labelFontSize":"19","labelFontColor":"#FF333333"},"darkTheme":{"labelFontSize":"19","labelFontColor":"#FFF2F2F2"}}}}]},{"current":0,"width":1,"height":1,"elements":[{"widgetTitle":"True wind monitor","widgetClass":"DateValueAxisChart","widgetSubscriptions":{"DataValue_Stream":"environment.water.temperature"},"widgetOptions":{"graphics":{"lightTheme":{"labelFontSize":"20","labelFontColor":"#3366ff00"},"darkTheme":{"labelFontSize":"21","labelFontColor":"#ffffff"}}}}]}]}
 ''';
 
 String x = '''

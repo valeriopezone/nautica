@@ -110,7 +110,7 @@ class MapSampleState extends State<MapSample> with DisposableWidget {
   void setCustomMapPin() async {
     pinLocationIcon = await BitmapDescriptor.fromAssetImage(
         ImageConfiguration(devicePixelRatio: 2.5),
-        'assets/boat_indicator_mini.png');
+        'assets/boat_indicator_dashboard.png');
 
     setState(() {
       pinMarkerLoaded = true;
@@ -153,7 +153,7 @@ class MapSampleState extends State<MapSample> with DisposableWidget {
                   compassEnabled: false,
                   tiltGesturesEnabled: false,
                   markers: _markers,
-                  polylines: _polyLine.toSet(),
+                //  polylines: _polyLine.toSet(),
                   mapType: MapType.normal,
                   initialCameraPosition: initialCameraPosition,
                   onTap: (LatLng loc) {
@@ -178,8 +178,7 @@ class MapSampleState extends State<MapSample> with DisposableWidget {
           )
 
           ),
-          MapPinPillComponent(
-              pinPillPosition: pinPillPosition)
+          //MapPinPillComponent(              pinPillPosition: pinPillPosition)
         ],
       ),
     );
@@ -193,16 +192,16 @@ class MapSampleState extends State<MapSample> with DisposableWidget {
 
     setState(() {
 
-      _polyLine.add(Polyline(
-        polylineId: PolylineId("route1"),
-        color: Colors.red,
-        patterns: [PatternItem.dash(20.0), PatternItem.gap(10)],
-        width: 3,
-        points: [
-          LatLng_Value,
-          polarToLatLong(LatLng_Value,5000,HT_Value)
-        ],
-      ));
+ // _polyLine.add(Polyline(
+ //   polylineId: PolylineId("route1"),
+ //   color: Colors.red,
+ //   patterns: [PatternItem.dash(20.0), PatternItem.gap(10)],
+ //   width: 3,
+ //   points: [
+ //     LatLng_Value,
+ //     polarToLatLong(LatLng_Value,5000,HT_Value)
+ //   ],
+ // ));
 
 
       _markers.add(Marker(
@@ -238,21 +237,21 @@ class MapSampleState extends State<MapSample> with DisposableWidget {
       var pinPosition = LatLng(LatLng_Value.latitude, LatLng_Value.longitude);
 
       _markers.removeWhere((m) => m.markerId.value == 'sourcePin');
-      _polyLine.removeWhere((m) => m.polylineId.value == 'route1');
+      //_polyLine.removeWhere((m) => m.polylineId.value == 'route1');
 
 
       setState(() {
 
-        _polyLine.add(Polyline(
-          polylineId: PolylineId("route1"),
-          color: Colors.red,
-          patterns: [PatternItem.dash(20.0), PatternItem.gap(10)],
-          width: 3,
-          points: [
-            pinPosition,
-            polarToLatLong(pinPosition,5000,HT_Value)
-          ],
-        ));
+      //_polyLine.add(Polyline(
+      //  polylineId: PolylineId("route1"),
+      //  color: Colors.red,
+      //  patterns: [PatternItem.dash(20.0), PatternItem.gap(10)],
+      //  width: 3,
+      //  points: [
+      //    pinPosition,
+      //    polarToLatLong(pinPosition,5000,HT_Value)
+      //  ],
+      //));
 
 
 

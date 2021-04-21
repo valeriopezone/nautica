@@ -76,14 +76,14 @@ class _WindIndicatorState extends State<WindIndicator> with DisposableWidget {
       print("listening 1");
       widget.Angle_Stream.listen((data) {
         widget.haveData = (data == null) ? false : true;
-        widget.Angle_Value = (data == null || data == 0) ? 0.0 : (data * 180 / pi);
+        widget.Angle_Value = (data == null || data == 0) ? 0.0 : (data.toDouble() * 180 / pi);
       }).canceledBy(this);
     }
 
     if (widget.Intensity_Stream != null) {
       print("listening 2");
       widget.Intensity_Stream.listen((data) {
-        widget.Intensity_Value = (data == null || data == 0) ? 0.0 : data;
+        widget.Intensity_Value = (data == null || data == 0) ? 0.0 : data.toDouble();
       }).canceledBy(this);
     }
   }

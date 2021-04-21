@@ -484,6 +484,7 @@ setState(() {
                                                           height: 0,
                                                           color: model.splashScreenBackground,
                                                         ),
+
                                                         onChanged: (String vessel) {
                                                           if(haveGridChanges){
                                                             showSaveAlertDialog();
@@ -508,23 +509,84 @@ setState(() {
                                                         }).toList(),
                                                       )
                                                   ) : Container(),
-                                                  Padding(padding: EdgeInsets.only(left: 25)),
+
+                                                  Padding(padding: EdgeInsets.only(left: 8)),
+
+
+                                                  (currentGridIndex != null ) ? SizedBox(
+                                                      child:  DropdownButton<int>(
+                                                          value: currentGridIndex,
+                                                          icon: const Icon(Icons.arrow_downward),
+                                                          iconSize: 24,
+                                                          elevation: 16,
+                                                          style: const TextStyle(color: Colors.white),
+                                                          underline: Container(
+                                                            height: 0,
+                                                            color: model.splashScreenBackground,
+                                                          ),
+                                                          onChanged: (int _selectedGrid) async {
+                                                            print("you chose : " + _selectedGrid.toString());
+
+                                                            if( _selectedGrid != currentGridIndex){
+                                                              //check if changes are made, if yes alert
+
+                                                              if(haveGridChanges){
+                                                                showSaveAlertDialog();
+                                                                return null;
+                                                              }else{
+                                                                await _changeSelectedGrid(_selectedGrid).then((value){
+                                                                  //update view
+                                                                  setState((){
+                                                                    currentGridIndex = _selectedGrid;
+                                                                  });
+                                                                  if(currentViewState == "monitors"){
+                                                                    setState(() {
+                                                                      MonitorDragKey = UniqueKey();
+                                                                    });
+                                                                  }
+
+
+                                                                  _setViewState("monitors");
+                                                                });
+                                                              }
+
+
+                                                            }
+                                                          },
+                                                          dropdownColor: Colors.black,
+                                                          items: gridsList.entries.map<DropdownMenuItem<int>>((g){
+                                                            return  DropdownMenuItem<int>(
+                                                                child: Text(g.value),
+                                                                value: g.key
+                                                            );
+                                                          }).toList()
+
+                                                      )
+                                                  ) : Container(),
+
+
+
+
+
+
+                                                 Padding(padding: EdgeInsets.only(left: 25)),
                                                   SizedBox(
                                                     child: MaterialButton(
                                                       onPressed: (){_setViewState("monitors");},//_setViewState("subscriptions"),
-                                                      child: Text("MON"),
+                                                      child: Text("DASH"),
                                                       color: Colors.white,
                                                     ),
                                                   ),
-
-                                                  Padding(padding: EdgeInsets.only(left: 25)),
-                                                  SizedBox(
-                                                    child: MaterialButton(
-                                                      onPressed: (){_setViewState("monitors_r");},//_setViewState("subscriptions"),
-                                                      child: Text("MONV"),
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
+//
+                                                 // Padding(padding: EdgeInsets.only(left: 25)),
+                                                 // SizedBox(
+                                                 //   child: MaterialButton(
+                                                 //     onPressed: (){_setViewState("monitors_r");},//_setViewState("subscriptions"),
+                                                 //     child: Text("MONV"),
+                                                 //     color: Colors.white,
+                                                 //   ),
+                                                 // ),
+                                                 // Padding(padding: EdgeInsets.only(left: 25)),
                                                   Padding(padding: EdgeInsets.only(left: 25)),
 
                                                   SizedBox(
@@ -538,77 +600,25 @@ setState(() {
                                                   ),
                                                   Padding(padding: EdgeInsets.only(left: 25)),
 
-                                                  SizedBox(
-                                                    child: MaterialButton(
-                                                      onPressed: (){_setViewState("real_time_map");},//_setViewState("subscriptions"),
-                                                      child: Text("MAP"),
-                                                      color: Colors.white,
+                                                 //SizedBox(
+                                                 //  child: MaterialButton(
+                                                 //    onPressed: (){_setViewState("real_time_map");},//_setViewState("subscriptions"),
+                                                 //    child: Text("MAP"),
+                                                 //    color: Colors.white,
 
 
-                                                    ),
-                                                  ),
-                                                  Padding(padding: EdgeInsets.only(left: 25)),
+                                                 //  ),
+                                                 //),
+                                                 // Padding(padding: EdgeInsets.only(left: 25)),
 
                                                   SizedBox(
                                                     child: MaterialButton(
                                                       onPressed: (){cleanPrefsAndGoToSetup().then((value) => goToSetup());},//_setViewState("subscriptions"),
-                                                      child: Text("LOGOUT"),
+                                                      child: Text("EXIT"),
                                                       color: Colors.white,
                                                     ),
                                                   ),
 
-
-
-                                                  (currentGridIndex != null ) ? SizedBox(
-                                                      child:  DropdownButton<int>(
-                                                        value: currentGridIndex,
-                                                        icon: const Icon(Icons.arrow_downward),
-                                                        iconSize: 24,
-                                                        elevation: 16,
-                                                        style: const TextStyle(color: Colors.white),
-                                                        underline: Container(
-                                                          height: 0,
-                                                          color: model.splashScreenBackground,
-                                                        ),
-                                                        onChanged: (int _selectedGrid) async {
-                                                          print("you chose : " + _selectedGrid.toString());
-
-                                                          if( _selectedGrid != currentGridIndex){
-                                                            //check if changes are made, if yes alert
-
-                                                            if(haveGridChanges){
-                                                              showSaveAlertDialog();
-                                                              return null;
-                                                            }else{
-                                                              await _changeSelectedGrid(_selectedGrid).then((value){
-                                                                //update view
-                                                                setState((){
-                                                                  currentGridIndex = _selectedGrid;
-                                                                });
-                                                                if(currentViewState == "monitors"){
-                                                                setState(() {
-                                                                    MonitorDragKey = UniqueKey();
-                                                                });
-                                                                }
-
-
-                                                                _setViewState("monitors");
-                                                              });
-                                                            }
-
-
-                                                          }
-                                                        },
-                                                        dropdownColor: Colors.black,
-                                                        items: gridsList.entries.map<DropdownMenuItem<int>>((g){
-                                                          return  DropdownMenuItem<int>(
-                                                            child: Text(g.value),
-                                                            value: g.key
-                                                          );
-                                                        }).toList()
-
-                                                      )
-                                                  ) : Container(),
 
 
 

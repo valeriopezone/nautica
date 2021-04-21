@@ -425,7 +425,7 @@ void showBottomSettingsPanel(BaseModel model, BuildContext context) {
                                       ? ThemeData.light()
                                       : ThemeData.dark();
                                 } else if (value == 1) {
-                                  model.currentThemeData = ThemeData.dark();//light
+                                  model.currentThemeData = ThemeData.light();//light
                                 } else {
                                   model.currentThemeData = ThemeData.dark();
                                 }

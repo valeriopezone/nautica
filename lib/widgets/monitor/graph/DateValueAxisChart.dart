@@ -1,10 +1,12 @@
 import 'dart:async';
 /// Dart imports
 import 'dart:math';
+import 'package:intl/intl.dart';
 
 /// Package import
 import 'package:flutter/material.dart';
 import 'package:nautica/models/BaseModel.dart';
+import 'package:nautica/models/Helper.dart';
 
 /// Chart import
 import 'package:syncfusion_flutter_charts/charts.dart';
@@ -37,10 +39,15 @@ class DateValueAxisChart extends StatefulWidget {
 }
 
 /// State class of the realtime line chart.
-class _LiveVerticalState extends State<DateValueAxisChart> {
+class _LiveVerticalState extends State<DateValueAxisChart> with DisposableWidget {
   _LiveVerticalState() {
-   // timer = Timer.periodic(const Duration(milliseconds: 100), _updateDataSource);
+    timer = Timer.periodic(const Duration(milliseconds: 100), _updateDataSource);
   }
+
+
+  int numDatapoints = 30;
+
+
 
   Timer timer;
   List<_BasicChartCoords> chartData = <_BasicChartCoords>[
@@ -67,11 +74,56 @@ class _LiveVerticalState extends State<DateValueAxisChart> {
   int count = 19;
   ChartSeriesController _chartSeriesController;
 
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.DataValue_Stream != null) {
+      widget.DataValue_Stream.listen((data) {
+        //print("dv : " + data.toString());
+        //widget.COG_Value = (data == null || data == 0) ? 0.0 : data * (180 / pi);
+
+
+    //   try{
+    //     var ts = data['timestamp'];
+
+    //     print(ts);
+
+    //     print(DateTime.parse('2018-09-07T17:29:12+02:00'));
+
+    //     var date = DateTime.parse(ts);
+    //    if(date.isUtc){
+    //      //decode time
+    //      print(date.microsecondsSinceEpoch.toString());
+
+    //    }
+
+
+    //   }catch(e){
+    //     print("[DateValueAxisChart] initState : " + e.toString());
+    //   }
+
+      }).canceledBy(this);
+    }
+  }
+
+
+
+
+
   @override
   void dispose() {
     timer?.cancel();
+     print("CANCEL DATEVALUEAXISCHART SUBSCRIPTION");
+    cancelSubscriptions();
+
     super.dispose();
+
+
+
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -90,9 +142,10 @@ class _LiveVerticalState extends State<DateValueAxisChart> {
         stream: null,
         builder: (context, snapshot) {
           return SfCartesianChart(
-                  isTransposed: true,
+                 // isTransposed: true,
                   plotAreaBorderWidth: 0,
                   primaryXAxis: NumericAxis(majorGridLines: MajorGridLines(width: 0)),
+
                   primaryYAxis: NumericAxis(
                       axisLine: AxisLine(width: 0),
                       majorTickLines: MajorTickLines(size: 0)),
@@ -156,5 +209,9 @@ class _BasicChartCoords {
   final double y;
 }
 
-
+class _DateValueChartCoords {
+  _DateValueChartCoords(this.x, this.y);
+  final int x;
+  final double y;
+}
 

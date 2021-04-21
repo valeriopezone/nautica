@@ -7,6 +7,7 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:nautica/utils/HexColor.dart';
 import 'package:nautica/widgets/form/InputColorPicker.dart';
 import 'package:basic_utils/basic_utils.dart';
+import 'dart:convert' as convert;
 
 import '../../Configuration.dart';
 import 'SubWidgetSelectionTile.dart';
@@ -61,7 +62,7 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
   String widgetToAvoid = "";
 
   List<int> availableWidgetWidths = [1, 2, 3, 4];
-  List<int> availableWidgetHeights = [1, 2, 3, 4];
+  List<int> availableWidgetHeights = [1, 2, 3, 4, 5, 6];
 
   @override
   void initState() {
@@ -267,6 +268,7 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
                   onColorChanged: (String newColor) {
                     controller.text = newColor;
                     currentColor = HexColor(newColor);
+
                   });
             },
           );
@@ -679,7 +681,7 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
                                                                       borderRadius: BorderRadius.circular(4.0),
                                                                       borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid)),
                                                                   hintText: "Select a type"),
-                                                              value: selectedSubscriptions[subscription],
+                                                              value: (selectedSubscriptions[subscription] != null && allSubscriptionsList.indexOf(selectedSubscriptions[subscription]) != -1) ? selectedSubscriptions[subscription] : allSubscriptionsList.first,
                                                               icon: const Icon(Icons.arrow_downward),
                                                               iconSize: 24,
                                                               style: TextStyle(height: 0.85, fontSize: 14.0, color: widget.model.formInputTextColor),
@@ -731,116 +733,116 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
                                                 ],
                                               ),
                                             ),
-                                          //  Padding(
-                                          //    padding: const EdgeInsets.only(left: 8.0, top: 5, right: 8, bottom: 3),
-                                          //    child: Row(
-                                          //      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          //      children: <Widget>[
-                                          //        Expanded(
-                                          //          flex: 2,
-                                          //          child: Container(
-                                          //            padding: EdgeInsets.only(right: 10),
+                                            Padding(
+                                              padding: const EdgeInsets.only(left: 8.0, top: 5, right: 8, bottom: 3),
+                                              child: Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                children: <Widget>[
+                                                  Expanded(
+                                                    flex: 2,
+                                                    child: Container(
+                                                      padding: EdgeInsets.only(right: 10),
 //
-                                          //            //color: Colors.yellow,
-                                          //            child: Column(
-                                          //              mainAxisAlignment: MainAxisAlignment.start,
-                                          //              children: [
-                                          //                DropdownButtonFormField<int>(
-                                          //                    validator: (value) {
-                                          //                      if (value == null || value <= 0 || value > availableWidgetWidths.last) {
-                                          //                        return 'Please select a valid width';
-                                          //                      }
-                                          //                      return null;
-                                          //                    },
-                                          //                    isExpanded: true,
-                                          //                    decoration: InputDecoration(
-                                          //                        labelText: "Width",
-                                          //                        filled: true,
-                                          //                        fillColor: widget.model.backgroundForm,
-                                          //                        hintStyle: TextStyle(
-                                          //                          color: widget.model.formInputTextColor,
-                                          //                        ),
-                                          //                        labelStyle: TextStyle(
-                                          //                          color: widget.model.formLabelTextColor,
-                                          //                        ),
-                                          //                        enabledBorder: OutlineInputBorder(
-                                          //                            borderRadius: BorderRadius.circular(4.0),
-                                          //                            borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid)),
-                                          //                        focusedBorder: OutlineInputBorder(
-                                          //                            borderRadius: BorderRadius.circular(4.0),
-                                          //                            borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid)),
-                                          //                        hintText: "Select a type"),
-                                          //                    value: widgetWidth,
-                                          //                    icon: const Icon(Icons.arrow_downward),
-                                          //                    iconSize: 24,
-                                          //                    style: TextStyle(height: 0.85, fontSize: 14.0, color: widget.model.formLabelTextColor),
-                                          //                    onChanged: (int value) {
-                                          //                      print("selected : $value");
-                                          //                      widgetWidth = value;
-                                          //                      //selectedSubscriptions[subscription] = value;
-                                          //                    },
-                                          //                    dropdownColor: Colors.white,
-                                          //                    items: availableWidgetWidths.map<DropdownMenuItem<int>>((int g) {
-                                          //                      print("INSERTING -> " + g.toString());
-                                          //                      return DropdownMenuItem<int>(child: Text(g.toString() + "/" + availableWidgetWidths.last.toString()), value: g);
-                                          //                    }).toList())
-                                          //              ],
-                                          //            ),
-                                          //          ),
-                                          //        ),
-                                          //        Expanded(
-                                          //          flex: 2,
-                                          //          child: Container(
-                                          //            padding: EdgeInsets.only(left: 10),
-                                          //            child: Column(
-                                          //              mainAxisAlignment: MainAxisAlignment.start,
-                                          //              children: [
-                                          //                DropdownButtonFormField<int>(
-                                          //                    validator: (value) {
-                                          //                      if (value == null || value <= 0 || value > availableWidgetHeights.last) {
-                                          //                        return 'Please select a valid width';
-                                          //                      }
-                                          //                      return null;
-                                          //                    },
-                                          //                    isExpanded: true,
-                                          //                    decoration: InputDecoration(
-                                          //                        labelText: "Height",
-                                          //                        filled: true,
-                                          //                        fillColor: widget.model.backgroundForm,
-                                          //                        hintStyle: TextStyle(
-                                          //                          color: widget.model.formInputTextColor,
-                                          //                        ),
-                                          //                        labelStyle: TextStyle(
-                                          //                          color: widget.model.formLabelTextColor,
-                                          //                        ),
-                                          //                        enabledBorder: OutlineInputBorder(
-                                          //                            borderRadius: BorderRadius.circular(4.0),
-                                          //                            borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid)),
-                                          //                        focusedBorder: OutlineInputBorder(
-                                          //                            borderRadius: BorderRadius.circular(4.0),
-                                          //                            borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid)),
-                                          //                        hintText: "Select a type"),
-                                          //                    value: widgetHeight,
-                                          //                    icon: const Icon(Icons.arrow_downward),
-                                          //                    iconSize: 24,
-                                          //                    style: TextStyle(height: 0.85, fontSize: 14.0, color: widget.model.formLabelTextColor),
-                                          //                    onChanged: (int value) {
-                                          //                      print("selected : $value");
-                                          //                      widgetHeight = value;
-                                          //                      //selectedSubscriptions[subscription] = value;
-                                          //                    },
-                                          //                    dropdownColor: Colors.white,
-                                          //                    items: availableWidgetHeights.map<DropdownMenuItem<int>>((int g) {
-                                          //                      print("INSERTING -> " + g.toString());
-                                          //                      return DropdownMenuItem<int>(child: Text(g.toString() + " Row"), value: g);
-                                          //                    }).toList())
-                                          //              ],
-                                          //            ),
-                                          //          ),
-                                          //        ),
-                                          //      ],
-                                          //    ),
-                                          //  ),
+                                                      //color: Colors.yellow,
+                                                      child: Column(
+                                                        mainAxisAlignment: MainAxisAlignment.start,
+                                                        children: [
+                                                          DropdownButtonFormField<int>(
+                                                              validator: (value) {
+                                                                if (value == null || value <= 0 || value > availableWidgetWidths.last) {
+                                                                  return 'Please select a valid width';
+                                                                }
+                                                                return null;
+                                                              },
+                                                              isExpanded: true,
+                                                              decoration: InputDecoration(
+                                                                  labelText: "Width",
+                                                                  filled: true,
+                                                                  fillColor: widget.model.backgroundForm,
+                                                                  hintStyle: TextStyle(
+                                                                    color: widget.model.formInputTextColor,
+                                                                  ),
+                                                                  labelStyle: TextStyle(
+                                                                    color: widget.model.formLabelTextColor,
+                                                                  ),
+                                                                  enabledBorder: OutlineInputBorder(
+                                                                      borderRadius: BorderRadius.circular(4.0),
+                                                                      borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid)),
+                                                                  focusedBorder: OutlineInputBorder(
+                                                                      borderRadius: BorderRadius.circular(4.0),
+                                                                      borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid)),
+                                                                  hintText: "Select a type"),
+                                                              value: widgetWidth,
+                                                              icon: const Icon(Icons.arrow_downward),
+                                                              iconSize: 24,
+                                                              style: TextStyle(height: 0.85, fontSize: 14.0, color: widget.model.formLabelTextColor),
+                                                              onChanged: (int value) {
+                                                                print("selected : $value");
+                                                                widgetWidth = value;
+                                                                //selectedSubscriptions[subscription] = value;
+                                                              },
+                                                              dropdownColor: widget.model.backgroundForm,
+                                                              items: availableWidgetWidths.map<DropdownMenuItem<int>>((int g) {
+                                                                print("INSERTING -> " + g.toString());
+                                                                return DropdownMenuItem<int>(child: Text(g.toString() + "/" + availableWidgetWidths.last.toString()), value: g);
+                                                              }).toList())
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Expanded(
+                                                    flex: 2,
+                                                    child: Container(
+                                                      padding: EdgeInsets.only(left: 10),
+                                                      child: Column(
+                                                        mainAxisAlignment: MainAxisAlignment.start,
+                                                        children: [
+                                                          DropdownButtonFormField<int>(
+                                                              validator: (value) {
+                                                                if (value == null || value <= 0 || value > availableWidgetHeights.last) {
+                                                                  return 'Please select a valid width';
+                                                                }
+                                                                return null;
+                                                              },
+                                                              isExpanded: true,
+                                                              decoration: InputDecoration(
+                                                                  labelText: "Height",
+                                                                  filled: true,
+                                                                  fillColor: widget.model.backgroundForm,
+                                                                  hintStyle: TextStyle(
+                                                                    color: widget.model.formInputTextColor,
+                                                                  ),
+                                                                  labelStyle: TextStyle(
+                                                                    color: widget.model.formLabelTextColor,
+                                                                  ),
+                                                                  enabledBorder: OutlineInputBorder(
+                                                                      borderRadius: BorderRadius.circular(4.0),
+                                                                      borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid)),
+                                                                  focusedBorder: OutlineInputBorder(
+                                                                      borderRadius: BorderRadius.circular(4.0),
+                                                                      borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid)),
+                                                                  hintText: "Select a type"),
+                                                              value: widgetHeight,
+                                                              icon: const Icon(Icons.arrow_downward),
+                                                              iconSize: 24,
+                                                              style: TextStyle(height: 0.85, fontSize: 14.0, color: widget.model.formLabelTextColor),
+                                                              onChanged: (int value) {
+                                                                print("selected : $value");
+                                                                widgetHeight = value;
+                                                                //selectedSubscriptions[subscription] = value;
+                                                              },
+                                                              dropdownColor: widget.model.backgroundForm,
+                                                              items: availableWidgetHeights.map<DropdownMenuItem<int>>((int g) {
+                                                                print("INSERTING -> " + g.toString());
+                                                                return DropdownMenuItem<int>(child: Text(g.toString() + " Row"), value: g);
+                                                              }).toList())
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
 
 
 

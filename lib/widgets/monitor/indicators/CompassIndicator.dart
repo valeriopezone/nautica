@@ -65,7 +65,7 @@ class _CompassIndicatorState extends State<CompassIndicator> with DisposableWidg
 
     if (widget.Value_Stream != null) {
       widget.Value_Stream.listen((data) {
-        widget.COG_Value = (data == null || data == 0) ? 0.0 : data * (180 / pi);
+        widget.COG_Value = (data == null || data == 0) ? 0.0 : data.toDouble() * (180 / pi);
       }).canceledBy(this);
     }
   }
@@ -179,7 +179,7 @@ class _CompassIndicatorState extends State<CompassIndicator> with DisposableWidg
                             angle: 270,
                             positionFactor: _positionFactor,
                             widget: Text(
-                              widget.COG_Value.toStringAsFixed(2),
+                              widget.COG_Value.toStringAsFixed(2) + "°",
                               style: TextStyle(color: graphics['gaugeFontColor'], fontWeight: FontWeight.bold, fontSize: graphics['gaugeFontSize']),
                             ))
                       ])

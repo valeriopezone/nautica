@@ -37,12 +37,14 @@ class _SpeedIndicatorState extends State<SpeedIndicator> with DisposableWidget{
 
 
 
+    graphics['gaugeFontColor'] = Color(0x00000000);
+    graphics['gaugeFontSize'] = widget.model.isWebFullView ? 22.0 : 16.0;
     graphics['radiusFactor'] = 1.0;
     graphics['majorTickLength'] = 0.04;
     graphics['majorTickThickness'] = 1.5;
     graphics['minorTickLength'] = 0.04;
     graphics['minorTickThickness'] = 1.5;
-    graphics['labelOffset']  = 15;
+    graphics['labelOffset']  = 15.0;
     graphics['rangeOffset']  = 0.08;
     graphics['gradientFrom']  = HexColor("#FF4CAF50");
     graphics['gradientTo']  = HexColor("#FFF44336");
@@ -58,7 +60,7 @@ class _SpeedIndicatorState extends State<SpeedIndicator> with DisposableWidget{
     super.initState();
     if(widget.Speed_Stream != null) {
       widget.Speed_Stream.listen((data) {
-        widget.Speed_Value =  (data == null || data == 0) ? 0.0 : data + .0;
+        widget.Speed_Value =  (data == null || data == 0) ? 0.0 : data.toDouble() + .0;
       }).canceledBy(this);
     }
   }
@@ -70,7 +72,10 @@ class _SpeedIndicatorState extends State<SpeedIndicator> with DisposableWidget{
 
     if (widget.widgetGraphics != null) {
       try {
-
+        graphics['gaugeFontColor'] = HexColor(widget.widgetGraphics[currentTheme]['gaugeFontColor']);
+        graphics['gaugeFontSize'] = (widget.widgetGraphics[currentTheme]['gaugeFontSize'] is double)
+            ? widget.widgetGraphics[currentTheme]['gaugeFontSize']
+            : double.parse(widget.widgetGraphics[currentTheme]['gaugeFontSize']);
         graphics['radiusFactor'] = (widget.widgetGraphics[currentTheme]['radiusFactor'] is double) ? widget.widgetGraphics[currentTheme]['radiusFactor'] : double.parse(widget.widgetGraphics[currentTheme]['radiusFactor']);
         graphics['majorTickLength'] = (widget.widgetGraphics[currentTheme]['majorTickLength'] is double) ? widget.widgetGraphics[currentTheme]['majorTickLength'] : double.parse(widget.widgetGraphics[currentTheme]['majorTickLength']);
         graphics['majorTickThickness'] = (widget.widgetGraphics[currentTheme]['majorTickThickness'] is double) ? widget.widgetGraphics[currentTheme]['majorTickThickness'] : double.parse(widget.widgetGraphics[currentTheme]['majorTickThickness']);
@@ -172,7 +177,17 @@ class _SpeedIndicatorState extends State<SpeedIndicator> with DisposableWidget{
                           rangeOffset: graphics['rangeOffset'],
                           endWidth: 0.1,
                           sizeUnit: GaugeSizeUnit.factor)
-                    ]),
+                    ],
+                  annotations: <GaugeAnnotation>[
+                    GaugeAnnotation(
+                        angle: 90,
+                        positionFactor: 0.8,
+                        widget: Text(
+                          widget.Speed_Value.toStringAsFixed(2) + " Hz",
+                          style: TextStyle(color: graphics['gaugeFontColor'], fontWeight: FontWeight.bold, fontSize: graphics['gaugeFontSize']),
+                        ))
+                  ]
+                ),
               ],
             );
           //return Text(

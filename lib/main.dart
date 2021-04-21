@@ -28,6 +28,15 @@ void main() async {
 
   if(!storageLoaded) exit(0); //kill app if storage not loaded
 
+  LicenseRegistry.addLicense(() async* {
+    final license = await rootBundle.loadString('google_fonts/Orbitron/OFL.txt');
+    yield LicenseEntryWithLineBreaks(['google_fonts'], license);
+  });
+
+
+
+
+
   SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft])
       .then((_) {
     SystemChrome.setEnabledSystemUIOverlays([]).then((_) {
@@ -46,11 +55,11 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  BaseModel _sampleListModel;
+  BaseModel _themeModel;
 
   @override
   void initState() {
-    _sampleListModel = BaseModel.instance;
+    _themeModel = BaseModel.instance;
 
     _initializeProperties();
     super.initState();
@@ -65,10 +74,10 @@ class _MyAppState extends State<MyApp> {
         Map.of(WidgetsApp.defaultShortcuts)
           ..remove(LogicalKeySet(LogicalKeyboardKey.escape));
 
-    if (_sampleListModel != null && _sampleListModel.isWebFullView) {
-      _sampleListModel.currentThemeData = ThemeData.dark();
-      _sampleListModel.paletteBorderColors = <Color>[];
-      _sampleListModel.changeTheme(_sampleListModel.currentThemeData);
+    if (_themeModel != null && _themeModel.isWebFullView) {
+      _themeModel.currentThemeData = ThemeData.dark();
+      _themeModel.paletteBorderColors = <Color>[];
+      _themeModel.changeTheme(_themeModel.currentThemeData);
     }
 
     return MaterialApp(
@@ -80,15 +89,15 @@ class _MyAppState extends State<MyApp> {
           //  '/': (context) => DashBoard(),
           // When navigating to the "/second" route, build the SecondScreen widget.
           '/dashboard': (context) => Builder(builder: (BuildContext context) {
-                if (_sampleListModel != null) {
-                  _sampleListModel.systemTheme = Theme.of(context);
-                  _sampleListModel.currentThemeData =
-                      (_sampleListModel.systemTheme.brightness !=
+                if (_themeModel != null) {
+                  _themeModel.systemTheme = Theme.of(context);
+                  _themeModel.currentThemeData =
+                      (_themeModel.systemTheme.brightness !=
                               Brightness.dark
                           ? ThemeData.light()
                           : ThemeData.dark());
-                  _sampleListModel
-                      .changeTheme(_sampleListModel.currentThemeData);
+                  _themeModel
+                      .changeTheme(_themeModel.currentThemeData);
                 }
                 return DashBoard();
               }),

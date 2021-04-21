@@ -14,20 +14,19 @@ import 'monitor/indicators/CompassIndicator.dart';
 import 'package:nautica/Configuration.dart';
 
 import 'monitor/indicators/SpeedIndicator.dart';
+import 'monitor/indicators/TextIndicator.dart';
 import 'monitor/indicators/WindIndicator.dart';
 import 'monitor/map/RealTimeMap.dart';
-
 
 class DraggableCard extends StatefulWidget {
   StreamSubscriber StreamObject;
   String currentVessel = ""; //
+  dynamic vesselsDataTable = [];
 
   BaseModel model;
   dynamic widgetData;
   int currentPosition;
   int currentWidgetIndex;
-  double currentWidgetWidth = 0.25; // 1/4
-  double currentWidgetHeight = 1.0; // 1/1
 
   final Future<void> Function(int cardId, int viewId) onCardStatusChangedCallback;
   final Future<void> Function(int cardId, int viewId) onGoingToEditCallback;
@@ -46,6 +45,7 @@ class DraggableCard extends StatefulWidget {
       @required this.onCardStatusChangedCallback,
       @required this.onGoingToEditCallback,
       @required this.onGoingToDeleteCallback,
+      @required this.vesselsDataTable,
       this.notifyParent})
       : super(key: key);
 
@@ -65,23 +65,23 @@ class _DraggableCardState extends State<DraggableCard> {
   Color currentCardColor;
 
   List<Widget> loadedWidgets = [];
+  double currentWidgetWidth = 1; // 1/4
+  double currentWidgetHeight = 1.0; // 1/1
 
   // List<String> widgetTitles = [];
   Map<int, String> widgetTitles = {};
 
   @override
   void initState() {
-    widget.model =    BaseModel.instance;
+    widget.model = BaseModel.instance;
     widget.model.addListener(() {
-      if(mounted){
+      if (mounted) {
         setState(() {
           currentCardColor = widget.model.cardColor;
-
         });
       }
 
       print("CARD COLOR SHOULD CHANGE");
-
     });
 
     super.initState();
@@ -100,6 +100,9 @@ class _DraggableCardState extends State<DraggableCard> {
       //print(w['current'].toString());
       var current = w['current']; //current index
       dynamic elements = w['elements'];
+
+      currentWidgetWidth = (w['width'] > 0) ? w['width'] + .0 : 1;
+      currentWidgetHeight = (w['height'] > 0) ? w['height'] + .0 : 1;
       print(elements.toString());
       if (current != null && current >= 0 && elements != null) {
         int i = 0;
@@ -115,7 +118,6 @@ class _DraggableCardState extends State<DraggableCard> {
               currentSubscriptions = eSubscriptions;
               loadedWidgetData = single;
               widgetOptions = single['widgetOptions'];
-
             }
             //Widget pack = loadWidget(eClass, eSubscriptions);
             widgetTitles[i] = eTitle; //push to widgets
@@ -153,9 +155,9 @@ class _DraggableCardState extends State<DraggableCard> {
     final double deviceWidth = MediaQuery.of(context).size.width;
 //    final _cardWidth = MediaQuery.of(context).size.width / 4;
 
-    var padding = (deviceWidth*0.05) / 4;
-    final double _cardWidth = (deviceWidth* 0.95) / 4; //(deviceWidth * 0.9) / 2;
-
+    var padding = (deviceWidth * 0.05) / 4;
+    //final double _cardWidth = (deviceWidth* 0.95) / 4; //(deviceWidth * 0.9) / 2;
+    final double _cardWidth = (currentWidgetWidth != 0) ? (currentWidgetWidth) * (deviceWidth * 0.95) / 4 : (deviceWidth * 0.95) / 4; //(deviceWidth * 0.9) / 2;
 
     return GestureDetector(
       onTap: () {
@@ -163,27 +165,27 @@ class _DraggableCardState extends State<DraggableCard> {
       },
       child: FutureBuilder(builder: (context, snap) {
         return Container(
-            padding: EdgeInsets.only(left: padding, right: 0, top: 5, bottom: 5),
-          // padding: EdgeInsets.only(left: 5, right: 5, top: 5, bottom: 5),
+          //  padding: EdgeInsets.only(left: padding, right: 0, top: 5, bottom: 5),
           child: SizedBox(
-            height: 210 ,//+ Random().nextInt(100) + .0,
-            width: _cardWidth,
+            height: 110.0 * currentWidgetHeight,
+            //width: _cardWidth,
             child: isLoadingWidget
                 ? CupertinoActivityIndicator()
                 : errorOccurred
                     ? Text("error")
                     : Container(
                         decoration: BoxDecoration(
-                            color: currentCardColor,
-                            border: Border.all(color: const Color.fromRGBO(0, 0, 0, 0.12), width: 1.1),
-                            borderRadius: const BorderRadius.all(Radius.circular(12))),
-                          child: SimpleCard(widgetTitles[widget.currentWidgetIndex], _cardWidth, [
-                            SizedBox(
-                              height: 140,
-                              child: (loadedWidgetData != null) ? loadWidget(currentClass, currentSubscriptions) : Text("error"),
-                            ),
-                            //Text("bubu " + rng.nextInt(200).toString()),
-                          ]),
+                          color: currentCardColor,
+                          border: Border.all(color: const Color.fromRGBO(0, 0, 0, 0.12), width: 1.1),
+                          //borderRadius: const BorderRadius.all(Radius.circular(0))
+                        ),
+                        child: SimpleCard(widgetTitles[widget.currentWidgetIndex], _cardWidth, [
+                          SizedBox(
+                            height: 110.0 * currentWidgetHeight - 50,
+                            child: (loadedWidgetData != null) ? loadWidget(currentClass, currentSubscriptions) : Text("error"),
+                          ),
+                          //Text("bubu " + rng.nextInt(200).toString()),
+                        ]),
                       ),
           ),
         );
@@ -202,7 +204,6 @@ class _DraggableCardState extends State<DraggableCard> {
     return widget.StreamObject.getVesselStream(widget.currentVessel, path, Duration(microseconds: NAUTICA['configuration']['widget']['refreshRate'])).asBroadcastStream();
   }
 
-
   Stream<dynamic> _subscribeToDataValueStream(String path) {
 //    print("TRY SUBS TO STREAM WITH $path");
     return widget.StreamObject.getTimedVesselStream(widget.currentVessel, path, Duration(microseconds: NAUTICA['configuration']['widget']['refreshRate'])).asBroadcastStream();
@@ -220,18 +221,16 @@ class _DraggableCardState extends State<DraggableCard> {
               Angle_Stream: _subscribeToStream(subscriptions['Angle_Stream']),
               Intensity_Stream: _subscribeToStream(subscriptions['Intensity_Stream']),
               model: widget.model,
-              widgetGraphics : widgetOptions['graphics']);
+              widgetGraphics: widgetOptions['graphics']);
           break;
 
         case "CompassIndicator":
-          res = CompassIndicator(key: UniqueKey(), Value_Stream: _subscribeToStream(subscriptions['COG_Stream']), model: widget.model,
-              widgetGraphics : widgetOptions['graphics']);
+          res = CompassIndicator(key: UniqueKey(), Value_Stream: _subscribeToStream(subscriptions['Value_Stream']), model: widget.model, widgetGraphics: widgetOptions['graphics']);
           ;
           break;
 
         case "SpeedIndicator":
-          res = SpeedIndicator(key: UniqueKey(), Speed_Stream: _subscribeToStream(subscriptions['ST_Stream']), model: widget.model,
-              widgetGraphics : widgetOptions['graphics']);
+          res = SpeedIndicator(key: UniqueKey(), Speed_Stream: _subscribeToStream(subscriptions['Speed_Stream']), model: widget.model, widgetGraphics: widgetOptions['graphics']);
           break;
 
         case "BoatVectorsIndicator":
@@ -252,17 +251,23 @@ class _DraggableCardState extends State<DraggableCard> {
               model: widget.model);
           break;
         case "DateValueAxisChart":
-
-            res = DateValueAxisChart(key: UniqueKey(), DataValue_Stream: _subscribeToDataValueStream(subscriptions['DataValue_Stream']), model: widget.model);
+          res = DateValueAxisChart(key: UniqueKey(), DataValue_Stream: _subscribeToDataValueStream(subscriptions['DataValue_Stream']), model: widget.model);
           break;
 
         case "RealTimeMap":
-          res =   new MapSample(key: UniqueKey(),
-              StreamObject : widget.StreamObject,
-              currentVessel : widget.currentVessel);
-          //  res = DateValueAxisChart(key: UniqueKey(), DataValue_Stream: _subscribeToDataValueStream(subscriptions['DataValue_Stream']), model: widget.model);
+          res = new MapSample(key: UniqueKey(), StreamObject: widget.StreamObject, currentVessel: widget.currentVessel);
           break;
 
+        case "TextIndicator":
+          res = new TextIndicator(
+              key: UniqueKey(),
+              Text_Stream: _subscribeToStream(subscriptions['Text_Stream']),
+              subscriptionPath: subscriptions['Text_Stream'].toString(),
+              model: widget.model,
+              vesselsDataTable: widget.vesselsDataTable,
+              currentVessel: widget.currentVessel,
+              widgetGraphics: widgetOptions['graphics']);
+          break;
       }
     } catch (e) {
       print("Cannot load widget in grid - " + e.toString());
@@ -274,129 +279,110 @@ class _DraggableCardState extends State<DraggableCard> {
   Widget SimpleCard(String title, double _cardWidth, List<Widget> children) {
     return Container(
         padding: const EdgeInsets.only(bottom: 1),
-
         decoration: BoxDecoration(
-            color: currentCardColor, border: Border.all(color: const Color.fromRGBO(0, 0, 0, 0.12), width: 1.1), borderRadius: const BorderRadius.all(Radius.circular(12))),
+          color: currentCardColor,
+          //border: Border.all(color: const Color.fromRGBO(0, 0, 0, 0.12), width: 1.1), borderRadius: const BorderRadius.all(Radius.circular(0))
+        ),
         width: _cardWidth,
         child: Column(children: <Widget>[
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
             children: [
-
               Container(
-                padding: const EdgeInsets.only(left:8,top: 5, bottom: 2),
+                padding: const EdgeInsets.only(left: 8, top: 5, bottom: 2),
                 child: Text(
                   title,
                   style: TextStyle(color: widget.model.paletteColor, fontSize: 14, fontFamily: 'Roboto-Bold'),
                 ),
               ),
-
               Container(
-
-                child: Row(
-                  children: [
-                    Material(
-                      child: SizedBox(
-                        width:30,
-                        height:25,
-                        child: PopupMenuButton<int>(
-                          icon: Icon(Icons.add),
-                          iconSize: 13,
-                          tooltip: "Display sub-widgets",
-
-                          onSelected: (int selectedWidget) {
-                            if (selectedWidget != widget.currentWidgetIndex) {
-                              setState(() {
-                                isLoadingWidget = true;
-                              });
-                              print("$selectedWidget != ${widget.currentWidgetIndex}");
-                              widget.onCardStatusChangedCallback(widget.currentPosition, selectedWidget).then((value) {
-                                print("Hi i changed state and i'm [${widget.currentPosition}][${selectedWidget}]");
-                                //setState(() {
-                                isLoadingWidget = false;
-                                //});
-                              }); //notify parent
-                              setState(() {
-                                widget.currentWidgetIndex = selectedWidget;
-                              });
-                            }
-                          },
-                          initialValue: widget.currentWidgetIndex,
-                          itemBuilder: (BuildContext context) => widgetTitles.entries.map<PopupMenuEntry<int>>((w) {
-                            return PopupMenuItem<int>(value: w.key, child: Text(w.value));
-                          }).toList(),
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 1.0),
+                  child: Row(
+                    children: [
+                      Material(
+                        child: SizedBox(
+                          width: 30,
+                          height: 25,
+                          child: Container(
+    decoration: BoxDecoration(
+     border: Border.all(color:  widget.model.cardColor, width: 0),
+    color:widget.model.cardColor,
+    ),
+                            child: PopupMenuButton<int>(
+                              icon: Icon(Icons.add, color : widget.model.textColor),
+                              iconSize: 13,
+                              shape: RoundedRectangleBorder(
+                                side: BorderSide.none,
+                              ),
+                              tooltip: "Display sub-widgets",
+                              onSelected: (int selectedWidget) {
+                                if (selectedWidget != widget.currentWidgetIndex) {
+                                  setState(() {
+                                    isLoadingWidget = true;
+                                  });
+                                  print("$selectedWidget != ${widget.currentWidgetIndex}");
+                                  widget.onCardStatusChangedCallback(widget.currentPosition, selectedWidget).then((value) {
+                                    print("Hi i changed state and i'm [${widget.currentPosition}][${selectedWidget}]");
+                                    //setState(() {
+                                    isLoadingWidget = false;
+                                    //});
+                                  }); //notify parent
+                                  setState(() {
+                                    widget.currentWidgetIndex = selectedWidget;
+                                  });
+                                }
+                              },
+                              initialValue: widget.currentWidgetIndex,
+                              itemBuilder: (BuildContext context) => widgetTitles.entries.map<PopupMenuEntry<int>>((w) {
+                                return PopupMenuItem<int>(value: w.key, child: Text(w.value));
+                              }).toList(),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                    Material(
-                      child: SizedBox(
-                        width:30,
-                        height:25,
+                      Material(
+                        child: SizedBox(
+                          width: 30,
+                          height: 25,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(color:  widget.model.cardColor, width: 0),
+                              color: widget.model.cardColor,
+                            ),
+                            child: PopupMenuButton<String>(
+                                icon: Icon(Icons.menu_sharp, color: widget.model.textColor),
+                                iconSize: 13,
+                                shape: RoundedRectangleBorder(
+                                  side: BorderSide.none,
+                                ),
+                                tooltip: "Display settings for current widget",
+                                onSelected: (String option) {
+                                  setState(() {
+                                    //  widget.currentWidgetIndex = widgetTitles.indexOf(vessel);
 
-    child : Theme(
-    data: Theme.of(context).copyWith(
-     //textSelectionHandleColor: Colors.black,
-     //cardColor: Colors.black,
-     //buttonColor: Colors.black,
-     //canvasColor: Colors.black,
-     //cursorColor: Colors.black,
-     //backgroundColor: Colors.black,
-     //dialogBackgroundColor: Colors.black,
-     //scaffoldBackgroundColor: Colors.black,
-     //toggleableActiveColor:  Colors.black,
-     //accentColor: Colors.black,
-     //hoverColor: Colors.black,
-     //primaryColorDark: Colors.black,
-     //primaryColorLight: Colors.black,
-     //indicatorColor: Colors.black,
-     //textSelectionColor: Colors.black,
-     //dividerColor: Colors.black,
-     //applyElevationOverlayColor: true,
-     //splashColor: Colors.black,
-     //highlightColor: Colors.black,
-     //focusColor: Colors.black,
-     //hintColor: Colors.black,
-     //primaryColor: Colors.black,
-     //bottomAppBarColor: Colors.black,
-     //unselectedWidgetColor: Colors.black,
-
-
-
-
-    ),
-                        child: PopupMenuButton<String>(
-                            icon: Icon(Icons.settings_applications_outlined, color: Colors.black),
-                            iconSize: 13,
-
-                            tooltip: "Display settings for current widget",
-
-                            onSelected: (String option) {
-                              setState(() {
-                                //  widget.currentWidgetIndex = widgetTitles.indexOf(vessel);
-
-                                if (option == "edit") {
-                                  widget.onGoingToEditCallback(widget.currentPosition, widget.currentWidgetIndex).then((value) {
-                                    // print("Hi i changed state and i'm [${widget.currentPosition}][${widget.currentWidgetIndex}]");
-                                  }); //n
-                                } else if (option == "delete") {
-                                  widget.onGoingToDeleteCallback(widget.currentPosition, widget.currentWidgetIndex).then((value) {
-                                    // print("Hi i changed state and i'm [${widget.currentPosition}][${widget.currentWidgetIndex}]");
-                                  }); //n
-                                }
-                              });
-                            },
-                            itemBuilder: (context) => [
-                              PopupMenuItem<String>(value: "edit", child: Text("Edit widget")),
-                              PopupMenuItem<String>(value: "delete", child: Text("Delete widget")),
-                            ])),
+                                    if (option == "edit") {
+                                      widget.onGoingToEditCallback(widget.currentPosition, widget.currentWidgetIndex).then((value) {
+                                        // print("Hi i changed state and i'm [${widget.currentPosition}][${widget.currentWidgetIndex}]");
+                                      }); //n
+                                    } else if (option == "delete") {
+                                      widget.onGoingToDeleteCallback(widget.currentPosition, widget.currentWidgetIndex).then((value) {
+                                        // print("Hi i changed state and i'm [${widget.currentPosition}][${widget.currentWidgetIndex}]");
+                                      }); //n
+                                    }
+                                  });
+                                },
+                                itemBuilder: (context) => [
+                                      PopupMenuItem<String>(value: "edit", child: Text("Edit widget")),
+                                      PopupMenuItem<String>(value: "delete", child: Text("Delete widget")),
+                                    ]),
+                          ),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-
-
             ],
           ),
           Divider(

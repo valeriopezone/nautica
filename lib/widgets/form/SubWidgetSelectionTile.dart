@@ -102,7 +102,7 @@ class _SubWidgetSelectionTileState extends State<SubWidgetSelectionTile> {
             value: widget.currentWidgetSelectedIndex,
             icon:  Icon(Icons.arrow_downward , color: widget.model.formLabelTextColor),
             iconSize: 24,
-            style: TextStyle(height: 0.85, fontSize: 14.0, fontWeight : FontWeight.bold,color: widget.model.formLabelTextColor),
+            style: TextStyle(height: 0.85, fontSize: 14.0, fontWeight : FontWeight.normal,color: widget.model.formLabelTextColor),
             onChanged: (String _selectedWidget) {
               print("you chose widget type : " + _selectedWidget.toString());
               widget.currentWidgetSelectedIndex = _selectedWidget;

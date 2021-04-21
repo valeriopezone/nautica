@@ -1,9 +1,11 @@
-/// package imports
+import 'dart:math';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:hive/hive.dart';
 import 'package:nautica/models/database/models.dart';
 
@@ -14,6 +16,7 @@ import 'package:nautica/Configuration.dart';
 import 'package:nautica/widgets/form/WidgetCreationForm.dart';
 import 'package:nautica/widgets/reorderable/reorderable_wrap.dart';
 import 'dart:convert' as convert;
+import 'dart:developer' as dev;
 
 import '../DraggableCard.dart';
 
@@ -115,6 +118,9 @@ Future<void> _persistentSaveCurrentGridChanges() async{
 
       await grid.put(updatedThemeRecord.id, updatedThemeRecord).then((value) async{
         print("CURRENT GRID UPDATED (${currentJSONGridTheme.id})  -  (${currentJSONGridTheme.name})");
+        print("JSON : " + convert.jsonEncode(tempTheme.schema));
+        dev.log("JSON : " + convert.jsonEncode(tempTheme.schema));
+
         await grid.close();
         setState(() {
           haveGridChanges = false;
@@ -231,6 +237,7 @@ Future<void> _persistentSaveCurrentGridChanges() async{
                       currentVessel: widget.currentVessel,
                       currentPosition : cardId,
                       currentWidgetIndex : viewId,
+                      vesselsDataTable : widget.vesselsDataTable,
                       onCardStatusChangedCallback : (currentPosition,viewId) async{
                         await _temporaryUpdateWidgetViewStatus(currentPosition,viewId);
                       },
@@ -321,6 +328,7 @@ Future<void> _persistentSaveCurrentGridChanges() async{
                      currentVessel: widget.currentVessel,
                      currentPosition : i,
                      currentWidgetIndex : widgets['current'],
+                     vesselsDataTable : widget.vesselsDataTable,
                      onCardStatusChangedCallback : (currentPosition,viewId) async{
                        await _temporaryUpdateWidgetViewStatus(currentPosition,viewId);
                      },
@@ -406,6 +414,7 @@ Future<void> _persistentSaveCurrentGridChanges() async{
                 currentVessel: widget.currentVessel,
                 currentPosition : i,
                 currentWidgetIndex : widgetData['current'],
+                vesselsDataTable : widget.vesselsDataTable,
                 onCardStatusChangedCallback : (currentPosition,viewId) async{
                   await _temporaryUpdateWidgetViewStatus(currentPosition,viewId);
                 },
@@ -482,6 +491,7 @@ Future<void> _persistentSaveCurrentGridChanges() async{
               currentVessel: widget.currentVessel,
               currentPosition : positionId,
               currentWidgetIndex : 0,//widgetData['current'],
+              vesselsDataTable : widget.vesselsDataTable,
               onCardStatusChangedCallback : (currentPosition,viewId) async{
                 await _temporaryUpdateWidgetViewStatus(currentPosition,viewId);
               },
@@ -598,6 +608,7 @@ Future<void> _persistentSaveCurrentGridChanges() async{
                 currentVessel: widget.currentVessel,
                 currentPosition : i,
                 currentWidgetIndex : widgets['current'],
+                vesselsDataTable : widget.vesselsDataTable,
                 onCardStatusChangedCallback : (currentPosition,viewId) async{
                   await _temporaryUpdateWidgetViewStatus(currentPosition,viewId);
                 },
@@ -636,9 +647,215 @@ Future<void> _persistentSaveCurrentGridChanges() async{
 
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size.width / 4;
+    List<StaggeredTile> tileInfo = [];
+
+
+print("BUILD GRID OVER");
+
+try{
+  for(dynamic card in mainLoadedWidgetList){
+    var wWidth = (!(card['width'] is int)) ? 1 : (card['width'] > 0) ? card['width'] : 1;
+    var wHeight = (!(card['height'] is int)) ? 1 : (card['height'] > 0) ? card['height'] : 1;
+
+    tileInfo.add(StaggeredTile.extent(wWidth, wHeight * 110.0));
+
+  }
+}catch(e){
+  print("Exception in monitorDrag build -> $e");
+}
+
+print(mainLoadedWidgetList.toString());
+    return Scaffold(
+      backgroundColor: model.webBackgroundColor,
+      floatingActionButton: _buildWidgetMenuDial(),
+      body: Stack(
+        children: [
+          (!isMainGridReady) ? model.getLoadingPage() : FutureBuilder(builder: (context, snapshot) {
+              return !isMainGridReady
+                  ? (haveErrorLoadingGrid ? model.getErrorPage("Unable to load monitor", "check JSON status") : Text(""))
+                  : Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: (ReorderableWrap(
+                    tileInfo:tileInfo,
+                onReorder: (oldIndex, newIndex) {
+                    if(oldIndex == newIndex) return;//if same object no action
+
+                    setState(() {
+                      print("old : " + oldIndex.toString() + " new " + newIndex.toString());
+
+                      mainWidgetList[oldIndex] =
+                          DraggableCard(
+                            //key:UniqueKey(),
+                              model: model,
+                              widgetData: mainLoadedWidgetList[newIndex],
+                              StreamObject: widget.StreamObject,
+                              currentVessel: widget.currentVessel,
+                              currentPosition : oldIndex,
+                              currentWidgetIndex : mainLoadedWidgetList[newIndex]['current'],
+                              vesselsDataTable : widget.vesselsDataTable,
+                              onCardStatusChangedCallback : (currentPosition,viewId) async{
+                                await _temporaryUpdateWidgetViewStatus(currentPosition,viewId);
+                              },
+                              onGoingToEditCallback : (currentPosition,viewId) async {
+                                await _showEditWidgetDialog(currentPosition);
+                              },
+                              onGoingToDeleteCallback : (currentPosition,viewId) async{
+                                await _temporaryDeleteWidget(currentPosition);
+                              }
+                          );
+
+                      mainWidgetList[newIndex] =
+                          DraggableCard(
+                            //key:UniqueKey(),
+                              model: model,
+                              widgetData: mainLoadedWidgetList[oldIndex],
+                              StreamObject: widget.StreamObject,
+                              currentVessel: widget.currentVessel,
+                              currentPosition : newIndex,
+                              currentWidgetIndex : mainLoadedWidgetList[newIndex]['current'],
+                              vesselsDataTable : widget.vesselsDataTable,
+                              onCardStatusChangedCallback : (currentPosition,viewId) async{
+                                await _temporaryUpdateWidgetViewStatus(currentPosition,viewId);
+                              },
+                              onGoingToEditCallback : (currentPosition,viewId) async {
+                                await _showEditWidgetDialog(currentPosition);
+                              },
+                              onGoingToDeleteCallback : (currentPosition,viewId) async{
+                                await _temporaryDeleteWidget(currentPosition);
+                              }
+                          );
+
+
+                      _temporarySaveGridState(oldIndex,newIndex);
+                      print("Grid changed ${oldIndex.toString()} to ${newIndex.toString()}");
+
+                    });
+                },
+                children: mainWidgetList.map((singleCard) {
+                    return ReorderableWrapItem(
+                        key: ValueKey(singleCard), child: singleCard);
+                }).toList(),
+              )),
+                  );
+            }),
+
+
+
+
+        ],
+
+
+
+      ),
+    );
+
+/*
+    return new Scaffold(
+        appBar: new AppBar(
+          title: new Text('Staggered Image Grid'),
+        ),
+        body: new Padding(
+            padding: const EdgeInsets.only(top: 12.0),
+            child: new StaggeredGridView.count(
+              crossAxisCount: 4,
+              staggeredTiles: _staggeredTiles,
+              children: _tiles,
+              mainAxisSpacing: 4.0,
+              crossAxisSpacing: 4.0,
+            )));
+
+
+    return Scaffold(
+        backgroundColor: model.webBackgroundColor,
+        floatingActionButton: _buildWidgetMenuDial(),
+        body: (!isMainGridReady) ? model.getLoadingPage() : CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
+                child: FutureBuilder(builder: (context, snapshot) {
+                  return !isMainGridReady
+                      ? (haveErrorLoadingGrid ? model.getErrorPage("Unable to load monitor", "check JSON status") : Text(""))
+                      : (ReorderableWrap(
+                    onReorder: (oldIndex, newIndex) {
+                      if(oldIndex == newIndex) return;//if same object no action
+
+                      setState(() {
+                        print("old : " + oldIndex.toString() + " new " + newIndex.toString());
+
+                        mainWidgetList[oldIndex] =
+                            DraggableCard(
+                              //key:UniqueKey(),
+                                model: model,
+                                widgetData: mainLoadedWidgetList[newIndex],
+                                StreamObject: widget.StreamObject,
+                                currentVessel: widget.currentVessel,
+                                currentPosition : oldIndex,
+                                currentWidgetIndex : mainLoadedWidgetList[newIndex]['current'],
+                                onCardStatusChangedCallback : (currentPosition,viewId) async{
+                                  await _temporaryUpdateWidgetViewStatus(currentPosition,viewId);
+                                },
+                                onGoingToEditCallback : (currentPosition,viewId) async {
+                                  await _showEditWidgetDialog(currentPosition);
+                                },
+                                onGoingToDeleteCallback : (currentPosition,viewId) async{
+                                  await _temporaryDeleteWidget(currentPosition);
+                                }
+                            );
+
+                        mainWidgetList[newIndex] =
+                            DraggableCard(
+                              //key:UniqueKey(),
+                                model: model,
+                                widgetData: mainLoadedWidgetList[oldIndex],
+                                StreamObject: widget.StreamObject,
+                                currentVessel: widget.currentVessel,
+                                currentPosition : newIndex,
+                                currentWidgetIndex : mainLoadedWidgetList[newIndex]['current'],
+                                onCardStatusChangedCallback : (currentPosition,viewId) async{
+                                  await _temporaryUpdateWidgetViewStatus(currentPosition,viewId);
+                                },
+                                onGoingToEditCallback : (currentPosition,viewId) async {
+                                  await _showEditWidgetDialog(currentPosition);
+                                },
+                                onGoingToDeleteCallback : (currentPosition,viewId) async{
+                                  await _temporaryDeleteWidget(currentPosition);
+                                }
+                            );
+
+
+                        _temporarySaveGridState(oldIndex,newIndex);
+                        print("Grid changed ${oldIndex.toString()} to ${newIndex.toString()}");
+
+                      });
+                    },
+                    children: mainWidgetList.map((singleCard) {
+                      return ReorderableWrapItem(
+                          key: ValueKey(singleCard), child: Expanded(child: singleCard));
+                    }).toList(),
+                  ));
+                }),
+
+
+             // MasonryGrid(
+             //     column:4,
+             //     children: mainWidgetList.map((singleCard) {
+             //       return ReorderableWrapItem(
+             //           key: ValueKey(singleCard), child: singleCard);
+             //     }).toList(),
+             //   //List.generate(10, (i) =>                        SizedBox(width: 100, height: Random().nextInt(100) + 50.0, child: Text("hello")))
+
+
+             // )
+
+
+            )
+          ],
+        ));
+
 
     return Scaffold(
       backgroundColor: model.webBackgroundColor,
@@ -718,6 +935,88 @@ Future<void> _persistentSaveCurrentGridChanges() async{
 
       ),
     );
+
+
+        return Scaffold(
+      backgroundColor: model.webBackgroundColor,
+      floatingActionButton: _buildWidgetMenuDial(),
+      body: Stack(
+        children: [
+          (!isMainGridReady) ? model.getLoadingPage() : SingleChildScrollView(
+            child: FutureBuilder(builder: (context, snapshot) {
+              return !isMainGridReady
+                  ? (haveErrorLoadingGrid ? model.getErrorPage("Unable to load monitor", "check JSON status") : Text(""))
+                  : (ReorderableWrap(
+                onReorder: (oldIndex, newIndex) {
+                  if(oldIndex == newIndex) return;//if same object no action
+
+                  setState(() {
+                    print("old : " + oldIndex.toString() + " new " + newIndex.toString());
+
+                    mainWidgetList[oldIndex] =
+                        DraggableCard(
+                          //key:UniqueKey(),
+                            model: model,
+                            widgetData: mainLoadedWidgetList[newIndex],
+                            StreamObject: widget.StreamObject,
+                            currentVessel: widget.currentVessel,
+                            currentPosition : oldIndex,
+                            currentWidgetIndex : mainLoadedWidgetList[newIndex]['current'],
+                            onCardStatusChangedCallback : (currentPosition,viewId) async{
+                              await _temporaryUpdateWidgetViewStatus(currentPosition,viewId);
+                            },
+                            onGoingToEditCallback : (currentPosition,viewId) async {
+                              await _showEditWidgetDialog(currentPosition);
+                            },
+                            onGoingToDeleteCallback : (currentPosition,viewId) async{
+                              await _temporaryDeleteWidget(currentPosition);
+                            }
+                        );
+
+                    mainWidgetList[newIndex] =
+                        DraggableCard(
+                          //key:UniqueKey(),
+                            model: model,
+                            widgetData: mainLoadedWidgetList[oldIndex],
+                            StreamObject: widget.StreamObject,
+                            currentVessel: widget.currentVessel,
+                            currentPosition : newIndex,
+                            currentWidgetIndex : mainLoadedWidgetList[newIndex]['current'],
+                            onCardStatusChangedCallback : (currentPosition,viewId) async{
+                              await _temporaryUpdateWidgetViewStatus(currentPosition,viewId);
+                            },
+                            onGoingToEditCallback : (currentPosition,viewId) async {
+                              await _showEditWidgetDialog(currentPosition);
+                            },
+                            onGoingToDeleteCallback : (currentPosition,viewId) async{
+                              await _temporaryDeleteWidget(currentPosition);
+                            }
+                        );
+
+
+                    _temporarySaveGridState(oldIndex,newIndex);
+                    print("Grid changed ${oldIndex.toString()} to ${newIndex.toString()}");
+
+                  });
+                },
+                children: mainWidgetList.map((singleCard) {
+                  return ReorderableWrapItem(
+                      key: ValueKey(singleCard), child: singleCard);
+                }).toList(),
+              ));
+            }),
+          ),
+
+
+
+        ],
+
+
+
+      ),
+    );
+
+     */
   }
 
 

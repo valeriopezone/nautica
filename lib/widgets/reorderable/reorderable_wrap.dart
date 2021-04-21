@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 import './item.dart';
 import './notifier.dart';
@@ -7,9 +8,27 @@ import './provider.dart';
 export './item.dart';
 
 class ReorderableWrap extends StatelessWidget {
-  const ReorderableWrap({
+
+
+  List<StaggeredTile> tileInfo = <StaggeredTile>[
+     StaggeredTile.count(2, 2),
+     StaggeredTile.count(2, 1),
+     StaggeredTile.count(1, 2),
+     StaggeredTile.count(1, 1),
+     StaggeredTile.count(2, 2),
+     StaggeredTile.count(1, 2),
+     StaggeredTile.count(1, 1),
+     StaggeredTile.count(3, 1),
+     StaggeredTile.count(1, 1),
+     StaggeredTile.count(4, 1),
+  ];
+
+
+
+  ReorderableWrap({
     @required this.children,
     @required this.onReorder,
+    @required this.tileInfo,
     Key key,
   }) : super(key: key);
 
@@ -18,6 +37,7 @@ class ReorderableWrap extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     return ReorderableWrapProvider(
       onReorder: onReorder,
       notifier: ReorderableWrapNotifier<ReorderableWrapItem>(
@@ -37,9 +57,19 @@ class ReorderableWrap extends StatelessWidget {
                   offset, provider.state.offsets, provider.state.size);
               provider.move(provider.state.newIndex, newIndex);
             },
-            child: Wrap(
-              children: provider.notifier.children,
-            ),
+           // child: Wrap(
+           //   children: provider.notifier.children,
+           // ),
+
+              child :  StaggeredGridView.count(
+                crossAxisCount: 4,
+                staggeredTiles: tileInfo,
+                children: provider.notifier.children,
+                mainAxisSpacing: 0.0,
+                crossAxisSpacing: 0.0,
+              )
+
+
           );
         },
       ),
@@ -66,3 +96,4 @@ int _findIndex(Offset offset, List<Offset> offsets, Size size) {
     return 0;
   }
 }
+
