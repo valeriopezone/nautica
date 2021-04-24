@@ -13,6 +13,7 @@ import 'package:nautica/network/StreamSubscriber.dart';
 import 'package:nautica/models/BaseModel.dart';
 
 import 'package:nautica/Configuration.dart';
+import 'package:nautica/widgets/form/GridImportForm.dart';
 import 'package:nautica/widgets/form/WidgetCreationForm.dart';
 import 'package:nautica/widgets/reorderable/reorderable_wrap.dart';
 import 'dart:convert' as convert;
@@ -68,6 +69,8 @@ class _MonitorDragState extends State<MonitorDrag> {
   void initState() {
     super.initState();
     vessel = widget.currentVessel;
+
+
 
     //shoule insert a listener for theme
     //every theme change -> notify card -> rebuild single indicator
@@ -648,6 +651,38 @@ Future<void> _persistentSaveCurrentGridChanges() async{
   }
 
 
+  void _showImportGridPopup(){
+      //show popup(widgetPosition)
+      showDialog(
+        context: context,
+        builder: (_) =>  Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              GridImportForm(
+                  key:UniqueKey(),
+                  monitorContext:context,
+                  model:model,
+                  mainLoadedWidgetList : mainLoadedWidgetList,
+                  onGoingToExportWidgetCallback : (String jsonGrid) async{
+                    print("i'm parent monitor and i should say something");
+
+                    print("IMPORT GRID -> $jsonGrid");
+
+                    //convert to map, get name and insert new record
+
+                    return true;
+
+                    //return await _temporaryEditWidget(widgetPosition,widgetData);
+                  }
+              )
+            ]),
+
+      );
+      //
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -1084,7 +1119,7 @@ print(mainLoadedWidgetList.toString());
           backgroundColor: model.paletteColor,
           label: 'import grid',
           labelStyle: TextStyle(fontSize: 18.0),
-          onTap: () => print('import'),
+          onTap: () => _showImportGridPopup(),
         ),
         SpeedDialChild(
           child: Icon(Icons.archive_outlined),

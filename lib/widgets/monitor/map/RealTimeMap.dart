@@ -111,10 +111,13 @@ class MapSampleState extends State<MapSample> with DisposableWidget {
     pinLocationIcon = await BitmapDescriptor.fromAssetImage(
         ImageConfiguration(devicePixelRatio: 2.5),
         'assets/boat_indicator_dashboard.png');
+if(mounted){
+  setState(() {
+    pinMarkerLoaded = true;
+  });
+}
 
-    setState(() {
-      pinMarkerLoaded = true;
-    });
+
   }
 
   @override
@@ -188,36 +191,37 @@ class MapSampleState extends State<MapSample> with DisposableWidget {
   void showPinsOnMap() {
 
 
+if(mounted) {
+  setState(() {
+    // _polyLine.add(Polyline(
+    //   polylineId: PolylineId("route1"),
+    //   color: Colors.red,
+    //   patterns: [PatternItem.dash(20.0), PatternItem.gap(10)],
+    //   width: 3,
+    //   points: [
+    //     LatLng_Value,
+    //     polarToLatLong(LatLng_Value,5000,HT_Value)
+    //   ],
+    // ));
 
 
-    setState(() {
+    _markers.add(Marker(
+      markerId: MarkerId('sourcePin'),
+      position: LatLng_Value,
+      anchor: const Offset(0.5, 0.5),
+      icon: pinLocationIcon,
+      rotation: HT_Value * 181 / pi,
+      infoWindow: InfoWindow(title: widget.currentVessel, snippet: '*'),
+      onTap: () {
+        setState(() {
+          pinPillPosition = 0;
+        });
+      },
+    ));
+  });
+}
 
- // _polyLine.add(Polyline(
- //   polylineId: PolylineId("route1"),
- //   color: Colors.red,
- //   patterns: [PatternItem.dash(20.0), PatternItem.gap(10)],
- //   width: 3,
- //   points: [
- //     LatLng_Value,
- //     polarToLatLong(LatLng_Value,5000,HT_Value)
- //   ],
- // ));
 
-
-      _markers.add(Marker(
-        markerId: MarkerId('sourcePin'),
-        position: LatLng_Value,
-        anchor: const Offset(0.5, 0.5),
-        icon: pinLocationIcon,
-        rotation: HT_Value * 181 / pi,
-        infoWindow: InfoWindow(title: widget.currentVessel, snippet: '*'),
-        onTap: () {
-          setState(() {
-            pinPillPosition = 0;
-          });
-        },
-      ));
-    });
   }
 
   void updatePinOnMap() async {

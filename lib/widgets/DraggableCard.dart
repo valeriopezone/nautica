@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 
 import 'package:nautica/network/StreamSubscriber.dart';
 import 'package:nautica/models/BaseModel.dart';
+import 'package:nautica/widgets/monitor/map/LeafLetRealTimeMap.dart';
 
 import 'monitor/graph/DateValueAxisChart.dart';
 import 'monitor/indicators/BoatVectorsIndicator.dart';
@@ -255,7 +256,8 @@ class _DraggableCardState extends State<DraggableCard> {
           break;
 
         case "RealTimeMap":
-          res = new MapSample(key: UniqueKey(), StreamObject: widget.StreamObject, currentVessel: widget.currentVessel);
+          //res = new MapSample(key: UniqueKey(), StreamObject: widget.StreamObject, currentVessel: widget.currentVessel);
+          res = new LeafLetMap(key: UniqueKey(), StreamObject: widget.StreamObject, currentVessel: widget.currentVessel);
           break;
 
         case "TextIndicator":
