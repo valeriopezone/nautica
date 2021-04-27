@@ -111,14 +111,14 @@ try{
               this.wsDataTable[dec["context"].toString()][param["path"]
                   .toString()] = param["value"];
             } catch (e) {
-              print("Unable to insert data");
+              print("Unable to insert data -> $e");
             }
 
             try {
               this.wsTimeTable[dec["context"].toString()][param["path"]
                   .toString()] = timeParam;
             } catch (e) {
-              print("unable to insert time");
+              print("unable to insert time -> $e");
             }
           }
         });

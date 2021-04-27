@@ -252,7 +252,13 @@ class _DraggableCardState extends State<DraggableCard> {
               model: widget.model);
           break;
         case "DateValueAxisChart":
-          res = DateValueAxisChart(key: UniqueKey(), DataValue_Stream: _subscribeToDataValueStream(subscriptions['DataValue_Stream']), model: widget.model);
+          res = DateValueAxisChart(key: UniqueKey(),
+              DataValue_Stream: _subscribeToDataValueStream(subscriptions['DataValue_Stream']),
+              model: widget.model,
+              vesselsDataTable: widget.vesselsDataTable,
+              currentVessel: widget.currentVessel,
+              widgetGraphics: widgetOptions['graphics']
+          );
           break;
 
         case "RealTimeMap":

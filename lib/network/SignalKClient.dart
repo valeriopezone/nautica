@@ -132,7 +132,7 @@ class SignalKClient {
       return Future.error("UNABLE TO READ JSON - PROBABLY WRONG API_VERSION");
     }
     this.httpURL = response['endpoints'][this.apiVersion]['signalk-http'];
-    this.wsURL = response['endpoints'][this.apiVersion]['signalk-ws'];
+    //this.wsURL = response['endpoints'][this.apiVersion]['signalk-ws'];
     this.tcpURL = response['endpoints'][this.apiVersion]['signalk-tcp'];
 
     print("[loadSignalKData] serverID : " + this.serverId);

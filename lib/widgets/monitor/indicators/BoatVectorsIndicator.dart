@@ -237,38 +237,9 @@ class _BoatVectorsIndicatorState extends State<BoatVectorsIndicator> with Dispos
                           ),
                         )),
                     ),
-                    Padding(padding: EdgeInsets.only(top: 15)),
 
 
-                      Column(
-                        children: [
-                          Text("Lat : " + widget.Lat_Value.toStringAsFixed(7),style: TextStyle(
-                              color: widget.model.paletteColor,
-                              fontSize: 24,
-                              fontFamily: 'Roboto-Bold'),),
-                          Text("Lon : " + widget.Lng_Value.toStringAsFixed(7),style: TextStyle(
-                              color: widget.model.paletteColor,
-                              fontSize: 24,
-                              fontFamily: 'Roboto-Bold'),),
-                          Text("DBK : " + widget.DBK_Value.toStringAsFixed(2),style: TextStyle(
-                              color: widget.model.paletteColor,
-                              fontSize: 24,
-                              fontFamily: 'Roboto-Bold'),),
-                          Text("DBS : " + widget.DBS_Value.toStringAsFixed(2),style: TextStyle(
-                              color: widget.model.paletteColor,
-                              fontSize: 24,
-                              fontFamily: 'Roboto-Bold'),),
-                          Text("DBT : " + widget.DBT_Value.toStringAsFixed(2),style: TextStyle(
-                              color: widget.model.paletteColor,
-                              fontSize: 24,
-                              fontFamily: 'Roboto-Bold'),),
-                          Text("DBST : " + widget.DBST_Value.toStringAsFixed(2),style: TextStyle(
-                              color: widget.model.paletteColor,
-                              fontSize: 24,
-                              fontFamily: 'Roboto-Bold'),),
-                        ],
-                      )
-                    ,
+
                     //Center(
                     //child : Image(
                     //    image: AssetImage('assets/boat.png'),
