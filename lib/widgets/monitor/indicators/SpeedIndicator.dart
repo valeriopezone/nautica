@@ -129,11 +129,7 @@ class _SpeedIndicatorState extends State<SpeedIndicator> with DisposableWidget{
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        //notifyParent(text, icon);
-      },
-      child: StreamBuilder(
+    return  StreamBuilder(
           stream: widget.Speed_Stream,
           builder: (context, snap) {
 
@@ -208,8 +204,7 @@ class _SpeedIndicatorState extends State<SpeedIndicator> with DisposableWidget{
           //    "Speed true: ${(snap.data.toStringAsFixed(2))}",
           //    style: GoogleFonts.lato(
           //        textStyle: Theme.of(context).textTheme.headline4));
-          }),
-    );
+          });
   }
 
 }

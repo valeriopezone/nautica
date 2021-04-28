@@ -160,6 +160,7 @@ class _DateValueAxisChartState extends State<DateValueAxisChart> with Disposable
           builder: (context, snapshot) {
             return Container(
               child: SfCartesianChart(
+
                   isTransposed: widget.isTransposed,
                   plotAreaBorderWidth: 0,
                   margin: EdgeInsets.only(left: 5, right: 5),

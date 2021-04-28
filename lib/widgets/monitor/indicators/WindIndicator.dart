@@ -123,65 +123,9 @@ class _WindIndicatorState extends State<WindIndicator> with DisposableWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        // notifyParent(text, icon);
-      },
-      child: StreamBuilder(
+    return StreamBuilder(
           stream: widget.Angle_Stream,
           builder: (context, snap) {
-            // if (!snap.hasData || Angle_Value == null) {
-            //   //append no data img
-            //   haveData = false;
-            // }
-
-            /*
-            styles & colors
-
-            intensityUnit = "m/s";
-            angleUnit = "°";
-
-            radiusFactor: 1.05,
-            radialLabelFontColor = widget.model.textColor;
-            majorTickSize = 1.5;
-            majorTickLength = 0.1;
-
-            angleLabelFontSize = widget.model.isWebFullView ? 25.0 : 17.0;
-            angleLabelFontColor = widget.model.textColor;
-            intensityLabelFontSize = widget.model.isWebFullView ? 18.0 : 12.0;
-            intensityLabelFontColor = widget.model.textColor;
-
-
-            needlePointerColor = widget.model.paletteColor;
-            gaugePositiveColor = widget.model.positiveWind;
-            gaugeNegativeColor = widget.model.negativeWind;
-
-            minorTickSize = 1.5;
-            minorTickLength = 0.04;
-
-
-graphics['intensityUnit']
-graphics['angleUnit']
-
-graphics['radiusFactor']
-graphics['radialLabelFontColor']
-
-graphics['majorTickSize']
-graphics['majorTickLength']
-graphics['angleLabelFontSize']
-graphics['angleLabelFontColor']
-graphics['intensityLabelFontSize']
-graphics['intensityLabelFontColor']
-
-
-graphics['needlePointerColor']
-graphics['gaugePositiveColor']
-graphics['gaugeNegativeColor']
-graphics['minorTickSize']
-graphics['minorTickLength']
-
-
-             */
 
             return SfRadialGauge(
               axes: <RadialAxis>[
@@ -248,8 +192,7 @@ graphics['minorTickLength']
                     axisLineStyle: AxisLineStyle(color: Colors.transparent))
               ],
             );
-          }),
-    );
+          });
   }
 
   void _handleAxisLabelCreated(AxisLabelCreatedArgs args) {

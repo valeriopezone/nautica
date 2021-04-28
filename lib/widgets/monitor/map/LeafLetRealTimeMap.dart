@@ -1,6 +1,5 @@
 import 'dart:async';
 
-
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:nautica/Configuration.dart';
@@ -9,7 +8,6 @@ import 'package:nautica/models/Helper.dart';
 
 import 'package:nautica/network/StreamSubscriber.dart';
 import 'package:nautica/utils/flutter_map/flutter_map.dart';
-
 
 class LeafLetMap extends StatefulWidget {
   StreamSubscriber StreamObject = null;
@@ -37,6 +35,7 @@ class LeafLetMapState extends State<LeafLetMap> with DisposableWidget, TickerPro
   double currentZoom = 17;
 
   List<Marker> markers = <Marker>[];
+  AnimationController controller;
 
   @override
   void initState() {
@@ -89,7 +88,9 @@ class LeafLetMapState extends State<LeafLetMap> with DisposableWidget, TickerPro
   void dispose() {
     print("CANCEL MAPS SUBSCRIPTION");
     cancelSubscriptions();
-
+    if (controller != null) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
@@ -112,7 +113,7 @@ class LeafLetMapState extends State<LeafLetMap> with DisposableWidget, TickerPro
     final _latTween = Tween<double>(begin: mapController.center.latitude, end: destLocation.latitude);
     final _lngTween = Tween<double>(begin: mapController.center.longitude, end: destLocation.longitude);
     final _zoomTween = Tween<double>(begin: mapController.zoom, end: destZoom);
-    var controller = AnimationController(duration: const Duration(milliseconds: 300), vsync: this);
+    controller = AnimationController(duration: const Duration(milliseconds: 300), vsync: this);
     Animation<double> animation = CurvedAnimation(parent: controller, curve: Curves.fastOutSlowIn);
 
     controller.addListener(() {
@@ -121,9 +122,13 @@ class LeafLetMapState extends State<LeafLetMap> with DisposableWidget, TickerPro
 
     animation.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
-        controller.dispose();
+        if (controller != null) {
+          controller.dispose();
+        }
       } else if (status == AnimationStatus.dismissed) {
-        controller.dispose();
+        if (controller != null) {
+          controller.dispose();
+        }
       }
     });
 

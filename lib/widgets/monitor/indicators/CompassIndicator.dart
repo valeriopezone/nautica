@@ -124,11 +124,7 @@ class _CompassIndicatorState extends State<CompassIndicator> with DisposableWidg
 
   @override
   Widget build(BuildContext context) {
-    final Widget _widget = GestureDetector(
-        onTap: () {
-          //notifyParent(text, icon);
-        },
-        child: StreamBuilder(
+    return StreamBuilder(
             stream: widget.Value_Stream,
             builder: (context, snap) {
               //if (!snap.hasData) {
@@ -185,15 +181,8 @@ class _CompassIndicatorState extends State<CompassIndicator> with DisposableWidg
                       ])
                 ],
               );
-            }));
-    if (widget.model.isWebFullView) {
-      return Padding(
-        padding: const EdgeInsets.all(35),
-        child: _widget,
-      );
-    } else {
-      return _widget;
-    }
+            });
+
   }
 
   /// Handled callback for change numeric value to compass directional letter.

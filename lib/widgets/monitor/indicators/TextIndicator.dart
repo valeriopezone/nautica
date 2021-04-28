@@ -130,11 +130,7 @@ class _TextIndicatorState extends State<TextIndicator> with DisposableWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        //notifyParent(text, icon);
-      },
-      child: StreamBuilder(
+    return StreamBuilder(
           stream: widget.Text_Stream,
           builder: (context, snap) {
             return Stack(
@@ -150,7 +146,6 @@ class _TextIndicatorState extends State<TextIndicator> with DisposableWidget {
                ),
               ],
             );
-          }),
-    );
+          });
   }
 }
