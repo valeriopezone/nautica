@@ -93,19 +93,19 @@ class _WindIndicatorState extends State<WindIndicator> with DisposableWidget {
 
     if (widget.widgetGraphics != null) {
       try {
-        graphics['radiusFactor'] = (widget.widgetGraphics[currentTheme]['radiusFactor'] is double) ? widget.widgetGraphics[currentTheme]['radiusFactor'] : double.parse(widget.widgetGraphics[currentTheme]['radiusFactor']);
+        graphics['radiusFactor'] = (widget.widgetGraphics[currentTheme]['radiusFactor'] is double) ? widget.widgetGraphics[currentTheme]['radiusFactor'] : double.parse(widget.widgetGraphics[currentTheme]['radiusFactor'].toString());
         graphics['radialLabelFontColor'] = HexColor(widget.widgetGraphics[currentTheme]['radialLabelFontColor']);
-        graphics['majorTickSize'] = (widget.widgetGraphics[currentTheme]['majorTickSize'] is double) ? widget.widgetGraphics[currentTheme]['majorTickSize'] : double.parse(widget.widgetGraphics[currentTheme]['majorTickSize']);
-        graphics['majorTickLength'] = (widget.widgetGraphics[currentTheme]['majorTickLength'] is double) ? widget.widgetGraphics[currentTheme]['majorTickLength'] : double.parse(widget.widgetGraphics[currentTheme]['majorTickLength']);
-        graphics['angleLabelFontSize'] = (widget.widgetGraphics[currentTheme]['angleLabelFontSize'] is double) ? widget.widgetGraphics[currentTheme]['angleLabelFontSize'] : double.parse(widget.widgetGraphics[currentTheme]['angleLabelFontSize']);
+        graphics['majorTickSize'] = (widget.widgetGraphics[currentTheme]['majorTickSize'] is double) ? widget.widgetGraphics[currentTheme]['majorTickSize'] : double.parse(widget.widgetGraphics[currentTheme]['majorTickSize'].toString());
+        graphics['majorTickLength'] = (widget.widgetGraphics[currentTheme]['majorTickLength'] is double) ? widget.widgetGraphics[currentTheme]['majorTickLength'] : double.parse(widget.widgetGraphics[currentTheme]['majorTickLength'].toString());
+        graphics['angleLabelFontSize'] = (widget.widgetGraphics[currentTheme]['angleLabelFontSize'] is double) ? widget.widgetGraphics[currentTheme]['angleLabelFontSize'] : double.parse(widget.widgetGraphics[currentTheme]['angleLabelFontSize'].toString());
         graphics['angleLabelFontColor'] = HexColor(widget.widgetGraphics[currentTheme]['angleLabelFontColor']);
-        graphics['intensityLabelFontSize'] = (widget.widgetGraphics[currentTheme]['intensityLabelFontSize'] is double) ? widget.widgetGraphics[currentTheme]['intensityLabelFontSize'] : double.parse(widget.widgetGraphics[currentTheme]['intensityLabelFontSize']);
+        graphics['intensityLabelFontSize'] = (widget.widgetGraphics[currentTheme]['intensityLabelFontSize'] is double) ? widget.widgetGraphics[currentTheme]['intensityLabelFontSize'] : double.parse(widget.widgetGraphics[currentTheme]['intensityLabelFontSize'].toString());
         graphics['intensityLabelFontColor'] = HexColor(widget.widgetGraphics[currentTheme]['intensityLabelFontColor']);
         graphics['needlePointerColor'] = HexColor(widget.widgetGraphics[currentTheme]['needlePointerColor']);
         graphics['gaugePositiveColor'] = HexColor(widget.widgetGraphics[currentTheme]['gaugePositiveColor']);
         graphics['gaugeNegativeColor'] = HexColor(widget.widgetGraphics[currentTheme]['gaugeNegativeColor']);
-        graphics['minorTickSize'] = (widget.widgetGraphics[currentTheme]['minorTickSize'] is double) ? widget.widgetGraphics[currentTheme]['minorTickSize'] : double.parse(widget.widgetGraphics[currentTheme]['minorTickSize']);
-        graphics['minorTickLength'] = (widget.widgetGraphics[currentTheme]['minorTickLength'] is double) ? widget.widgetGraphics[currentTheme]['minorTickLength'] : double.parse(widget.widgetGraphics[currentTheme]['minorTickLength']);
+        graphics['minorTickSize'] = (widget.widgetGraphics[currentTheme]['minorTickSize'] is double) ? widget.widgetGraphics[currentTheme]['minorTickSize'] : double.parse(widget.widgetGraphics[currentTheme]['minorTickSize'].toString());
+        graphics['minorTickLength'] = (widget.widgetGraphics[currentTheme]['minorTickLength'] is double) ? widget.widgetGraphics[currentTheme]['minorTickLength'] : double.parse(widget.widgetGraphics[currentTheme]['minorTickLength'].toString());
       } catch (e) {
         print("WindIndicator error while loading graphics -> " + e.toString());
       }

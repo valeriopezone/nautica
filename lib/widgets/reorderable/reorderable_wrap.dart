@@ -9,25 +9,15 @@ export './item.dart';
 
 class ReorderableWrap extends StatelessWidget {
 
-
-  List<StaggeredTile> tileInfo = <StaggeredTile>[
-     StaggeredTile.count(2, 2),
-     StaggeredTile.count(2, 1),
-     StaggeredTile.count(1, 2),
-     StaggeredTile.count(1, 1),
-     StaggeredTile.count(2, 2),
-     StaggeredTile.count(1, 2),
-     StaggeredTile.count(1, 1),
-     StaggeredTile.count(3, 1),
-     StaggeredTile.count(1, 1),
-     StaggeredTile.count(4, 1),
-  ];
+  int numCols = 4;
+  List<StaggeredTile> tileInfo = <StaggeredTile>[];
 
 
 
   ReorderableWrap({
     @required this.children,
     @required this.onReorder,
+    this.numCols,
     @required this.tileInfo,
     Key key,
   }) : super(key: key);
@@ -62,7 +52,7 @@ class ReorderableWrap extends StatelessWidget {
            // ),
 
               child :  StaggeredGridView.count(
-                crossAxisCount: 4,
+                crossAxisCount: numCols,
                 staggeredTiles: tileInfo,
                 children: provider.notifier.children,
                 mainAxisSpacing: 0.0,

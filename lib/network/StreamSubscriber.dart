@@ -6,7 +6,7 @@ import 'dart:convert' as convert;
 class StreamSubscriber {
   SignalKClient client = null;
   WebsocketManager SKWebSocket = null;
-  var subscriptionList; //TODO
+
   int streamRefreshRate = NAUTICA['configuration']['widget']['refreshRate'];
   int lastWSMessageDate;
   dynamic wsRawData;
@@ -82,7 +82,6 @@ try{
         dec['updates'] != null &&
         dec['updates'][0] != null &&
         dec['updates'][0]['values'] != null) {
-      //todo fix nullable error
 
       try {
         timeParam = dec['updates'][0]['timestamp'];

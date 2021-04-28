@@ -7,58 +7,67 @@ import 'package:nautica/models/Helper.dart';
 import 'package:nautica/utils/HexColor.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
+class _DateValueChartCoords {
+  _DateValueChartCoords(this.x, this.y);
 
+  final dynamic x;
+  final double y;
+}
 
 class DateValueAxisChart extends StatefulWidget {
-
-
   double Time_Value = 0.0;
   double Intensity_Value = 0.0;
   Stream<dynamic> DataValue_Stream = null;
-
+  String subscriptionPath = "";
+  bool isTransposed = false;
   BaseModel model;
-  bool haveData = false;
-  final Function(String text, Icon icon) notifyParent;
-  Map<dynamic, dynamic> lastStreamedValue = {'timestamp': null, 'value': 0};
-
   dynamic widgetGraphics;
   dynamic vesselsDataTable = [];
   String currentVessel = ""; //
 
-
-  DateValueAxisChart({Key key,
+  DateValueAxisChart({
+    Key key,
     @required this.DataValue_Stream,
     @required this.model,
-    this.notifyParent,
+    @required this.subscriptionPath,
     @required this.vesselsDataTable,
     @required this.currentVessel,
     @required this.widgetGraphics,
+    this.isTransposed = false,
   }) : super(key: key);
 
   @override
-  _LiveVerticalState createState() => _LiveVerticalState();
+  _DateValueAxisChartState createState() => _DateValueAxisChartState();
 }
 
-/// State class of the realtime line chart.
-class _LiveVerticalState extends State<DateValueAxisChart> with DisposableWidget {
+class _DateValueAxisChartState extends State<DateValueAxisChart> with DisposableWidget {
+  Map graphics = new Map();
+  String currentTheme = "light";
 
   List<_DateValueChartCoords> chartData = <_DateValueChartCoords>[];
   ChartSeriesController _chartSeriesController;
-
-
-
-
-  double minValue = 0.0;
-  double maxValue = 30.0;
-  int numDatapoints = 30;
-  Color chartColor = HexColor("#FFC06C84");
+  Map<dynamic, dynamic> lastStreamedValue = {'timestamp': null, 'value': 0};
 
   @override
   void initState() {
     super.initState();
+
+    graphics['chartMinValue'] = 0.0;
+    graphics['chartMaxValue'] = 100.0;
+    graphics['chartNumDatapoints'] = 30;
+    graphics['chartLineColor'] = HexColor("#FFC06C84");
+
+    widget.model.addListener(() {
+      _loadWidgetGraphics();
+    });
+
+    _loadWidgetGraphics();
+
+    lastStreamedValue = {'timestamp': null, 'value': 0};
+    initializeDataPoints();
+
     if (widget.DataValue_Stream != null) {
       widget.DataValue_Stream.listen((data) {
-
         try {
           var timestamp = data['timestamp'];
           var value = (data['value'] == null)
@@ -67,21 +76,54 @@ class _LiveVerticalState extends State<DateValueAxisChart> with DisposableWidget
                   ? data['value']
                   : double.parse(data['value']);
 
-          if (timestamp == null || timestamp == widget.lastStreamedValue['timestamp']) return;
+          if (timestamp == null || timestamp == lastStreamedValue['timestamp']) return;
 
           var date = DateTime.parse(timestamp);
           if (date.isUtc) {
-            widget.lastStreamedValue['timestamp'] = timestamp;
-            widget.lastStreamedValue['value'] = value;
-            print("date : $date");
+            lastStreamedValue['timestamp'] = timestamp;
+            lastStreamedValue['value'] = value;
 
             _updateDataSource(date, value);
-
           }
         } catch (e) {
           print("[DateValueAxisChart] initState : " + e.toString());
         }
       }).canceledBy(this);
+    }
+  }
+
+  void _loadWidgetGraphics() {
+    currentTheme = widget.model.isDark ? "darkTheme" : "lightTheme";
+
+    if (widget.widgetGraphics != null) {
+      try {
+        graphics['chartMinValue'] = (widget.widgetGraphics[currentTheme]['chartMinValue'] is double)
+            ? widget.widgetGraphics[currentTheme]['chartMinValue']
+            : double.parse(widget.widgetGraphics[currentTheme]['chartMinValue'].toString());
+
+        graphics['chartMaxValue'] = (widget.widgetGraphics[currentTheme]['chartMaxValue'] is double)
+            ? widget.widgetGraphics[currentTheme]['chartMaxValue']
+            : double.parse(widget.widgetGraphics[currentTheme]['chartMaxValue'].toString());
+
+        var nDataPoints = widget.widgetGraphics[currentTheme]['chartNumDatapoints'].toString();
+        double ndpDouble = double.parse(nDataPoints); //datapoints num is INTEGER but it's stored as double into db
+        graphics['chartNumDatapoints'] = ndpDouble.toInt();
+        if (graphics['chartNumDatapoints'] <= 8) graphics['chartNumDatapoints'] = 8;
+        if (graphics['chartNumDatapoints'] > 100) graphics['chartNumDatapoints'] = 100;
+
+        graphics['chartLineColor'] = HexColor(widget.widgetGraphics[currentTheme]['chartLineColor']);
+      } catch (e) {
+        print("DateValueAxisChart error while loading graphics -> " + e.toString());
+      }
+    }
+  }
+
+  void initializeDataPoints() {
+    //fill datapoints with 0-values
+    DateTime now = new DateTime.now().subtract(new Duration(seconds: 1 * graphics['chartNumDatapoints']));
+    for (int i = 0; i < graphics['chartNumDatapoints'] - 1; i++) {
+      chartData.add(_DateValueChartCoords(now, 0.0));
+      now = now.add(new Duration(seconds: 1));
     }
   }
 
@@ -97,44 +139,48 @@ class _LiveVerticalState extends State<DateValueAxisChart> with DisposableWidget
     return _buildLiveLineChart();
   }
 
-  /// Returns the realtime Cartesian line chart.
+  String _getUnit() {
+    String unit = (widget.subscriptionPath == "navigation.position") ? "'" : " ";
+    try {
+      unit = widget.vesselsDataTable[widget.currentVessel][widget.subscriptionPath]['units'];
+      unit = (unit != null && unit.isNotEmpty) ? unit.toString() : " ";
+    } catch (e) {
+      print("[DateValueAxisChart] error while decoding unit -> $e");
+    }
+    return unit;
+  }
+
   Widget _buildLiveLineChart() {
-    //var x = DateTimeAxis();
-    //dateTime
     return GestureDetector(
       onTap: () {
-        //notifyParent(text, icon);
+        //...
       },
       child: StreamBuilder(
           stream: null,
           builder: (context, snapshot) {
-            return (!true)
-                ? Text("in")
-                : SfCartesianChart(
-                    // isTransposed: true,
-                    plotAreaBorderWidth: 0,
-                margin: EdgeInsets.all(15),
-
-                    tooltipBehavior: TooltipBehavior(enable: true, header : "", format: 'point.y m/s'),
-                    //   primaryXAxis: NumericAxis(majorGridLines: MajorGridLines(width: 0)),
-                    primaryXAxis: DateTimeAxis(axisLine: AxisLine(width: 1), dateFormat: DateFormat.Hms(), interval: 20),
-//intervalType: DateTimeIntervalType.auto,
-                    // series :  <LineSeries<dynamic, dynamic>>[],//<LineSeries<dynamic, dynamic>>[],
-
-                    primaryYAxis: NumericAxis(minimum: minValue, maximum: maxValue, axisLine: AxisLine(width: 1), majorTickLines: MajorTickLines(size: 0)),
-                    series: <LineSeries<_DateValueChartCoords, DateTime>>[
-                        LineSeries<_DateValueChartCoords, DateTime>(
-                          onRendererCreated: (ChartSeriesController controller) {
-                            _chartSeriesController = controller;
-                          },
-                          dataSource: chartData,
-                          color: chartColor,
-                          xValueMapper: (_DateValueChartCoords sales, _) => sales.x,
-                          yValueMapper: (_DateValueChartCoords sales, _) => sales.y,
-                          animationDuration: 0,
-                          enableTooltip: true,
-                        )
-                      ]);
+            return Container(
+              child: SfCartesianChart(
+                  isTransposed: widget.isTransposed,
+                  plotAreaBorderWidth: 0,
+                  margin: EdgeInsets.only(left: 5, right: 5),
+                  tooltipBehavior: TooltipBehavior(enable: true, header: "", format: 'point.y ' + _getUnit()),
+                  primaryXAxis: DateTimeAxis(axisLine: AxisLine(width: 1), dateFormat: DateFormat.Hms(), interval: 20),
+                  primaryYAxis:
+                      NumericAxis(minimum: graphics['chartMinValue'], maximum: graphics['chartMaxValue'], axisLine: AxisLine(width: 1), majorTickLines: MajorTickLines(size: 0)),
+                  series: <LineSeries<_DateValueChartCoords, DateTime>>[
+                    LineSeries<_DateValueChartCoords, DateTime>(
+                      onRendererCreated: (ChartSeriesController controller) {
+                        _chartSeriesController = controller;
+                      },
+                      dataSource: chartData,
+                      color: graphics['chartLineColor'],
+                      xValueMapper: (_DateValueChartCoords dp, _) => dp.x,
+                      yValueMapper: (_DateValueChartCoords dp, _) => dp.y,
+                      animationDuration: 0,
+                      enableTooltip: true,
+                    )
+                  ]),
+            );
           }),
     );
   }
@@ -142,7 +188,7 @@ class _LiveVerticalState extends State<DateValueAxisChart> with DisposableWidget
   void _updateDataSource(DateTime newDate, double newValue) {
     if (true) {
       chartData.add(_DateValueChartCoords(newDate, newValue));
-      if (chartData.length == numDatapoints) {
+      if (chartData.length == graphics['chartNumDatapoints']) {
         chartData.removeAt(0);
         _chartSeriesController?.updateDataSource(
           addedDataIndexes: <int>[chartData.length - 1],
@@ -155,12 +201,4 @@ class _LiveVerticalState extends State<DateValueAxisChart> with DisposableWidget
       }
     }
   }
-}
-
-
-class _DateValueChartCoords {
-  _DateValueChartCoords(this.x, this.y);
-
-  final dynamic x;
-  final double y;
 }

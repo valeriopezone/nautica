@@ -163,10 +163,12 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
     composed['elements'].add(firstEl);
 
     for (dynamic options in widgetGraphicControllers['lightTheme'].keys) {
-      firstEl['widgetOptions']['graphics']['lightTheme'][options] = widgetGraphicControllers['lightTheme'][options].text.toString();
+      var type = IndicatorGraphicSpecs[selectedWidget]['lightTheme'][options]['type'] ?? "string";
+      firstEl['widgetOptions']['graphics']['lightTheme'][options] = (type == "double") ? double.parse(widgetGraphicControllers['lightTheme'][options].text.toString()) : widgetGraphicControllers['lightTheme'][options].text.toString();
     }
     for (dynamic options in widgetGraphicControllers['darkTheme'].keys) {
-      firstEl['widgetOptions']['graphics']['darkTheme'][options] = widgetGraphicControllers['darkTheme'][options].text.toString();
+      var type = IndicatorGraphicSpecs[selectedWidget]['lightTheme'][options]['type'] ?? "string";
+      firstEl['widgetOptions']['graphics']['darkTheme'][options] = (type == "double") ? double.parse(widgetGraphicControllers['darkTheme'][options].text.toString()) : widgetGraphicControllers['darkTheme'][options].text.toString();
     }
 
     if (selectedSubscriptions.length > 0) {
@@ -189,7 +191,8 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
 
     //notify MonitorDrag for saving
 
-    print(composed.toString());
+
+    
 
     bool res = await widget.onGoingToSaveWidgetCallback(widget.currentPositionId, composed);
 
@@ -435,8 +438,8 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            Expanded(child: Text(' Light Theme', style: TextStyle(color: widget.model.formSectionLabelColor, fontSize: 12, fontWeight: FontWeight.bold, fontFamily: 'Roboto-Medium'))),
-            Expanded(child: Padding(
+            lightThemeOptions.length <= 0 ? Text("") : Expanded(child: Text(' Light Theme', style: TextStyle(color: widget.model.formSectionLabelColor, fontSize: 12, fontWeight: FontWeight.bold, fontFamily: 'Roboto-Medium'))),
+            darkThemeOptions.length <= 0 ? Text("") : Expanded(child: Padding(
               padding: const EdgeInsets.only(left : 8.0),
               child: Text(' Dark Theme', style: TextStyle(color: widget.model.formSectionLabelColor, fontSize: 12, fontWeight: FontWeight.bold, fontFamily: 'Roboto-Medium')),
             )),
@@ -445,7 +448,7 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            Expanded(
+            lightThemeOptions.length <= 0 ? Text("") : Expanded(
               flex: 2,
               child: Container(
                 margin: const EdgeInsets.only(right: 8.0),
@@ -457,7 +460,7 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
                 ),
               ),
             ),
-            Expanded(
+            darkThemeOptions.length <= 0 ? Text("") :Expanded(
               flex: 2,
               child: Container(
                 margin: const EdgeInsets.only(left: 8.0),
@@ -972,10 +975,10 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
                                       await _saveWidget().then((res) {
                                         if (res) {
                                           //ok
-                                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Widget correctly inserted into grid')));
+                                          //ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Widget correctly inserted into grid')));
                                           Navigator.pop(context);
                                         } else {
-                                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error! Unable to save widget')));
+                                          //ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error! Unable to save widget')));
                                         }
                                       });
                                     }

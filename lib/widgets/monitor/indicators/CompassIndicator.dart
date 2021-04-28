@@ -49,18 +49,18 @@ class _CompassIndicatorState extends State<CompassIndicator> with DisposableWidg
 
     graphics['axisRadiusFactor'] = 1.3;
     graphics['axisLabelFontColor'] = Color(0xFF949494);
-    graphics['axisLabelFontSize'] = widget.model.isWebFullView ? 11 : 10;
+    graphics['axisLabelFontSize'] = 11.0;
     graphics['minorTickColor'] = Color(0xFF616161);
     graphics['minorTickThickness'] = 1.0;
     graphics['minorTickLength'] = 0.058;
     graphics['majorTickColor'] = Color(0xFF949494);
     graphics['majorTickThickness'] = 2.3;
     graphics['majorTickLength'] = 0.087;
-    graphics['markerOffset'] = widget.model.isWebFullView ? 0.71 : 0.69;
-    graphics['markerHeight'] = widget.model.isWebFullView ? 10 : 5;
-    graphics['markerWidth'] = widget.model.isWebFullView ? 15 : 10;
+    graphics['markerOffset'] = 0.69;
+    graphics['markerHeight'] = 5.0;
+    graphics['markerWidth'] =  10.0;
     graphics['gaugeFontColor'] = Color(0xFFDF5F2D);
-    graphics['gaugeFontSize'] = widget.model.isWebFullView ? 22 : 16;
+    graphics['gaugeFontSize'] =  16.0;
     _loadWidgetGraphics();
 
     if (widget.Value_Stream != null) {
@@ -77,40 +77,40 @@ class _CompassIndicatorState extends State<CompassIndicator> with DisposableWidg
       try {
         graphics['axisRadiusFactor'] = (widget.widgetGraphics[currentTheme]['axisRadiusFactor'] is double)
             ? widget.widgetGraphics[currentTheme]['axisRadiusFactor']
-            : double.parse(widget.widgetGraphics[currentTheme]['axisRadiusFactor']);
+            : double.parse(widget.widgetGraphics[currentTheme]['axisRadiusFactor'].toString());
         graphics['axisLabelFontColor'] = HexColor(widget.widgetGraphics[currentTheme]['axisLabelFontColor']);
         graphics['axisLabelFontSize'] = (widget.widgetGraphics[currentTheme]['axisLabelFontSize'] is double)
             ? widget.widgetGraphics[currentTheme]['axisLabelFontSize']
-            : double.parse(widget.widgetGraphics[currentTheme]['axisLabelFontSize']);
+            : double.parse(widget.widgetGraphics[currentTheme]['axisLabelFontSize'].toString());
         graphics['minorTickColor'] = HexColor(widget.widgetGraphics[currentTheme]['minorTickColor']);
         graphics['minorTickThickness'] = (widget.widgetGraphics[currentTheme]['minorTickThickness'] is double)
             ? widget.widgetGraphics[currentTheme]['minorTickThickness']
-            : double.parse(widget.widgetGraphics[currentTheme]['minorTickThickness']);
+            : double.parse(widget.widgetGraphics[currentTheme]['minorTickThickness'].toString());
         graphics['minorTickLength'] = (widget.widgetGraphics[currentTheme]['minorTickLength'] is double)
             ? widget.widgetGraphics[currentTheme]['minorTickLength']
-            : double.parse(widget.widgetGraphics[currentTheme]['minorTickLength']);
+            : double.parse(widget.widgetGraphics[currentTheme]['minorTickLength'].toString());
         graphics['majorTickColor'] = HexColor(widget.widgetGraphics[currentTheme]['majorTickColor']);
         graphics['majorTickThickness'] = (widget.widgetGraphics[currentTheme]['majorTickThickness'] is double)
             ? widget.widgetGraphics[currentTheme]['majorTickThickness']
-            : double.parse(widget.widgetGraphics[currentTheme]['majorTickThickness']);
+            : double.parse(widget.widgetGraphics[currentTheme]['majorTickThickness'].toString());
         graphics['majorTickLength'] = (widget.widgetGraphics[currentTheme]['majorTickLength'] is double)
             ? widget.widgetGraphics[currentTheme]['majorTickLength']
-            : double.parse(widget.widgetGraphics[currentTheme]['majorTickLength']);
+            : double.parse(widget.widgetGraphics[currentTheme]['majorTickLength'].toString());
         graphics['markerOffset'] = (widget.widgetGraphics[currentTheme]['markerOffset'] is double)
             ? widget.widgetGraphics[currentTheme]['markerOffset']
-            : double.parse(widget.widgetGraphics[currentTheme]['markerOffset']);
+            : double.parse(widget.widgetGraphics[currentTheme]['markerOffset'].toString());
         graphics['markerHeight'] = (widget.widgetGraphics[currentTheme]['markerHeight'] is double)
             ? widget.widgetGraphics[currentTheme]['markerHeight']
-            : double.parse(widget.widgetGraphics[currentTheme]['markerHeight']);
+            : double.parse(widget.widgetGraphics[currentTheme]['markerHeight'].toString());
         graphics['markerWidth'] = (widget.widgetGraphics[currentTheme]['markerWidth'] is double)
             ? widget.widgetGraphics[currentTheme]['markerWidth']
-            : double.parse(widget.widgetGraphics[currentTheme]['markerWidth']);
+            : double.parse(widget.widgetGraphics[currentTheme]['markerWidth'].toString());
         graphics['gaugeFontColor'] = HexColor(widget.widgetGraphics[currentTheme]['gaugeFontColor']);
         graphics['gaugeFontSize'] = (widget.widgetGraphics[currentTheme]['gaugeFontSize'] is double)
             ? widget.widgetGraphics[currentTheme]['gaugeFontSize']
-            : double.parse(widget.widgetGraphics[currentTheme]['gaugeFontSize']);
-      } catch (e) {
-        print("WindIndicator error while loading graphics -> " + e.toString());
+            : double.parse(widget.widgetGraphics[currentTheme]['gaugeFontSize'].toString());
+      } catch (e,s) {
+        print("CompassIndicator error while loading graphics -> $e $s");
       }
     }
   }

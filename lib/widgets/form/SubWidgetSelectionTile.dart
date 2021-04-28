@@ -50,7 +50,6 @@ class _SubWidgetSelectionTileState extends State<SubWidgetSelectionTile> {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return ListTile(
       dense: true,
       tileColor: widget.model.backgroundForm,

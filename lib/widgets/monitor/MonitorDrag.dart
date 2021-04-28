@@ -14,13 +14,13 @@ import 'package:nautica/models/BaseModel.dart';
 
 import 'package:nautica/Configuration.dart';
 import 'package:nautica/widgets/form/GridImportForm.dart';
+import 'package:nautica/widgets/form/GridOptionsForm.dart';
 import 'package:nautica/widgets/form/WidgetCreationForm.dart';
 import 'package:nautica/widgets/reorderable/reorderable_wrap.dart';
 import 'dart:convert' as convert;
 import 'dart:developer' as dev;
 
 import '../DraggableCard.dart';
-
 
 class MonitorDrag extends StatefulWidget {
   StreamSubscriber StreamObject;
@@ -29,14 +29,7 @@ class MonitorDrag extends StatefulWidget {
   final Future<void> Function(String vessel, int gridId, bool hasChanged) onGridStatusChangeCallback;
   dynamic vesselsDataTable = [];
 
-  MonitorDrag(
-      {Key key,
-        @required this.StreamObject,
-        @required this.currentVessel,
-        @required this.onGridStatusChangeCallback,
-        @required this.vesselsDataTable
-      })
-      : super(key: key);
+  MonitorDrag({Key key, @required this.StreamObject, @required this.currentVessel, @required this.onGridStatusChangeCallback, @required this.vesselsDataTable}) : super(key: key);
 
   @override
   _MonitorDragState createState() => _MonitorDragState();
@@ -61,6 +54,11 @@ class _MonitorDragState extends State<MonitorDrag> {
   dynamic mainLoadedWidgetList;
 
 
+  int numCols = NAUTICA['configuration']['design']['grid']['numCols'];
+  double baseHeight = NAUTICA['configuration']['design']['grid']['baseHeight'];
+
+
+
   @override
   void dispose() {
     super.dispose();
@@ -70,56 +68,48 @@ class _MonitorDragState extends State<MonitorDrag> {
     super.initState();
     vessel = widget.currentVessel;
 
-
-
     //shoule insert a listener for theme
     //every theme change -> notify card -> rebuild single indicator
     //use for(...) mainWidgetList.notify(themechanged);
 
-
-
     getMainGrid();
   }
 
-
-
-
-void _setHavingGridChanges(){
-  widget.onGridStatusChangeCallback(vessel,currentGridIndex,haveGridChanges).then((value) {
-    print("CHILD INFORMED PARENT -> $vessel at grid[$currentGridIndex] changes -> $haveGridChanges");
-  });
-}
-
-Future<void> _persistentDeleteCurrentGridChanges() async{
-  setState(() {
-    isMainGridReady = false;
-  });
-  return Hive.openBox<GridThemeRecord>("grid_schema").then((grid) async {
-    GridThemeRecord updatedThemeRecord = GridThemeRecord(id: 2, name: "Temporary Grid", schema: currentJSONGridTheme.schema);
-    await grid.put(updatedThemeRecord.id, updatedThemeRecord).then((value) async{
-      print("CURRENT GRID UPDATED (${currentJSONGridTheme.name})   (${updatedThemeRecord.id})  ");
-      //reload?
-      return await grid.close().then((value) async{
-        getMainGrid();
-        setState(() {
-          haveGridChanges = false;
-        });
-        _setHavingGridChanges();
-      });
-
+  void _setHavingGridChanges() {
+    widget.onGridStatusChangeCallback(vessel, currentGridIndex, haveGridChanges).then((value) {
+      print("CHILD INFORMED PARENT -> $vessel at grid[$currentGridIndex] changes -> $haveGridChanges");
     });
-  });
-}
+  }
 
-Future<void> _persistentSaveCurrentGridChanges() async{
-  setState(() {
-    isMainGridReady = false;
-  });
+  Future<void> _persistentDeleteCurrentGridChanges() async {
+    setState(() {
+      isMainGridReady = false;
+    });
+    return Hive.openBox<GridThemeRecord>("grid_schema").then((grid) async {
+      GridThemeRecord updatedThemeRecord = GridThemeRecord(id: 2, name: "Temporary Grid", schema: currentJSONGridTheme.schema);
+      await grid.put(updatedThemeRecord.id, updatedThemeRecord).then((value) async {
+        print("CURRENT GRID UPDATED (${currentJSONGridTheme.name})   (${updatedThemeRecord.id})  ");
+        //reload?
+        return await grid.close().then((value) async {
+          getMainGrid();
+          setState(() {
+            haveGridChanges = false;
+          });
+          _setHavingGridChanges();
+        });
+      });
+    });
+  }
+
+  Future<void> _persistentSaveCurrentGridChanges() async {
+    setState(() {
+      isMainGridReady = false;
+    });
     return await Hive.openBox<GridThemeRecord>("grid_schema").then((grid) async {
       var tempTheme = grid.get(2) ?? GridThemeRecord(id: 2, name: currentJSONGridTheme.name, schema: currentJSONGridTheme.schema);
       GridThemeRecord updatedThemeRecord = GridThemeRecord(id: currentJSONGridTheme.id, name: currentJSONGridTheme.name, schema: tempTheme.schema);
 
-      await grid.put(updatedThemeRecord.id, updatedThemeRecord).then((value) async{
+      await grid.put(updatedThemeRecord.id, updatedThemeRecord).then((value) async {
         print("CURRENT GRID UPDATED (${currentJSONGridTheme.id})  -  (${currentJSONGridTheme.name})");
         print("JSON : " + convert.jsonEncode(tempTheme.schema));
         dev.log("JSON : " + convert.jsonEncode(tempTheme.schema));
@@ -132,16 +122,15 @@ Future<void> _persistentSaveCurrentGridChanges() async{
         _setHavingGridChanges();
       });
     });
-}
+  }
 
-
-  Future<void> _loadMainGrid() async{
-    return await Hive.openBox("settings").then((settings) async{
+  Future<void> _loadMainGrid() async {
+    return await Hive.openBox("settings").then((settings) async {
       currentGridIndex = settings.get("current_grid_index") ?? 1;
 
-      return await settings.close().then((e) async{
+      return await settings.close().then((e) async {
         //get grid json
-        return await Hive.openBox<GridThemeRecord>("grid_schema").then((grid) async{
+        return await Hive.openBox<GridThemeRecord>("grid_schema").then((grid) async {
           currentJSONGridTheme = grid.get(currentGridIndex) ?? GridThemeRecord(id: 1, name: "Nautica", schema: convert.jsonDecode(mainJSONGridTheme));
 
           await grid.put(2, GridThemeRecord(id: 2, name: "Temporary Grid", schema: currentJSONGridTheme.schema)).then((value) {
@@ -157,21 +146,17 @@ Future<void> _persistentSaveCurrentGridChanges() async{
         });
       });
     });
-
   }
 
-
-  Future<void> _temporarySaveGridState(oldIndex,newIndex) async{
-    return await Hive.openBox<GridThemeRecord>("grid_schema").then((grid) async{
+  Future<void> _temporarySaveGridState(oldIndex, newIndex) async {
+    return await Hive.openBox<GridThemeRecord>("grid_schema").then((grid) async {
       var tempGrid = grid.get(2) ?? GridThemeRecord(id: 2, name: "Temporary Grid", schema: convert.jsonDecode(mainJSONGridTheme));
 
-      try{
+      try {
         //var jsonTheme = convert.jsonDecode(tempGrid.schema);
         var jsonTheme = (tempGrid.schema);
-        if(jsonTheme != null){
-          if(jsonTheme['widgets'][oldIndex] != null &&
-              jsonTheme['widgets'][newIndex] != null ){
-
+        if (jsonTheme != null) {
+          if (jsonTheme['widgets'][oldIndex] != null && jsonTheme['widgets'][newIndex] != null) {
             var tmp = jsonTheme['widgets'][oldIndex];
             jsonTheme['widgets'][oldIndex] = jsonTheme['widgets'][newIndex];
             jsonTheme['widgets'][newIndex] = tmp;
@@ -185,14 +170,12 @@ Future<void> _persistentSaveCurrentGridChanges() async{
             setState(() {
               mainLoadedWidgetList = jsonTheme['widgets'];
               haveGridChanges = true;
-
             });
             _setHavingGridChanges();
           }
         }
-
-      }catch(e){
-        print("[_temporarySaveGridState] " +e.toString());
+      } catch (e) {
+        print("[_temporarySaveGridState] " + e.toString());
         return Future.error(e.toString());
       }
 
@@ -200,25 +183,22 @@ Future<void> _persistentSaveCurrentGridChanges() async{
         isMainGridReady = true;
         haveErrorLoadingGrid = false;
       });
-      return await grid.close().then((value) async{
+      return await grid.close().then((value) async {
         //return await getMainGrid();
       });
     });
   }
 
-  Future<void> _temporaryUpdateWidgetViewStatus (int cardId, int viewId) async{
-
-    return await Hive.openBox<GridThemeRecord>("grid_schema").then((grid) async{
+  Future<void> _temporaryUpdateWidgetViewStatus(int cardId, int viewId) async {
+    return await Hive.openBox<GridThemeRecord>("grid_schema").then((grid) async {
       var tempGrid = grid.get(2) ?? GridThemeRecord(id: 2, name: "Temporary Grid", schema: convert.jsonDecode(mainJSONGridTheme));
-      try{
+      try {
         //var jsonTheme = convert.jsonDecode(tempGrid.schema);
         var jsonTheme = (tempGrid.schema);
         print("retr on update : " + jsonTheme.toString());
-  print("wanna take $cardId ans $viewId");
-        if(jsonTheme != null){
-          if(jsonTheme['widgets'][cardId] != null &&
-              jsonTheme['widgets'][cardId]['elements'][viewId] != null){
-
+        print("wanna take $cardId ans $viewId");
+        if (jsonTheme != null) {
+          if (jsonTheme['widgets'][cardId] != null && jsonTheme['widgets'][cardId]['elements'][viewId] != null) {
             jsonTheme['widgets'][cardId]['current'] = viewId;
             //GridThemeRecord newTemporaryThemeRecord = GridThemeRecord(id: 2, name: "Temporary Grid", schema: convert.jsonEncode(jsonTheme));
             GridThemeRecord newTemporaryThemeRecord = GridThemeRecord(id: 2, name: "Temporary Grid", schema: (jsonTheme));
@@ -231,248 +211,236 @@ Future<void> _persistentSaveCurrentGridChanges() async{
             setState(() {
               mainLoadedWidgetList = jsonTheme['widgets'];
               //mainWidgetList[cardId].
-              mainWidgetList[cardId] =
-                  DraggableCard(
-                      //key:UniqueKey(),
-                      model: model,
-                      widgetData: mainLoadedWidgetList[cardId],
-                      StreamObject: widget.StreamObject,
-                      currentVessel: widget.currentVessel,
-                      currentPosition : cardId,
-                      currentWidgetIndex : viewId,
-                      vesselsDataTable : widget.vesselsDataTable,
-                      onCardStatusChangedCallback : (currentPosition,viewId) async{
-                        await _temporaryUpdateWidgetViewStatus(currentPosition,viewId);
-                      },
-                      onGoingToEditCallback : (currentPosition,viewId) async {
-                        await _showEditWidgetDialog(currentPosition);
-                      },
-                      onGoingToDeleteCallback : (currentPosition,viewId) async{
-                        await _temporaryDeleteWidget(currentPosition);
-                      }
-
-
-                      );
+              mainWidgetList[cardId] = DraggableCard(
+                  //key:UniqueKey(),
+                  model: model,
+                  baseHeight: baseHeight,
+                  numCols: numCols,
+                  widgetData: mainLoadedWidgetList[cardId],
+                  StreamObject: widget.StreamObject,
+                  currentVessel: widget.currentVessel,
+                  currentPosition: cardId,
+                  currentWidgetIndex: viewId,
+                  vesselsDataTable: widget.vesselsDataTable,
+                  onCardStatusChangedCallback: (currentPosition, viewId) async {
+                    await _temporaryUpdateWidgetViewStatus(currentPosition, viewId);
+                  },
+                  onGoingToEditCallback: (currentPosition, viewId) async {
+                    await _showEditWidgetDialog(currentPosition);
+                  },
+                  onGoingToDeleteCallback: (currentPosition, viewId) async {
+                    await _temporaryDeleteWidget(currentPosition);
+                  });
               haveGridChanges = true;
             });
             _setHavingGridChanges();
           }
         }
-
-      }catch(e){
-        print("[_temporaryUpdateWidgetViewStatus] " +e.toString());
+      } catch (e) {
+        print("[_temporaryUpdateWidgetViewStatus] " + e.toString());
         return Future.error(e.toString());
       }
 
-      return await grid.close().then((value) async{
+      return await grid.close().then((value) async {
         // return await getMainGrid();
       });
     });
-
   }
 
-  Future<void> _temporaryDeleteWidget(int widgetPosition) async{
+  Future<void> _temporaryDeleteWidget(int widgetPosition) async {
     //remove from db
-    return await Hive.openBox<GridThemeRecord>("grid_schema").then((grid) async{
+    return await Hive.openBox<GridThemeRecord>("grid_schema").then((grid) async {
       GridThemeRecord tempGrid = grid.get(2) ?? GridThemeRecord(id: 2, name: "Temporary Grid", schema: convert.jsonDecode(mainJSONGridTheme));
       GridThemeRecord newGrid = GridThemeRecord(id: 2, name: "Temporary Grid", schema: convert.jsonDecode(mainJSONGridTheme));
 
-      try{
+      try {
         //var jsonTheme = convert.jsonDecode(tempGrid.schema);
         dynamic jsonTheme = (tempGrid.schema);
 
-        if(jsonTheme != null){
-          if(jsonTheme['widgets'][widgetPosition] != null){
+        if (jsonTheme != null) {
+          if (jsonTheme['widgets'][widgetPosition] != null) {
             newGrid.schema['widgets'] = [];
 
             int i = 0;
-            for(dynamic element in jsonTheme['widgets']){
-            if(i == widgetPosition){
-              widgetPosition = -1;
-            }else{
-              newGrid.schema['widgets'].insert(i,element);
-              i++;
-            }
+            for (dynamic element in jsonTheme['widgets']) {
+              if (i == widgetPosition) {
+                widgetPosition = -1;
+              } else {
+                newGrid.schema['widgets'].insert(i, element);
+                i++;
+              }
             }
 
             temporaryJSONGridTheme = newGrid;
 
-          await grid.put(newGrid.id, newGrid).then((value) {
-            print("temporary grid UPDATED");
+            await grid.put(newGrid.id, newGrid).then((value) {
+              print("temporary grid UPDATED");
 
-
-            setState(() {
-             mainLoadedWidgetList = newGrid.schema['widgets'];
-             haveGridChanges = true;
-             //haveErrorLoadingGrid = false;
-           });
-           _setHavingGridChanges();
-
-            try {//update all widgets in grid
-              mainWidgetList.clear();
-              widgetPositions.clear();
-              //dynamic mainGridTheme = convert.jsonDecode(temporaryJSONGridTheme.schema);
-              dynamic mainGridTheme = (temporaryJSONGridTheme.schema);
-              try {
-                int i = 0;
-                mainLoadedWidgetList = mainGridTheme['widgets'];
-                for (dynamic widgets in mainLoadedWidgetList)  {
-                  //0..n widgets
-                  try{
-                    widgetPositions.add(i);
-                  }catch(e){
-                    print("Error while reading main grid positions -> " + e.toString());
-                  }
-                 mainWidgetList.add(DraggableCard(
-                   //key:UniqueKey(),
-                     model: model,
-                     widgetData: widgets,
-                     StreamObject: widget.StreamObject,
-                     currentVessel: widget.currentVessel,
-                     currentPosition : i,
-                     currentWidgetIndex : widgets['current'],
-                     vesselsDataTable : widget.vesselsDataTable,
-                     onCardStatusChangedCallback : (currentPosition,viewId) async{
-                       await _temporaryUpdateWidgetViewStatus(currentPosition,viewId);
-                     },
-                     onGoingToEditCallback : (currentPosition,viewId) async {
-                       await _showEditWidgetDialog(currentPosition);
-                     },
-                     onGoingToDeleteCallback : (currentPosition,viewId) async{
-                       await _temporaryDeleteWidget(currentPosition);
-                     }));
-                  i++;
-
-                }
-
-                setState(() {
-                 // isMainGridReady = true;
-                 // haveErrorLoadingGrid = false;
-                });
-                //insert into ---> mainWidgetList
-              } catch (e) {
-                print("err1 : " + e.toString());
-              }
-            } catch (e) {
-              print("unable to decode json " + e.toString());
               setState(() {
-               // isMainGridReady = false;
-               // haveErrorLoadingGrid = false;
+                mainLoadedWidgetList = newGrid.schema['widgets'];
+                haveGridChanges = true;
+                //haveErrorLoadingGrid = false;
               });
-            }
+              _setHavingGridChanges();
 
-          });
+              try {
+                //update all widgets in grid
+                mainWidgetList.clear();
+                widgetPositions.clear();
+                //dynamic mainGridTheme = convert.jsonDecode(temporaryJSONGridTheme.schema);
+                dynamic mainGridTheme = (temporaryJSONGridTheme.schema);
+                try {
+                  int i = 0;
+                  mainLoadedWidgetList = mainGridTheme['widgets'];
+                  for (dynamic widgets in mainLoadedWidgetList) {
+                    //0..n widgets
+                    try {
+                      widgetPositions.add(i);
+                    } catch (e) {
+                      print("Error while reading main grid positions -> " + e.toString());
+                    }
+                    mainWidgetList.add(DraggableCard(
+                        //key:UniqueKey(),
+                        model: model,
+                        baseHeight: baseHeight,
+                        numCols: numCols,
+                        widgetData: widgets,
+                        StreamObject: widget.StreamObject,
+                        currentVessel: widget.currentVessel,
+                        currentPosition: i,
+                        currentWidgetIndex: widgets['current'],
+                        vesselsDataTable: widget.vesselsDataTable,
+                        onCardStatusChangedCallback: (currentPosition, viewId) async {
+                          await _temporaryUpdateWidgetViewStatus(currentPosition, viewId);
+                        },
+                        onGoingToEditCallback: (currentPosition, viewId) async {
+                          await _showEditWidgetDialog(currentPosition);
+                        },
+                        onGoingToDeleteCallback: (currentPosition, viewId) async {
+                          await _temporaryDeleteWidget(currentPosition);
+                        }));
+                    i++;
+                  }
 
-
+                  setState(() {
+                    // isMainGridReady = true;
+                    // haveErrorLoadingGrid = false;
+                  });
+                  //insert into ---> mainWidgetList
+                } catch (e) {
+                  print("err1 : " + e.toString());
+                }
+              } catch (e) {
+                print("unable to decode json " + e.toString());
+                setState(() {
+                  // isMainGridReady = false;
+                  // haveErrorLoadingGrid = false;
+                });
+              }
+            });
           }
         }
-
-      }catch(e){
-        print("[_temporaryDeleteWidget] " +e.toString());
+      } catch (e) {
+        print("[_temporaryDeleteWidget] " + e.toString());
         return Future.error(e.toString());
       }
 
       setState(() {
         isMainGridReady = true;
       });
-      return await grid.close().then((value) async{
+      return await grid.close().then((value) async {
         //return await getMainGrid();
       });
     });
   }
 
-
-
-  Future<bool> _temporarySaveNewWidget(dynamic widgetData) async{
+  Future<bool> _temporarySaveNewWidget(dynamic widgetData) async {
     //remove from db
-    return await Hive.openBox<GridThemeRecord>("grid_schema").then((grid) async{
+    return await Hive.openBox<GridThemeRecord>("grid_schema").then((grid) async {
       GridThemeRecord tempGrid = grid.get(2) ?? GridThemeRecord(id: 2, name: "Temporary Grid", schema: convert.jsonDecode(mainJSONGridTheme));
       GridThemeRecord newGrid = GridThemeRecord(id: 2, name: "Temporary Grid", schema: convert.jsonDecode(mainJSONGridTheme));
 
-      try{
+      try {
         dynamic jsonTheme = (tempGrid.schema);
 
-        if(jsonTheme == null) return false;
-          if(jsonTheme['widgets'] == null) return false;
-            //newGrid.schema['widgets'] = [];
-            newGrid.schema['widgets'] = [];
-            int i = 0;
-            for(dynamic element in jsonTheme['widgets']){
-                 newGrid.schema['widgets'].insert(i,element);
-                i++;
-              }
-            temporaryJSONGridTheme = newGrid;
-            print("LE : " + newGrid.schema['widgets'].length.toString());
-            newGrid.schema['widgets'].insert(i,widgetData);
-            print("LE2 : " + newGrid.schema['widgets'].length.toString());
+        if (jsonTheme == null) return false;
+        if (jsonTheme['widgets'] == null) return false;
+        //newGrid.schema['widgets'] = [];
+        newGrid.schema['widgets'] = [];
+        int i = 0;
+        for (dynamic element in jsonTheme['widgets']) {
+          newGrid.schema['widgets'].insert(i, element);
+          i++;
+        }
+        temporaryJSONGridTheme = newGrid;
+        print("LE : " + newGrid.schema['widgets'].length.toString());
+        newGrid.schema['widgets'].insert(i, widgetData);
+        print("LE2 : " + newGrid.schema['widgets'].length.toString());
 
-          return await grid.put(newGrid.id, newGrid).then((value) {
-            print("temporary grid UPDATED");
-            print("NEW SCHEMA : " + newGrid.schema['widgets'].toString());
-            mainWidgetList.add(DraggableCard(
+        return await grid.put(newGrid.id, newGrid).then((value) {
+          print("temporary grid UPDATED");
+          print("NEW SCHEMA : " + newGrid.schema['widgets'].toString());
+          mainWidgetList.add(DraggableCard(
               //key:UniqueKey(),
-                model: model,
-                widgetData: widgetData,
-                StreamObject: widget.StreamObject,
-                currentVessel: widget.currentVessel,
-                currentPosition : i,
-                currentWidgetIndex : widgetData['current'],
-                vesselsDataTable : widget.vesselsDataTable,
-                onCardStatusChangedCallback : (currentPosition,viewId) async{
-                  await _temporaryUpdateWidgetViewStatus(currentPosition,viewId);
-                },
-                onGoingToEditCallback : (currentPosition,viewId) async {
-                  await _showEditWidgetDialog(currentPosition);
-                },
-                onGoingToDeleteCallback : (currentPosition,viewId) async{
-                  await _temporaryDeleteWidget(currentPosition);
-                }));
+              model: model,
+              baseHeight: baseHeight,
+              numCols: numCols,
+              widgetData: widgetData,
+              StreamObject: widget.StreamObject,
+              currentVessel: widget.currentVessel,
+              currentPosition: i,
+              currentWidgetIndex: widgetData['current'],
+              vesselsDataTable: widget.vesselsDataTable,
+              onCardStatusChangedCallback: (currentPosition, viewId) async {
+                await _temporaryUpdateWidgetViewStatus(currentPosition, viewId);
+              },
+              onGoingToEditCallback: (currentPosition, viewId) async {
+                await _showEditWidgetDialog(currentPosition);
+              },
+              onGoingToDeleteCallback: (currentPosition, viewId) async {
+                await _temporaryDeleteWidget(currentPosition);
+              }));
 
-            setState(() {
-              mainLoadedWidgetList = newGrid.schema['widgets'];
-              haveGridChanges = true;
-              isMainGridReady = true;
-              //haveErrorLoadingGrid = false;
-            });
-            _setHavingGridChanges();
-            return true;
+          setState(() {
+            mainLoadedWidgetList = newGrid.schema['widgets'];
+            haveGridChanges = true;
+            isMainGridReady = true;
+            //haveErrorLoadingGrid = false;
           });
-
-      }catch(e){
-        print("[_temporarySaveNewWidget] " +e.toString());
+          _setHavingGridChanges();
+          return true;
+        });
+      } catch (e) {
+        print("[_temporarySaveNewWidget] " + e.toString());
         return false;
       }
-
     });
   }
 
-
-
-  Future<bool> _temporaryEditWidget(int positionId, dynamic widgetData) async{
+  Future<bool> _temporaryEditWidget(int positionId, dynamic widgetData) async {
     //remove from db
     print("GOING TO INSERT EDIT ($positionId) current ${widgetData['current']} -.> " + widgetData.toString());
-    return await Hive.openBox<GridThemeRecord>("grid_schema").then((grid) async{
+    return await Hive.openBox<GridThemeRecord>("grid_schema").then((grid) async {
       GridThemeRecord tempGrid = grid.get(2) ?? GridThemeRecord(id: 2, name: "Temporary Grid", schema: convert.jsonDecode(mainJSONGridTheme));
       GridThemeRecord newGrid = GridThemeRecord(id: 2, name: "Temporary Grid", schema: convert.jsonDecode(mainJSONGridTheme));
 
       print("OLD : " + tempGrid.schema['widgets'].toString());
 
-
-      try{
+      try {
         dynamic jsonTheme = (tempGrid.schema);
 
-        if(jsonTheme == null) return false;
-        if(jsonTheme['widgets'] == null) return false;
+        if (jsonTheme == null) return false;
+        if (jsonTheme['widgets'] == null) return false;
         //newGrid.schema['widgets'] = [];
-        if(jsonTheme['widgets'][positionId] == null) return false;
+        if (jsonTheme['widgets'][positionId] == null) return false;
         int i = 0;
         newGrid.schema['widgets'] = [];
 
-        for(dynamic element in jsonTheme['widgets']){
-          if(i == positionId){
-            newGrid.schema['widgets'].insert(i,widgetData);
-          }else{
-            newGrid.schema['widgets'].insert(i,element);
+        for (dynamic element in jsonTheme['widgets']) {
+          if (i == positionId) {
+            newGrid.schema['widgets'].insert(i, widgetData);
+          } else {
+            newGrid.schema['widgets'].insert(i, element);
           }
           i++;
         }
@@ -481,27 +449,30 @@ Future<void> _persistentSaveCurrentGridChanges() async{
         //newGrid.schema['widgets'].insert(i,widgetData);
         print("LE2 : " + newGrid.schema['widgets'].length.toString());
 
-  print("NEW : " + newGrid.schema['widgets'].toString());
-  //return false;
+        print("NEW : " + newGrid.schema['widgets'].toString());
+        //return false;
         return await grid.put(newGrid.id, newGrid).then((value) {
           print("temporary grid UPDATED");
           print("NEW SCHEMA : " + newGrid.schema['widgets'].toString());
           mainWidgetList[positionId] = new DraggableCard(
-            //key:UniqueKey(),
+              //key:UniqueKey(),
               model: model,
+              baseHeight: baseHeight,
+              numCols: numCols,
               widgetData: widgetData,
               StreamObject: widget.StreamObject,
               currentVessel: widget.currentVessel,
-              currentPosition : positionId,
-              currentWidgetIndex : 0,//widgetData['current'],
-              vesselsDataTable : widget.vesselsDataTable,
-              onCardStatusChangedCallback : (currentPosition,viewId) async{
-                await _temporaryUpdateWidgetViewStatus(currentPosition,viewId);
+              currentPosition: positionId,
+              currentWidgetIndex: 0,
+              //widgetData['current'],
+              vesselsDataTable: widget.vesselsDataTable,
+              onCardStatusChangedCallback: (currentPosition, viewId) async {
+                await _temporaryUpdateWidgetViewStatus(currentPosition, viewId);
               },
-              onGoingToEditCallback : (currentPosition,viewId) async {
+              onGoingToEditCallback: (currentPosition, viewId) async {
                 await _showEditWidgetDialog(currentPosition);
               },
-              onGoingToDeleteCallback : (currentPosition,viewId) async{
+              onGoingToDeleteCallback: (currentPosition, viewId) async {
                 await _temporaryDeleteWidget(currentPosition);
               });
 
@@ -514,70 +485,53 @@ Future<void> _persistentSaveCurrentGridChanges() async{
           _setHavingGridChanges();
           return true;
         });
-
-      }catch(e){
-        print("[_temporaryEditWidget] " +e.toString());
+      } catch (e) {
+        print("[_temporaryEditWidget] " + e.toString());
         return false;
       }
-
     });
   }
 
-
-
-  Future<void> _showEditWidgetDialog(int widgetPosition){
-    //show popup(widgetPosition)
-    showDialog(
-        context: context,
-        builder: (_) =>  Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-         WidgetCreationForm(
-           key:UniqueKey(),
-             monitorContext:context,
-             currentPositionId : widgetPosition,
-           model:model,
-             vesselsDataTable : widget.vesselsDataTable,
-           mainLoadedWidgetList : mainLoadedWidgetList,
-             onGoingToSaveWidgetCallback : (currentPosition,widgetData) async{
-               print("i'm parent monitor and i should save " + widgetData.toString());
-                 return await _temporaryEditWidget(widgetPosition,widgetData);
-             }
-         )
-            ]),
-      
-    );
-    //
-  }
-
-  Future<void> _showAddWidgetDialog(){
+  Future<void> _showEditWidgetDialog(int widgetPosition) {
     //show popup(widgetPosition)
     showDialog(
       context: context,
-      builder: (_) =>  Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            WidgetCreationForm(
-                key:UniqueKey(),
-                monitorContext:context,
-                model:model,
-                vesselsDataTable : widget.vesselsDataTable,
-                mainLoadedWidgetList : mainLoadedWidgetList,
-                onGoingToSaveWidgetCallback : (currentPosition,widgetData) async{
-                  print("i'm parent monitor and i should save " + widgetData.toString());
-                  return await _temporarySaveNewWidget(widgetData);
-                }
-            )
-          ]),
-
+      builder: (_) => Column(crossAxisAlignment: CrossAxisAlignment.center, mainAxisSize: MainAxisSize.max, mainAxisAlignment: MainAxisAlignment.center, children: [
+        WidgetCreationForm(
+            key: UniqueKey(),
+            monitorContext: context,
+            currentPositionId: widgetPosition,
+            model: model,
+            vesselsDataTable: widget.vesselsDataTable,
+            mainLoadedWidgetList: mainLoadedWidgetList,
+            onGoingToSaveWidgetCallback: (currentPosition, widgetData) async {
+              print("i'm parent monitor and i should save " + widgetData.toString());
+              return await _temporaryEditWidget(widgetPosition, widgetData);
+            })
+      ]),
     );
     //
   }
 
+  Future<void> _showAddWidgetDialog() {
+    //show popup(widgetPosition)
+    showDialog(
+      context: context,
+      builder: (_) => Column(crossAxisAlignment: CrossAxisAlignment.center, mainAxisSize: MainAxisSize.max, mainAxisAlignment: MainAxisAlignment.center, children: [
+        WidgetCreationForm(
+            key: UniqueKey(),
+            monitorContext: context,
+            model: model,
+            vesselsDataTable: widget.vesselsDataTable,
+            mainLoadedWidgetList: mainLoadedWidgetList,
+            onGoingToSaveWidgetCallback: (currentPosition, widgetData) async {
+              print("i'm parent monitor and i should save " + widgetData.toString());
+              return await _temporarySaveNewWidget(widgetData);
+            })
+      ]),
+    );
+    //
+  }
 
   void getMainGrid() async {
     setState(() {
@@ -587,42 +541,56 @@ Future<void> _persistentSaveCurrentGridChanges() async{
       widgetPositions.clear();
     });
 
-    await _loadMainGrid().then((value) async{
-
+    await _loadMainGrid().then((value) async {
       try {
         //dynamic mainGridTheme = convert.jsonDecode(temporaryJSONGridTheme.schema);
         dynamic mainGridTheme = (temporaryJSONGridTheme.schema);
+
         try {
+          var bh = temporaryJSONGridTheme.schema['baseHeight'] ?? NAUTICA['configuration']['design']['grid']['baseHeight'];
+          var nc = temporaryJSONGridTheme.schema['numCols'] ?? NAUTICA['configuration']['design']['grid']['numCols'];
+          baseHeight = (bh is double) ? bh : double.parse(bh.toString());
+          numCols = (nc is int) ? nc : int.parse(nc.toString());
+
+          print("BASE HEIGHT -> $baseHeight");
+        }catch (e) {
+          print("[getMainGrid] error while loading card sizes" + e.toString());
+        }
+
+
+
+          try {
           int i = 0;
           mainLoadedWidgetList = mainGridTheme['widgets'];
-          for (dynamic widgets in mainLoadedWidgetList)  {
+          for (dynamic widgets in mainLoadedWidgetList) {
             //0..n widgets
-            try{
+            try {
               widgetPositions.add(i);
               //print(widgetPositions[i]);
-            }catch(e){
+            } catch (e) {
               print("Error while reading main grid positions -> " + e.toString());
             }
             mainWidgetList.add(DraggableCard(
                 //key:UniqueKey(),
                 model: model,
+                baseHeight: baseHeight,
+                numCols: numCols,
                 widgetData: widgets,
                 StreamObject: widget.StreamObject,
                 currentVessel: widget.currentVessel,
-                currentPosition : i,
-                currentWidgetIndex : widgets['current'],
-                vesselsDataTable : widget.vesselsDataTable,
-                onCardStatusChangedCallback : (currentPosition,viewId) async{
-                  await _temporaryUpdateWidgetViewStatus(currentPosition,viewId);
+                currentPosition: i,
+                currentWidgetIndex: widgets['current'],
+                vesselsDataTable: widget.vesselsDataTable,
+                onCardStatusChangedCallback: (currentPosition, viewId) async {
+                  await _temporaryUpdateWidgetViewStatus(currentPosition, viewId);
                 },
-                onGoingToEditCallback : (currentPosition,viewId) async {
+                onGoingToEditCallback: (currentPosition, viewId) async {
                   await _showEditWidgetDialog(currentPosition);
                 },
-                onGoingToDeleteCallback : (currentPosition,viewId) async{
+                onGoingToDeleteCallback: (currentPosition, viewId) async {
                   await _temporaryDeleteWidget(currentPosition);
                 }));
             i++;
-
           }
 
           setState(() {
@@ -641,151 +609,164 @@ Future<void> _persistentSaveCurrentGridChanges() async{
         });
       }
     });
-
   }
 
+  void _showGridOptionsPopup() {
+    //show popup(widgetPosition)
+    showDialog(
+      context: context,
+      builder: (_) => Column(crossAxisAlignment: CrossAxisAlignment.center, mainAxisSize: MainAxisSize.max, mainAxisAlignment: MainAxisAlignment.center, children: [
+        GridOptionsForm(
+            key: UniqueKey(),
+            monitorContext: context,
+            model: model,
+            mainLoadedWidgetList: mainLoadedWidgetList,
+            onGoingToSaveOptionsCallback: (String jsonGrid) async {
+              print("i'm parent monitor and i should say something");
 
-  void _showExportGridPopup(){
+              print("IMPORT GRID -> $jsonGrid");
 
+              //convert to map, get name and insert new record
 
+              return true;
+
+              //return await _temporaryEditWidget(widgetPosition,widgetData);
+            })
+      ]),
+    );
+    //
   }
 
+  void _showImportGridPopup() {
+    //show popup(widgetPosition)
+    showDialog(
+      context: context,
+      builder: (_) => Column(crossAxisAlignment: CrossAxisAlignment.center, mainAxisSize: MainAxisSize.max, mainAxisAlignment: MainAxisAlignment.center, children: [
+        GridImportForm(
+            key: UniqueKey(),
+            monitorContext: context,
+            model: model,
+            mainLoadedWidgetList: mainLoadedWidgetList,
+            onGoingToExportWidgetCallback: (String jsonGrid) async {
+              print("i'm parent monitor and i should say something");
 
-  void _showImportGridPopup(){
-      //show popup(widgetPosition)
-      showDialog(
-        context: context,
-        builder: (_) =>  Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              GridImportForm(
-                  key:UniqueKey(),
-                  monitorContext:context,
-                  model:model,
-                  mainLoadedWidgetList : mainLoadedWidgetList,
-                  onGoingToExportWidgetCallback : (String jsonGrid) async{
-                    print("i'm parent monitor and i should say something");
+              print("IMPORT GRID -> $jsonGrid");
 
-                    print("IMPORT GRID -> $jsonGrid");
+              //convert to map, get name and insert new record
 
-                    //convert to map, get name and insert new record
+              return true;
 
-                    return true;
-
-                    //return await _temporaryEditWidget(widgetPosition,widgetData);
-                  }
-              )
-            ]),
-
-      );
-      //
+              //return await _temporaryEditWidget(widgetPosition,widgetData);
+            })
+      ]),
+    );
+    //
   }
-
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size.width / 4;
+
     List<StaggeredTile> tileInfo = [];
 
+    print("BUILD GRID OVER");
 
-print("BUILD GRID OVER");
 
-try{
-  for(dynamic card in mainLoadedWidgetList){
-    var wWidth = (!(card['width'] is int)) ? 1 : (card['width'] > 0) ? card['width'] : 1;
-    var wHeight = (!(card['height'] is int)) ? 1 : (card['height'] > 0) ? card['height'] : 1;
+    try {
 
-    tileInfo.add(StaggeredTile.extent(wWidth, wHeight * 110.0));
+      for (dynamic card in mainLoadedWidgetList) {
+        var wWidth = (!(card['width'] is int))
+            ? 1
+            : (card['width'] > 0)
+                ? card['width']
+                : 1;
+        var wHeight = (!(card['height'] is int))
+            ? 1
+            : (card['height'] > 0)
+                ? card['height']
+                : 1;
 
-  }
-}catch(e){
-  print("Exception in monitorDrag build -> $e");
-}
 
-print(mainLoadedWidgetList.toString());
+        tileInfo.add(StaggeredTile.extent(wWidth, wHeight * baseHeight));
+      }
+    } catch (e) {
+      print("Exception in monitorDrag build -> $e");
+    }
+
+    print(mainLoadedWidgetList.toString());
     return Scaffold(
       backgroundColor: model.webBackgroundColor,
       floatingActionButton: _buildWidgetMenuDial(),
       body: Stack(
         children: [
-          (!isMainGridReady) ? model.getLoadingPage() : FutureBuilder(builder: (context, snapshot) {
-              return !isMainGridReady
-                  ? (haveErrorLoadingGrid ? model.getErrorPage("Unable to load monitor", "check JSON status") : Text(""))
-                  : Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: (ReorderableWrap(
-                    tileInfo:tileInfo,
-                onReorder: (oldIndex, newIndex) {
-                    if(oldIndex == newIndex) return;//if same object no action
+          (!isMainGridReady)
+              ? model.getLoadingPage()
+              : FutureBuilder(builder: (context, snapshot) {
+                  return !isMainGridReady
+                      ? (haveErrorLoadingGrid ? model.getErrorPage("Unable to load monitor", "check JSON status") : Text(""))
+                      : Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: (ReorderableWrap(
+                            numCols: numCols,
+                            tileInfo: tileInfo,
+                            onReorder: (oldIndex, newIndex) {
+                              if (oldIndex == newIndex) return; //if same object no action
 
-                    setState(() {
-                      print("old : " + oldIndex.toString() + " new " + newIndex.toString());
+                              setState(() {
+                                print("old : " + oldIndex.toString() + " new " + newIndex.toString());
 
-                      mainWidgetList[oldIndex] =
-                          DraggableCard(
-                            //key:UniqueKey(),
-                              model: model,
-                              widgetData: mainLoadedWidgetList[newIndex],
-                              StreamObject: widget.StreamObject,
-                              currentVessel: widget.currentVessel,
-                              currentPosition : oldIndex,
-                              currentWidgetIndex : mainLoadedWidgetList[newIndex]['current'],
-                              vesselsDataTable : widget.vesselsDataTable,
-                              onCardStatusChangedCallback : (currentPosition,viewId) async{
-                                await _temporaryUpdateWidgetViewStatus(currentPosition,viewId);
-                              },
-                              onGoingToEditCallback : (currentPosition,viewId) async {
-                                await _showEditWidgetDialog(currentPosition);
-                              },
-                              onGoingToDeleteCallback : (currentPosition,viewId) async{
-                                await _temporaryDeleteWidget(currentPosition);
-                              }
-                          );
+                                mainWidgetList[oldIndex] = DraggableCard(
+                                    //key:UniqueKey(),
+                                    model: model,
+                                    baseHeight: baseHeight,
+                                    numCols: numCols,
+                                    widgetData: mainLoadedWidgetList[newIndex],
+                                    StreamObject: widget.StreamObject,
+                                    currentVessel: widget.currentVessel,
+                                    currentPosition: oldIndex,
+                                    currentWidgetIndex: mainLoadedWidgetList[newIndex]['current'],
+                                    vesselsDataTable: widget.vesselsDataTable,
+                                    onCardStatusChangedCallback: (currentPosition, viewId) async {
+                                      await _temporaryUpdateWidgetViewStatus(currentPosition, viewId);
+                                    },
+                                    onGoingToEditCallback: (currentPosition, viewId) async {
+                                      await _showEditWidgetDialog(currentPosition);
+                                    },
+                                    onGoingToDeleteCallback: (currentPosition, viewId) async {
+                                      await _temporaryDeleteWidget(currentPosition);
+                                    });
 
-                      mainWidgetList[newIndex] =
-                          DraggableCard(
-                            //key:UniqueKey(),
-                              model: model,
-                              widgetData: mainLoadedWidgetList[oldIndex],
-                              StreamObject: widget.StreamObject,
-                              currentVessel: widget.currentVessel,
-                              currentPosition : newIndex,
-                              currentWidgetIndex : mainLoadedWidgetList[newIndex]['current'],
-                              vesselsDataTable : widget.vesselsDataTable,
-                              onCardStatusChangedCallback : (currentPosition,viewId) async{
-                                await _temporaryUpdateWidgetViewStatus(currentPosition,viewId);
-                              },
-                              onGoingToEditCallback : (currentPosition,viewId) async {
-                                await _showEditWidgetDialog(currentPosition);
-                              },
-                              onGoingToDeleteCallback : (currentPosition,viewId) async{
-                                await _temporaryDeleteWidget(currentPosition);
-                              }
-                          );
+                                mainWidgetList[newIndex] = DraggableCard(
+                                    //key:UniqueKey(),
+                                    model: model,
+                                    baseHeight: baseHeight,
+                                    numCols: numCols,
+                                    widgetData: mainLoadedWidgetList[oldIndex],
+                                    StreamObject: widget.StreamObject,
+                                    currentVessel: widget.currentVessel,
+                                    currentPosition: newIndex,
+                                    currentWidgetIndex: mainLoadedWidgetList[newIndex]['current'],
+                                    vesselsDataTable: widget.vesselsDataTable,
+                                    onCardStatusChangedCallback: (currentPosition, viewId) async {
+                                      await _temporaryUpdateWidgetViewStatus(currentPosition, viewId);
+                                    },
+                                    onGoingToEditCallback: (currentPosition, viewId) async {
+                                      await _showEditWidgetDialog(currentPosition);
+                                    },
+                                    onGoingToDeleteCallback: (currentPosition, viewId) async {
+                                      await _temporaryDeleteWidget(currentPosition);
+                                    });
 
-
-                      _temporarySaveGridState(oldIndex,newIndex);
-                      print("Grid changed ${oldIndex.toString()} to ${newIndex.toString()}");
-
-                    });
-                },
-                children: mainWidgetList.map((singleCard) {
-                    return ReorderableWrapItem(
-                        key: ValueKey(singleCard), child: singleCard);
-                }).toList(),
-              )),
-                  );
-            }),
-
-
-
-
+                                _temporarySaveGridState(oldIndex, newIndex);
+                                print("Grid changed ${oldIndex.toString()} to ${newIndex.toString()}");
+                              });
+                            },
+                            children: mainWidgetList.map((singleCard) {
+                              return ReorderableWrapItem(key: ValueKey(singleCard), child: singleCard);
+                            }).toList(),
+                          )),
+                        );
+                }),
         ],
-
-
-
       ),
     );
 
@@ -1054,8 +1035,6 @@ print(mainLoadedWidgetList.toString());
      */
   }
 
-
-
   SpeedDial _buildWidgetMenuDial() {
     return SpeedDial(
       /// both default to 16
@@ -1076,45 +1055,41 @@ print(mainLoadedWidgetList.toString());
       elevation: 8.0,
       children: [
         SpeedDialChild(
-          child: Icon(Icons.undo_outlined),
-          backgroundColor: Colors.red,
+            child: Icon(Icons.undo_outlined),
+            backgroundColor: Colors.red,
             foregroundColor: Colors.white,
-
             label: 'cancel changes',
-          labelStyle: TextStyle(fontSize: 18.0),
-            onTap: () async{
+            labelStyle: TextStyle(fontSize: 18.0),
+            onTap: () async {
               //rebuild current space
               print("saving grid ${currentGridIndex}");
               return await _persistentDeleteCurrentGridChanges();
-            }
-        ),
+            }),
         SpeedDialChild(
-          child: Icon(Icons.save_outlined),
-          foregroundColor: Colors.white,
-          backgroundColor: model.paletteColor,
-          label: 'save current configuration',
-          labelStyle: TextStyle(fontSize: 18.0),
-          onTap: () async{
-            //save current space
-            print("saving grid $currentGridIndex");
-            return await _persistentSaveCurrentGridChanges();
-          }
-        ),
+            child: Icon(Icons.save_outlined),
+            foregroundColor: Colors.white,
+            backgroundColor: model.paletteColor,
+            label: 'save current configuration',
+            labelStyle: TextStyle(fontSize: 18.0),
+            onTap: () async {
+              //save current space
+              print("saving grid $currentGridIndex");
+              return await _persistentSaveCurrentGridChanges();
+            }),
         SpeedDialChild(
           child: Icon(Icons.widgets_outlined),
           foregroundColor: Colors.white,
           backgroundColor: model.paletteColor,
           label: 'add widget',
           labelStyle: TextStyle(fontSize: 18.0),
-          onTap:  () async{
-    //save current space
-    print("adding widget to grid $currentGridIndex");
-    return await _showAddWidgetDialog();
-    },
+          onTap: () async {
+            //save current space
+            print("adding widget to grid $currentGridIndex");
+            return await _showAddWidgetDialog();
+          },
         ),
         SpeedDialChild(
           child: Icon(Icons.import_export),
-
           foregroundColor: Colors.white,
           backgroundColor: model.paletteColor,
           label: 'import grid',
@@ -1122,53 +1097,38 @@ print(mainLoadedWidgetList.toString());
           onTap: () => _showImportGridPopup(),
         ),
         SpeedDialChild(
-          child: Icon(Icons.archive_outlined),
-          foregroundColor: Colors.white,
-          backgroundColor: model.paletteColor,
-          label: 'export grid',
-          labelStyle: TextStyle(fontSize: 18.0),
-          onTap: (){
-            _showExportGridPopup();
-          }
-        ),
+            child: Icon(Icons.archive_outlined),
+            foregroundColor: Colors.white,
+            backgroundColor: model.paletteColor,
+            label: 'grid options',
+            labelStyle: TextStyle(fontSize: 18.0),
+            onTap: () {
+              _showGridOptionsPopup();
+            }),
       ],
     );
   }
-
-
-
 
   Widget SimpleCard(String title, List<Widget> children) {
     return Container(
         padding: const EdgeInsets.only(bottom: 1),
         decoration: BoxDecoration(
-            color: model.cardColor,
-            border: Border.all(
-                color: const Color.fromRGBO(0, 0, 0, 0.12), width: 1.1),
-            borderRadius: const BorderRadius.all(Radius.circular(12))),
+            color: model.cardColor, border: Border.all(color: const Color.fromRGBO(0, 0, 0, 0.12), width: 1.1), borderRadius: const BorderRadius.all(Radius.circular(12))),
         width: _cardWidth,
         child: Column(children: <Widget>[
           Container(
             padding: const EdgeInsets.only(top: 5, bottom: 2),
             child: Text(
               title,
-              style: TextStyle(
-                  color: model.paletteColor,
-                  fontSize: 16,
-                  fontFamily: 'Roboto-Bold'),
+              style: TextStyle(color: model.paletteColor, fontSize: 16, fontFamily: 'Roboto-Bold'),
             ),
           ),
           Divider(
-            color: model.themeData != null &&
-                    model.themeData.brightness == Brightness.dark
-                ? const Color.fromRGBO(61, 61, 61, 1)
-                : const Color.fromRGBO(238, 238, 238, 1),
+            color: model.themeData != null && model.themeData.brightness == Brightness.dark ? const Color.fromRGBO(61, 61, 61, 1) : const Color.fromRGBO(238, 238, 238, 1),
             thickness: 1,
           ),
           Padding(padding: EdgeInsets.only(bottom: 0, top: 0)),
           Column(children: children)
         ]));
   }
-
-
 }
