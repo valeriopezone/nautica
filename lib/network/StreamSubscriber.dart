@@ -8,7 +8,7 @@ class StreamSubscriber {
   WebsocketManager SKWebSocket = null;
 
   int streamRefreshRate = NAUTICA['configuration']['widget']['refreshRate'];
-  int lastWSMessageDate;
+  DateTime lastWSMessageDate;
   dynamic wsRawData;
 
   //Map<String, dynamic> wsDataMap;
@@ -48,7 +48,7 @@ class StreamSubscriber {
   Future<void> reconnectToStream() async {
     //subscribe to stream
     if (this.client.isLoaded()) {
-      this.lastWSMessageDate = DateTime.now().millisecondsSinceEpoch;
+      this.lastWSMessageDate = DateTime.now();
 
       initDataTable();
 
@@ -64,6 +64,11 @@ class StreamSubscriber {
     }
   }
 
+  bool isWebsocketDisconnected(){
+    int delta = (DateTime.now()).difference(lastWSMessageDate).inSeconds;
+    return (delta > NAUTICA['configuration']['connection']['websocket']['timeout']);
+  }
+
   Future<void> startListening() async {
     //check connection status
     print("[StreamSubscriber] connect to " + this.client.getWSUrl());
@@ -73,7 +78,9 @@ class StreamSubscriber {
 
   void onMessageCallback(dynamic msg) {
     this.wsRawData = msg;
-try{
+    this.lastWSMessageDate = DateTime.now();
+
+    try{
     dynamic dec = convert.jsonDecode(this.wsRawData);
     dynamic streamedParams, timeParam;
 
@@ -109,15 +116,17 @@ try{
             try {
               this.wsDataTable[dec["context"].toString()][param["path"]
                   .toString()] = param["value"];
-            } catch (e) {
-              print("Unable to insert data -> $e");
+            } catch (e,s) {
+              //print("DATA : " + dec["context"].toString() + " | " + param["path"]);
+              //print("Unable to insert data -> $e $s");
             }
 
             try {
               this.wsTimeTable[dec["context"].toString()][param["path"]
                   .toString()] = timeParam;
-            } catch (e) {
-              print("unable to insert time -> $e");
+            } catch (e,s) {
+              //print("TIMEDATA : " + dec["context"].toString() + " | " + param["path"]);
+              //print("unable to insert time -> $e $s");
             }
           }
         });

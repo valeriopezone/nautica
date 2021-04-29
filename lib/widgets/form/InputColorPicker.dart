@@ -56,7 +56,6 @@ class _InputColorPicker extends State<InputColorPicker> {
                     return ColorPicker(
                       pickerColor: widget.currentColor,
                       onColorChanged: (Color color) {
-                        print("NEW COLOR - > " + color.toString());
 
                        setState((){
                          widget.currentColor = color;

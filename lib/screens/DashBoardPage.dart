@@ -102,6 +102,7 @@ class _DashBoardState extends State<DashBoard> {
   Map vesselsDataTable;
 
 
+  bool gridSelectorLoaded = false;
   bool sectionLoaded = false;
   bool haveGridChanges = false;
 
@@ -186,8 +187,11 @@ break;
 
   Future<void> _reloadGridList() async{
       if(mounted) setState(() {
-        sectionLoaded = false;
+        //change to other
+        //sectionLoaded = false;
+        gridSelectorLoaded = false;
       });
+
 
    await Hive.openBox("settings").then((settings) async {
      var gridIndex = settings.get("current_grid_index") ?? 1; //remember for future updates
@@ -201,7 +205,8 @@ break;
 
            if(mounted) setState(() {
              currentGridIndex = gridIndex;
-             sectionLoaded = true;
+            // sectionLoaded = true;
+             gridSelectorLoaded = true;
            });
        }
      });
@@ -222,6 +227,7 @@ break;
 
 if(mounted) setState(() {
   sectionLoaded = false;
+  gridSelectorLoaded = false;
   if(currentViewState == "monitors"){
     MonitorDragKey = UniqueKey();
   }
@@ -270,6 +276,7 @@ if(mounted) setState(() {
               currentGridIndex = gridIndex;
               currentVessel = (vesselsList[0] != null) ? vesselsList[0] : null;
               sectionLoaded = true;
+              gridSelectorLoaded = true;
 
             });
 
@@ -545,10 +552,12 @@ if(mounted) setState(() {
                                                   Padding(padding: EdgeInsets.only(left: 8)),
 
 
-                                                  (currentGridIndex != null ) ? SizedBox(
+                                                  (currentGridIndex != null ) ?
+                                                  (!gridSelectorLoaded) ? CupertinoActivityIndicator() : SizedBox(
                                                       child:  DropdownButton<int>(
                                                           value: currentGridIndex,
                                                           icon: const Icon(Icons.arrow_downward),
+
                                                           iconSize: 24,
                                                           elevation: 16,
                                                           style: const TextStyle(color: Colors.white),

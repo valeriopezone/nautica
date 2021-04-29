@@ -16,10 +16,10 @@ class GridImportForm extends StatefulWidget {
 
   BaseModel model;
   BuildContext monitorContext;
-  dynamic mainLoadedWidgetList;
+  String jsonSchema;
   final Future<bool> Function(String loadedJSON) onGoingToExportWidgetCallback;
 
-  GridImportForm({Key key, @required this.model, @required this.monitorContext, @required this.mainLoadedWidgetList, @required this.onGoingToExportWidgetCallback})
+  GridImportForm({Key key, @required this.model, @required this.monitorContext, @required this.jsonSchema, @required this.onGoingToExportWidgetCallback})
       : super(key: key);
 
   @override
@@ -35,10 +35,14 @@ class _GridImportFormState extends State<GridImportForm> {
   bool isLoadingForSaving = false;
   bool formLoaded = false;
   TextEditingController gridTextController = TextEditingController();
+  TextEditingController exportTextController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
+
+    if(widget.jsonSchema != null) exportTextController.text = widget.jsonSchema;//load export json
+
   if(mounted) {
     setState(() {
       formLoaded = true;
@@ -123,7 +127,7 @@ class _GridImportFormState extends State<GridImportForm> {
                                   floating: true,
                                   expandedHeight: 30.0,
                                   flexibleSpace: const FlexibleSpaceBar(
-                                    title: Text('Import grid'),
+                                    title: Text('Import/Export grid'),
                                     //background: FlutterLogo(),
                                   ),
                                 ),
@@ -140,7 +144,7 @@ class _GridImportFormState extends State<GridImportForm> {
                                                   child: Row(
                                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                     children: <Widget>[
-                                                      Text(' Import from clipboard',
+                                                      Text(' Import from clipboard or local device storage',
                                                           style: TextStyle(
                                                               color: widget.model.formSectionLabelColor, fontSize: 15, fontWeight: FontWeight.bold, fontFamily: 'Roboto-Medium')),
                                                     ],
@@ -188,7 +192,34 @@ class _GridImportFormState extends State<GridImportForm> {
                                                       flex: 1,
                                                       child: Container(
                                                         padding: EdgeInsets.all(5.0),
-                                                        child: Text(""),
+                                                        child: CupertinoButton(
+                                                          child: Text("Import from file"),
+                                                          color: Colors.green,
+                                                          onPressed: () async {
+                                                            String inputJSON = await importFromFile();
+                                                            if (inputJSON.isNotEmpty) {
+                                                              bool isSchemaValid = await schemaValidation(inputJSON);
+
+                                                              if (isSchemaValid) {
+                                                                if (mounted) {
+                                                                  setState(() {
+                                                                    isLoadingForSaving = true;
+                                                                  });
+                                                                }
+                                                                widget.onGoingToExportWidgetCallback(inputJSON);
+                                                                Navigator.pop(context);
+                                                                //  widget.onGoingToExportWidgetCallback(inputJSON).then((response) {
+                                                                //    if (mounted) {
+                                                                //      setState(() {
+                                                                //        isLoadingForSaving = false;
+                                                                //      });
+                                                                //      Navigator.pop(context);
+                                                                //    }
+                                                                //  });
+                                                              }
+                                                            }
+                                                          },
+                                                        ),
                                                       ),
                                                     ),
                                                     Expanded(
@@ -209,14 +240,17 @@ class _GridImportFormState extends State<GridImportForm> {
                                                                       isLoadingForSaving = true;
                                                                     });
                                                                   }
-                                                                  widget.onGoingToExportWidgetCallback(inputJSON).then((response) {
-                                                                    if (mounted) {
-                                                                      setState(() {
-                                                                        isLoadingForSaving = false;
-                                                                      });
-                                                                      Navigator.pop(context);
-                                                                    }
-                                                                  });
+                                                                  widget.onGoingToExportWidgetCallback(inputJSON);
+                                                                  Navigator.pop(context);
+
+                                                               // widget.onGoingToExportWidgetCallback(inputJSON).then((response) {
+                                                               //   if (mounted) {
+                                                               //     setState(() {
+                                                               //       isLoadingForSaving = false;
+                                                               //     });
+                                                               //     Navigator.pop(context);
+                                                               //   }
+                                                               // });
                                                                 } else {
                                                                   //err
                                                                 }
@@ -248,7 +282,7 @@ class _GridImportFormState extends State<GridImportForm> {
                                                   child: Row(
                                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                     children: <Widget>[
-                                                      Text(' Import from local storage',
+                                                      Text(' Copy your JSON grid or export to document folder',
                                                           style: TextStyle(
                                                               color: widget.model.formSectionLabelColor, fontSize: 15, fontWeight: FontWeight.bold, fontFamily: 'Roboto-Medium')),
                                                     ],
@@ -256,35 +290,119 @@ class _GridImportFormState extends State<GridImportForm> {
                                                 ),
                                                 Padding(
                                                   padding: const EdgeInsets.all(8.0),
-                                                  child: Center(
-                                                    child: ElevatedButton(
-                                                      child: Text("Import"),
-                                                      onPressed: () async {
-                                                        String inputJSON = await importFromFile();
-                                                        if (inputJSON.isNotEmpty) {
-                                                          bool isSchemaValid = await schemaValidation(inputJSON);
+                                                  child: TextFormField(
+                                                      controller: exportTextController,
+                                                      cursorColor: Colors.red,
+                                                      style: GoogleFonts.abel(textStyle: TextStyle(height: 0.85, fontSize: 17.0, color: widget.model.formInputTextColor)),
+                                                      textAlignVertical: TextAlignVertical(y: 0.6),
+                                                      autofocus: false,
+                                                      maxLines: 8,
+                                                      //decoration: InputDecoration.collapsed(hintText: "Enter your text here"),
 
-                                                          if (isSchemaValid) {
-                                                            if (mounted) {
-                                                              setState(() {
-                                                                isLoadingForSaving = true;
-                                                              });
-                                                            }
-                                                            widget.onGoingToExportWidgetCallback(inputJSON).then((response) {
-                                                              if (mounted) {
-                                                                setState(() {
-                                                                  isLoadingForSaving = false;
-                                                                });
-                                                                Navigator.pop(context);
-                                                              }
-                                                            });
-                                                          }
-                                                        }
-                                                      },
-                                                    ),
-                                                  ),
+                                                      decoration: InputDecoration(
+                                                        //labelText: 'JSON Grid',
+                                                          filled: true,
+                                                          fillColor: widget.model.backgroundForm,
+                                                          hintStyle: TextStyle(
+                                                            color: widget.model.formLabelTextColor,
+                                                            fontSize: 18,
+                                                          ),
+                                                          labelStyle: TextStyle(
+                                                            color: widget.model.formLabelTextColor,
+                                                          ),
+                                                          enabledBorder: OutlineInputBorder(
+                                                              borderRadius: BorderRadius.circular(4.0),
+                                                              borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid)),
+                                                          focusedBorder: OutlineInputBorder(
+                                                              borderRadius: BorderRadius.circular(4.0),
+                                                              borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid)),
+                                                          hintText: "")),
                                                 ),
-                                              ]))
+                                                Row(
+                                                  children: [
+                                                    Expanded(
+                                                      flex: 1,
+                                                      child: Container(
+                                                        padding: EdgeInsets.all(5.0),
+                                                        child: CupertinoButton(
+                                                          child: Text("Export"),
+                                                          color: Colors.green,
+                                                          onPressed: () async {
+                                                            String inputJSON = await importFromFile();
+                                                            if (inputJSON.isNotEmpty) {
+                                                              bool isSchemaValid = await schemaValidation(inputJSON);
+
+                                                              if (isSchemaValid) {
+                                                                if (mounted) {
+                                                                  setState(() {
+                                                                    isLoadingForSaving = true;
+                                                                  });
+                                                                }
+                                                                widget.onGoingToExportWidgetCallback(inputJSON);
+                                                                Navigator.pop(context);
+                                                                //  widget.onGoingToExportWidgetCallback(inputJSON).then((response) {
+                                                                //    if (mounted) {
+                                                                //      setState(() {
+                                                                //        isLoadingForSaving = false;
+                                                                //      });
+                                                                //      Navigator.pop(context);
+                                                                //    }
+                                                                //  });
+                                                              }
+                                                            }
+                                                          },
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    Expanded(
+                                                      flex: 1,
+                                                      child: Container(
+                                                        padding: EdgeInsets.all(5.0),
+                                                        child: CupertinoButton(
+                                                          color: Colors.green,
+                                                          onPressed: () async {
+                                                            if (_formKey1.currentState.validate()) {
+                                                              String inputJSON = importFromText();
+                                                              if (inputJSON.isNotEmpty) {
+                                                                bool isSchemaValid = await schemaValidation(inputJSON);
+
+                                                                if (isSchemaValid) {
+                                                                  if (mounted) {
+                                                                    setState(() {
+                                                                      isLoadingForSaving = true;
+                                                                    });
+                                                                  }
+                                                                  widget.onGoingToExportWidgetCallback(inputJSON);
+                                                                  Navigator.pop(context);
+
+                                                                  // widget.onGoingToExportWidgetCallback(inputJSON).then((response) {
+                                                                  //   if (mounted) {
+                                                                  //     setState(() {
+                                                                  //       isLoadingForSaving = false;
+                                                                  //     });
+                                                                  //     Navigator.pop(context);
+                                                                  //   }
+                                                                  // });
+                                                                } else {
+                                                                  //err
+                                                                }
+                                                              }
+                                                            }
+                                                          },
+
+                                                          //onPressed: () async {
+                                                          //  // Navigate back to first screen when tapped.
+                                                          //
+                                                          //  await _saveWidget();
+                                                          //  return null;
+                                                          //},
+                                                          child: isLoadingForSaving ? CupertinoActivityIndicator() : Text('Copy'),
+                                                        ),
+                                                      ),
+                                                    )
+                                                  ],
+                                                )
+                                              ])),
                                         ],
                                       ),
                                     ),

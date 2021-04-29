@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:nautica/models/BaseModel.dart';
@@ -47,6 +48,8 @@ class _DateValueAxisChartState extends State<DateValueAxisChart> with Disposable
   List<_DateValueChartCoords> chartData = <_DateValueChartCoords>[];
   ChartSeriesController _chartSeriesController;
   Map<dynamic, dynamic> lastStreamedValue = {'timestamp': null, 'value': 0};
+  DateTime lastStreamedDate;
+  bool haveReceivedData = false;
 
   @override
   void initState() {
@@ -64,7 +67,6 @@ class _DateValueAxisChartState extends State<DateValueAxisChart> with Disposable
     _loadWidgetGraphics();
 
     lastStreamedValue = {'timestamp': null, 'value': 0};
-    initializeDataPoints();
 
     if (widget.DataValue_Stream != null) {
       widget.DataValue_Stream.listen((data) {
@@ -82,7 +84,15 @@ class _DateValueAxisChartState extends State<DateValueAxisChart> with Disposable
           if (date.isUtc) {
             lastStreamedValue['timestamp'] = timestamp;
             lastStreamedValue['value'] = value;
+            if(!haveReceivedData){
+              if(mounted) setState(() {
+                print("AXIS HAVE DATA $lastStreamedValue");
+                haveReceivedData = true;
+                lastStreamedDate = date;
+                initializeDataPoints();
 
+              });
+            }
             _updateDataSource(date, value);
           }
         } catch (e) {
@@ -119,8 +129,9 @@ class _DateValueAxisChartState extends State<DateValueAxisChart> with Disposable
   }
 
   void initializeDataPoints() {
-    //fill datapoints with 0-values
-    DateTime now = new DateTime.now().subtract(new Duration(seconds: 1 * graphics['chartNumDatapoints']));
+    //fill datapoints with 0
+   // DateTime now = new DateTime.now().subtract(new Duration(seconds: 1 * graphics['chartNumDatapoints']));
+    DateTime now =  lastStreamedDate.subtract(new Duration(seconds: 1 * graphics['chartNumDatapoints']));
     for (int i = 0; i < graphics['chartNumDatapoints'] - 1; i++) {
       chartData.add(_DateValueChartCoords(now, 0.0));
       now = now.add(new Duration(seconds: 1));
@@ -145,7 +156,7 @@ class _DateValueAxisChartState extends State<DateValueAxisChart> with Disposable
       unit = widget.vesselsDataTable[widget.currentVessel][widget.subscriptionPath]['units'];
       unit = (unit != null && unit.isNotEmpty) ? unit.toString() : " ";
     } catch (e) {
-      print("[DateValueAxisChart] error while decoding unit -> $e");
+      //print("[DateValueAxisChart] error while decoding unit -> $e");
     }
     return unit;
   }
@@ -158,7 +169,7 @@ class _DateValueAxisChartState extends State<DateValueAxisChart> with Disposable
       child: StreamBuilder(
           stream: null,
           builder: (context, snapshot) {
-            return Container(
+            return (!haveReceivedData) ? CupertinoActivityIndicator() : Container(
               child: SfCartesianChart(
 
                   isTransposed: widget.isTransposed,

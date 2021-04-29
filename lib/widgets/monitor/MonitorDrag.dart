@@ -77,11 +77,6 @@ class _MonitorDragState extends State<MonitorDrag> {
   void initState() {
     super.initState();
     vessel = widget.currentVessel;
-
-    //shoule insert a listener for theme
-    //every theme change -> notify card -> rebuild single indicator
-    //use for(...) mainWidgetList.notify(themechanged);
-
     getMainGrid();
   }
 
@@ -265,7 +260,11 @@ class _MonitorDragState extends State<MonitorDrag> {
     return await Hive.openBox<GridThemeRecord>("grid_schema").then((grid) async {
       GridThemeRecord tempGrid = grid.get(2) ?? GridThemeRecord(id: 2, name: "Temporary Grid", schema: convert.jsonDecode(mainJSONGridTheme));
       GridThemeRecord newGrid = GridThemeRecord(id: 2, name: "Temporary Grid", schema: convert.jsonDecode(mainJSONGridTheme));
-
+      newGrid.schema['name'] = tempGrid.schema['name'];
+      newGrid.schema['description'] = tempGrid.schema['description'];
+      newGrid.schema['author'] = tempGrid.schema['author'];
+      newGrid.schema['numCols'] = tempGrid.schema['numCols'];
+      newGrid.schema['baseHeight'] = tempGrid.schema['baseHeight'];
       try {
         //var jsonTheme = convert.jsonDecode(tempGrid.schema);
         dynamic jsonTheme = (tempGrid.schema);
@@ -372,6 +371,12 @@ class _MonitorDragState extends State<MonitorDrag> {
     return await Hive.openBox<GridThemeRecord>("grid_schema").then((grid) async {
       GridThemeRecord tempGrid = grid.get(2) ?? GridThemeRecord(id: 2, name: "Temporary Grid", schema: convert.jsonDecode(mainJSONGridTheme));
       GridThemeRecord newGrid = GridThemeRecord(id: 2, name: "Temporary Grid", schema: convert.jsonDecode(mainJSONGridTheme));
+
+      newGrid.schema['name'] = tempGrid.schema['name'];
+      newGrid.schema['description'] = tempGrid.schema['description'];
+      newGrid.schema['author'] = tempGrid.schema['author'];
+      newGrid.schema['numCols'] = tempGrid.schema['numCols'];
+      newGrid.schema['baseHeight'] = tempGrid.schema['baseHeight'];
 
       try {
         dynamic jsonTheme = (tempGrid.schema);
@@ -818,21 +823,29 @@ class _MonitorDragState extends State<MonitorDrag> {
     //
   }
 
-  void _showImportGridPopup() {
+  Future<void> _showImportGridPopup() async{
     //show popup(widgetPosition)
-    showDialog(
-      context: context,
-      builder: (_) => Column(crossAxisAlignment: CrossAxisAlignment.center, mainAxisSize: MainAxisSize.max, mainAxisAlignment: MainAxisAlignment.center, children: [
-        GridImportForm(
-            key: UniqueKey(),
-            monitorContext: context,
-            model: model,
-            mainLoadedWidgetList: mainLoadedWidgetList,
-            onGoingToExportWidgetCallback: (String jsonGrid) async {
-              return await _insertNewGrid(jsonGridData: jsonGrid);
-            })
-      ]),
-    );
+
+    return await Hive.openBox<GridThemeRecord>("grid_schema").then((grid) async {
+      GridThemeRecord tempGrid = grid.get(2) ?? GridThemeRecord(id: 2, name: "Nautica", schema: convert.jsonDecode(mainJSONGridTheme));
+      String schema = convert.jsonEncode(tempGrid.schema);
+      await grid.close();
+      showDialog(
+        context: context,
+        builder: (_) => Column(crossAxisAlignment: CrossAxisAlignment.center, mainAxisSize: MainAxisSize.max, mainAxisAlignment: MainAxisAlignment.center, children: [
+          GridImportForm(
+              key: UniqueKey(),
+              monitorContext: context,
+              model: model,
+              jsonSchema: schema,
+              onGoingToExportWidgetCallback: (String jsonGrid) async {
+                return await _insertNewGrid(jsonGridData: jsonGrid);
+              })
+        ]),
+      );
+    });
+
+
     //
   }
 

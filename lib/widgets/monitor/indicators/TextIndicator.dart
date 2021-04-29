@@ -90,12 +90,11 @@ class _TextIndicatorState extends State<TextIndicator> with DisposableWidget {
   String _getUnit(){
     String unit = (widget.subscriptionPath == "navigation.position") ? "'" : " ";
 
-
       try{
       unit = widget.vesselsDataTable[widget.currentVessel][widget.subscriptionPath]['units'];
       unit = (unit != null && unit.isNotEmpty) ? unit.toString() : " ";
     }catch (e) {
-      print("[TextIndicator] error while decoding unit -> $e");
+      //print("[TextIndicator] error while decoding unit -> $e");
     }
     return unit;
   }

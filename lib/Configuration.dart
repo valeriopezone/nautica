@@ -19,7 +19,12 @@ const Map NAUTICA = {
       'refreshRate': 2 //s
     },
     'connection': {
-      'timeout': 2 //s
+      'http': {
+        'timeout': 10 //s
+      },
+      'websocket':{
+        'timeout': 10 //s
+      }
     },
     'design' : {
       'grid' : {

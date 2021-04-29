@@ -257,10 +257,14 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
     Color currentColor = (controller.text.isNotEmpty) ? HexColor(controller.text) : Colors.black;
     //todo fix color change
 
+
+
+
     return SizedBox(
       width: 35,
       child: ElevatedButton(
         style: ButtonStyle(
+          //backgroundColor: MaterialStateProperty.all<Color>(currentColor),
           backgroundColor: MaterialStateProperty.all<Color>(currentColor),
           shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.zero)),
         ),
@@ -269,14 +273,18 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
           showDialog(
             context: context,
             builder: (BuildContext context) {
-              return InputColorPicker(
+
+
+              Widget colorPicker = InputColorPicker(
                   key: UniqueKey(),
                   currentColor: currentColor,
                   currentController: controller,
                   onColorChanged: (String newColor) {
                     controller.text = newColor;
                     currentColor = HexColor(newColor);
+
                   });
+              return colorPicker;
             },
           );
         },

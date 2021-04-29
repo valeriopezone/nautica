@@ -74,6 +74,7 @@ class SignalKClient {
       //REMEMBER SUBSCRIBE=ALL
       this.socket = WebsocketManager(this.wsURL + "?subscribe=all");
 // Listen to close message
+
       this.socket.onClose((dynamic message) {
         print('[SignalKClient] close');
         closeCallback();
@@ -82,6 +83,7 @@ class SignalKClient {
       this.socket.onMessage((dynamic message) {
         messageCallback(message);
       });
+
 // Connect to server
       return await this.socket.connect().then((v) {
         this.wsConnected = true;
@@ -169,6 +171,8 @@ class SignalKClient {
             var t = new APITreeExplorer(
                 response['vessels'][i.replaceAll("vessels.", "")]);
             vesselsPaths[i] = t.retrieveAllRoutes();
+
+            print("RETRIEVED PATHS : $vesselsPaths");
           });
         } on NoSuchMethodError {}
       } else {
@@ -191,7 +195,7 @@ class SignalKClient {
 
     // Await the http get response, then decode the json-formatted response.
     var response = await http.get(url).timeout(
-      Duration(seconds: NAUTICA['configuration']['connection']['timeout']),
+      Duration(seconds: NAUTICA['configuration']['connection']['http']['timeout']),
       onTimeout: () {
         // time has run out, do what you wanted to do
         return Future.error("Unable to connect http");
