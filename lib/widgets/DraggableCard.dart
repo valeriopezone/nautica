@@ -89,20 +89,18 @@ class _DraggableCardState extends State<DraggableCard> {
 
     widget.model = BaseModel.instance;
     widget.model.addListener(() {
-      if (mounted) {
-        setState(() {
+        if(mounted) setState(()  {
           currentCardColor = widget.model.cardColor;
         });
-      }
 
-      print("CARD COLOR SHOULD CHANGE");
+
     });
 
     super.initState();
 
     currentCardColor = widget.model.cardColor;
 
-    setState(() {
+    if(mounted) setState(()  {
       isLoadingWidget = true;
     });
     widgetTitles = {};
@@ -111,13 +109,11 @@ class _DraggableCardState extends State<DraggableCard> {
     try {
       //loop
       dynamic w = widget.widgetData;
-      //print(w['current'].toString());
       var current = w['current']; //current index
       dynamic elements = w['elements'];
 
       currentWidgetWidth = (w['width'] > 0) ? w['width'] + .0 : 1;
       currentWidgetHeight = (w['height'] > 0) ? w['height'] + .0 : 1;
-      print(elements.toString());
       if (current != null && current >= 0 && elements != null) {
         int i = 0;
         for (dynamic single in elements) {
@@ -140,17 +136,16 @@ class _DraggableCardState extends State<DraggableCard> {
           }
         }
 
-        setState(() {
+        if(mounted) setState(()  {
           widget.currentWidgetIndex = current;
-          print("Hi i'm " + widgetTitles[widget.currentWidgetIndex] + " --- position is " + widget.currentPosition.toString());
-
+          //print("Hi i'm " + widgetTitles[widget.currentWidgetIndex] + " --- position is " + widget.currentPosition.toString());
           errorOccurred = false;
           isLoadingWidget = false;
         });
       }
     } catch (e, s) {
       print("error loading widget " + e.toString() + s.toString());
-      setState(() {
+      if(mounted) setState(()  {
         errorOccurred = true;
         isLoadingWidget = false;
       });
@@ -160,7 +155,6 @@ class _DraggableCardState extends State<DraggableCard> {
   @override
   void dispose() {
     super.dispose();
-    print("dispose draggable");
     //should call subwidget?
   }
 
@@ -210,7 +204,7 @@ class _DraggableCardState extends State<DraggableCard> {
   }
 
   void setCurrentWidget(int widget) {
-    setState(() {
+    if(mounted) setState(()  {
       isLoadingWidget = true;
     });
   }
@@ -231,7 +225,6 @@ class _DraggableCardState extends State<DraggableCard> {
     try {
       switch (className) {
         case "WindIndicator":
-          print("REBUILD WIND INDICATOR " + widgetOptions.toString());
           res = Padding(
             padding: const EdgeInsets.all(8.0),
             child: WindIndicator(
@@ -339,7 +332,6 @@ class _DraggableCardState extends State<DraggableCard> {
   }
 
   Widget SimpleCard(String title, double _cardWidth, List<Widget> children) {
-    print("g : ${gridBaseHeight * currentWidgetHeight}");
     return Container(
           height: gridBaseHeight * currentWidgetHeight,
           padding: const EdgeInsets.only(bottom: 1),
@@ -391,17 +383,14 @@ class _DraggableCardState extends State<DraggableCard> {
                                           tooltip: "Display sub-widgets",
                                           onSelected: (int selectedWidget) {
                                             if (selectedWidget != widget.currentWidgetIndex) {
-                                              setState(() {
+                                              if(mounted) setState(()  {
                                                 isLoadingWidget = true;
                                               });
-                                              print("$selectedWidget != ${widget.currentWidgetIndex}");
                                               widget.onCardStatusChangedCallback(widget.currentPosition, selectedWidget).then((value) {
-                                                print("Hi i changed state and i'm [${widget.currentPosition}][${selectedWidget}]");
-                                                //setState(() {
+                                                //print("Hi i changed state and i'm [${widget.currentPosition}][${selectedWidget}]");
                                                 isLoadingWidget = false;
-                                                //});
                                               }); //notify parent
-                                              setState(() {
+                                              if(mounted) setState(()  {
                                                 widget.currentWidgetIndex = selectedWidget;
                                               });
                                             }
@@ -431,16 +420,14 @@ class _DraggableCardState extends State<DraggableCard> {
                                             ),
                                             tooltip: "Display settings for current widget",
                                             onSelected: (String option) {
-                                              setState(() {
+                                              if(mounted) setState(()  {
                                                 //  widget.currentWidgetIndex = widgetTitles.indexOf(vessel);
 
                                                 if (option == "edit") {
                                                   widget.onGoingToEditCallback(widget.currentPosition, widget.currentWidgetIndex).then((value) {
-                                                    // print("Hi i changed state and i'm [${widget.currentPosition}][${widget.currentWidgetIndex}]");
                                                   }); //n
                                                 } else if (option == "delete") {
                                                   widget.onGoingToDeleteCallback(widget.currentPosition, widget.currentWidgetIndex).then((value) {
-                                                    // print("Hi i changed state and i'm [${widget.currentPosition}][${widget.currentWidgetIndex}]");
                                                   }); //n
                                                 }
                                               });

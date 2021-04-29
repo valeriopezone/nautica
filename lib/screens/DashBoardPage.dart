@@ -114,14 +114,14 @@ class _DashBoardState extends State<DashBoard> {
 
 
   void _setViewState(String state) {
-    setState(() {
+    if(mounted) setState(() {
       currentViewState = state;
     });
   }
 
 
   void _setCurrentVessel(String vessel) {
-    setState(() {
+    if(mounted) setState(() {
       currentVessel = vessel;
      // currentViewState = "monitors";
     });
@@ -170,13 +170,42 @@ class _DashBoardState extends State<DashBoard> {
           currentVessel : currentVessel,
           vesselsDataTable : vesselsDataTable,
           onGridStatusChangeCallback : (vessel,gridId,hasChanged) async{
-        //if grid changed ask user if he wants to save current configuration
+            //if grid changed ask user if he wants to save current configuration
             print("I'M PARENT -> ${vessel} ,${gridId} ,${hasChanged} ");
-              haveGridChanges = hasChanged;
+            haveGridChanges = hasChanged;
+          },
+          onGridListChangedCallback : () async{
+           //reload all grids in list
+            await _reloadGridList();
           }
       );
 break;
     }
+  }
+
+
+  Future<void> _reloadGridList() async{
+      if(mounted) setState(() {
+        sectionLoaded = false;
+      });
+
+   await Hive.openBox("settings").then((settings) async {
+     var gridIndex = settings.get("current_grid_index") ?? 1; //remember for future updates
+     await Hive.openBox<GridThemeRecord>("grid_schema").then((grid) {
+       var allGrids = grid.values;
+       if (allGrids != null) {
+         gridsList = {};
+         allGrids.forEach((element) {
+           if (element.id != 2) gridsList[element.id] = element.name;
+         });
+
+           if(mounted) setState(() {
+             currentGridIndex = gridIndex;
+             sectionLoaded = true;
+           });
+       }
+     });
+   });
   }
 
   @override
@@ -188,9 +217,10 @@ break;
     //sampleListModel.currentPrimaryColor = sampleListModel.darkPaletteColors[4];
    // sampleListModel.changeTheme(ThemeData.dark());
 
+
     super.initState();
 
-setState(() {
+if(mounted) setState(() {
   sectionLoaded = false;
   if(currentViewState == "monitors"){
     MonitorDragKey = UniqueKey();
@@ -215,6 +245,8 @@ setState(() {
             allGrids.forEach((element) {
               if(element.id != 2) gridsList[element.id] = element.name;
             });
+
+            print("FIRST LOADED GRIDS : $gridsList");
           }
 
           //grid.close();
@@ -233,7 +265,7 @@ setState(() {
             vesselsDataTable = signalK.getPaths();
 
 
-            setState(() {
+            if(mounted) setState(() {
               // The listenable's state was changed already.
               currentGridIndex = gridIndex;
               currentVessel = (vesselsList[0] != null) ? vesselsList[0] : null;
@@ -303,16 +335,16 @@ setState(() {
 
   ///Notify the framework by calling this method
   void _handleChange() {
-    if (mounted) {
-      setState(() {
+      if(mounted) setState(() {
         // The listenable's state was changed already.
       });
-    }
+
   }
 
   @override
   Widget build(BuildContext context) {
-
+    print("GRIDSSSS");
+    print(gridsList.toString());
 
     final bool isMaxxSize = MediaQuery.of(context).size.width >= 1000;
     final BaseModel model = sampleListModel;
@@ -491,7 +523,7 @@ setState(() {
                                                             return null;
                                                           }else{
                                                             if(currentViewState == "monitors"){
-                                                              setState(() {
+                                                              if(mounted) setState(() {
                                                                 MonitorDragKey = UniqueKey();
                                                               });
                                                             }
@@ -540,7 +572,7 @@ setState(() {
                                                                     currentGridIndex = _selectedGrid;
                                                                   });
                                                                   if(currentViewState == "monitors"){
-                                                                    setState(() {
+                                                                    if(mounted) setState(() {
                                                                       MonitorDragKey = UniqueKey();
                                                                     });
                                                                   }
@@ -656,11 +688,11 @@ setState(() {
                    //                 return MouseRegion(
                    //                   onHover: (PointerHoverEvent event) {
                    //                     isHoveringPubDevButton = true;
-                   //                     setState(() {});
+                   //                     if(mounted) setState(() {});
                    //                   },
                    //                   onExit: (PointerExitEvent event) {
                    //                     isHoveringPubDevButton = false;
-                   //                     setState(() {});
+                   //                     if(mounted) setState(() {});
                    //                   },
                    //                   child: InkWell(
                    //                     hoverColor: Colors.white,

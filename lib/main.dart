@@ -19,7 +19,7 @@ import 'dart:convert' as convert;
 
 import 'package:path_provider/path_provider.dart';
 
-
+//for web usage disable canvaskit -> flutter run -d chrome --web-renderer html
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -248,32 +248,32 @@ exit(0);
         });
       }
 
-      var newGrid = grid.get(3);
-      try{
-        //print("G3 > " + newGrid.name + " " + newGrid.id.toString() + " " +  newGrid.schema.toString());
-      }catch(e){print("G3 " + e.toString());}
-      if (newGrid == null) {
-        //insert grid
-        themeRecord = new GridThemeRecord(id: 3, name: "Nautica 2", schema: convert.jsonDecode(demoTheme));
+    //var newGrid = grid.get(3);
+    //try{
+    //  //print("G3 > " + newGrid.name + " " + newGrid.id.toString() + " " +  newGrid.schema.toString());
+    //}catch(e){print("G3 " + e.toString());}
+    //if (newGrid == null) {
+    //  //insert grid
+    //  themeRecord = new GridThemeRecord(id: 3, name: "Nautica 2", schema: convert.jsonDecode(demoTheme));
 
-        await grid.put(themeRecord.id, themeRecord).then((value) {
-          print("new 1 grid inserted in db");
-        });
-      }
+    //  await grid.put(themeRecord.id, themeRecord).then((value) {
+    //    print("new 1 grid inserted in db");
+    //  });
+    //}
 
 
-      var newGrid2 = grid.get(4);
-      try{
-        //print("G4 > " + newGrid2.name + " " + newGrid2.id.toString() + " " +  newGrid2.schema.toString());
-      }catch(e){print("G4 " + e.toString());}
-      if (newGrid2 == null) {
-        //insert grid
-        themeRecord = new GridThemeRecord(id: 4, name: "Nautica 3", schema: convert.jsonDecode(demoTheme));
+    //var newGrid2 = grid.get(4);
+    //try{
+    //  //print("G4 > " + newGrid2.name + " " + newGrid2.id.toString() + " " +  newGrid2.schema.toString());
+    //}catch(e){print("G4 " + e.toString());}
+    //if (newGrid2 == null) {
+    //  //insert grid
+    //  themeRecord = new GridThemeRecord(id: 4, name: "Nautica 3", schema: convert.jsonDecode(demoTheme));
 
-        await grid.put(themeRecord.id, themeRecord).then((value) {
-          print("new 1 grid inserted in db");
-        });
-      }
+    //  await grid.put(themeRecord.id, themeRecord).then((value) {
+    //    print("new 1 grid inserted in db");
+    //  });
+    //}
 
 
 

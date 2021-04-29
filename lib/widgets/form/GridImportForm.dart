@@ -39,10 +39,11 @@ class _GridImportFormState extends State<GridImportForm> {
   @override
   void initState() {
     super.initState();
-
+  if(mounted) {
     setState(() {
       formLoaded = true;
     });
+  }
   }
 
   String importFromText() {
@@ -50,7 +51,6 @@ class _GridImportFormState extends State<GridImportForm> {
   }
 
   Future<String> importFromFile() async {
-
     try {
       FilePickerResult result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
@@ -65,13 +65,9 @@ class _GridImportFormState extends State<GridImportForm> {
       } else {
         return "";
       }
-    }catch (e) {
+    } catch (e) {
       print("[GridImportForm] unable to loading -> $e");
     }
-
-
-
-
 
     return "";
   }
@@ -98,7 +94,9 @@ class _GridImportFormState extends State<GridImportForm> {
 
     return !formLoaded
         ? CupertinoActivityIndicator()
-        : FutureBuilder(builder: (context, snapshot) {
+        : GestureDetector(onTap: () {
+            FocusScope.of(context).requestFocus(new FocusNode());
+          }, child: FutureBuilder(builder: (context, snapshot) {
             return Center(
                 child: Material(
                     child: Container(
@@ -201,26 +199,28 @@ class _GridImportFormState extends State<GridImportForm> {
                                                           color: Colors.green,
                                                           onPressed: () async {
                                                             if (_formKey1.currentState.validate()) {
-
-
                                                               String inputJSON = importFromText();
-                                                              if(inputJSON.isNotEmpty) {
+                                                              if (inputJSON.isNotEmpty) {
                                                                 bool isSchemaValid = await schemaValidation(inputJSON);
 
-
-                                                                if(isSchemaValid){
-                                                                  print("VALID");
-                                                                  widget.onGoingToExportWidgetCallback(inputJSON).then((response){
-                                                                    isLoadingForSaving = true;
-
+                                                                if (isSchemaValid) {
+                                                                  if (mounted) {
+                                                                    setState(() {
+                                                                      isLoadingForSaving = true;
+                                                                    });
+                                                                  }
+                                                                  widget.onGoingToExportWidgetCallback(inputJSON).then((response) {
+                                                                    if (mounted) {
+                                                                      setState(() {
+                                                                        isLoadingForSaving = false;
+                                                                      });
+                                                                      Navigator.pop(context);
+                                                                    }
                                                                   });
-                                                                }else{
+                                                                } else {
                                                                   //err
                                                                 }
-
                                                               }
-
-
                                                             }
                                                           },
 
@@ -261,19 +261,25 @@ class _GridImportFormState extends State<GridImportForm> {
                                                       child: Text("Import"),
                                                       onPressed: () async {
                                                         String inputJSON = await importFromFile();
-                                                        if(inputJSON.isNotEmpty) {
+                                                        if (inputJSON.isNotEmpty) {
                                                           bool isSchemaValid = await schemaValidation(inputJSON);
 
-                                                          if(isSchemaValid){
-                                                            print("VALID");
-                                                            widget.onGoingToExportWidgetCallback(inputJSON).then((response){
-                                                              isLoadingForSaving = true;
-
+                                                          if (isSchemaValid) {
+                                                            if (mounted) {
+                                                              setState(() {
+                                                                isLoadingForSaving = true;
+                                                              });
+                                                            }
+                                                            widget.onGoingToExportWidgetCallback(inputJSON).then((response) {
+                                                              if (mounted) {
+                                                                setState(() {
+                                                                  isLoadingForSaving = false;
+                                                                });
+                                                                Navigator.pop(context);
+                                                              }
                                                             });
                                                           }
-
                                                         }
-
                                                       },
                                                     ),
                                                   ),
@@ -294,6 +300,6 @@ class _GridImportFormState extends State<GridImportForm> {
                                 )
                               ]))
                         ]))));
-          });
+          }));
   }
 }
