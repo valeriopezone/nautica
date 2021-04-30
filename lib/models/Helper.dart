@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 
 import 'package:flutter/cupertino.dart';
@@ -244,54 +245,53 @@ List<Widget> _addColorPalettes(BaseModel model, [StateSetter setState]) {
 Widget showThemeSwitcher(BaseModel model) {
   int _selectedValue = model.selectedThemeIndex;
   return StatefulBuilder(builder: (BuildContext context, StateSetter setState) {
-    final double _width = MediaQuery.of(context).size.width * 0.4;
     final Color _textColor = model.themeData.brightness == Brightness.light
         ? const Color.fromRGBO(84, 84, 84, 1)
         : const Color.fromRGBO(218, 218, 218, 1);
     return Column(children: <Widget>[
-      Padding(
-          padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-          child: StatefulBuilder(builder:
-              (BuildContext context, StateSetter setState) {
-            return CupertinoSegmentedControl<int>(
-              children: <int, Widget>{
-                0: Container(
-                  padding :  const EdgeInsets.all(5),
-                    alignment: Alignment.center,
-                    child: Text('Day',
-                        style: TextStyle(
-                            color: _selectedValue == 0
-                                ? Colors.white
-                                : _textColor,
-                            fontFamily: 'Roboto-Medium'))),
-                1: Container(
+      SizedBox(
+        height:45,
+        child: Padding(
+            padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+            child: StatefulBuilder(builder:
+                (BuildContext context, StateSetter setState) {
+              return CupertinoSegmentedControl<int>(
+                children: <int, Widget>{
+                  0: Container(
                     padding :  const EdgeInsets.all(5),
+                      alignment: Alignment.center,
 
-                    alignment: Alignment.center,
-                    child: Text('Night',
-                        style: TextStyle(
-                            color: _selectedValue == 1
-                                ? Colors.white
-                                : _textColor,
-                            fontFamily: 'Roboto-Medium')))
-              },
-              padding: const EdgeInsets.all(5),
-              unselectedColor: Colors.transparent,
-              selectedColor: model.paletteColor,
-              pressedColor: model.paletteColor,
-              borderColor: Colors.white,
-              groupValue: _selectedValue,
-              onValueChanged: (int value) {
-                _selectedValue = value;
-                model.currentThemeData = (value == 0)
-                    ? ThemeData.light()
-                    : ThemeData.dark();
-                _applyThemeAndPaletteColor(
-                    model, context, value);
+                      child: Icon(Icons.wb_sunny, color:  _selectedValue == 0
+                          ? Colors.white
+                          : _textColor)),
+                  1: Container(
+                      padding :  const EdgeInsets.all(5),
 
-              },
-            );
-          }))
+                      alignment: Alignment.center,
+                      child: Transform.rotate(
+              angle: 330 * pi / 180,
+              child:Icon(Icons.nightlight_round, color:  _selectedValue == 1
+                          ? Colors.white
+                          : _textColor)))
+                },
+                padding: const EdgeInsets.all(5),
+                unselectedColor: Colors.transparent,
+                selectedColor: model.paletteColor,
+                pressedColor: model.paletteColor,
+                borderColor: Colors.white,
+                groupValue: _selectedValue,
+                onValueChanged: (int value) {
+                  _selectedValue = value;
+                  model.currentThemeData = (value == 0)
+                      ? ThemeData.light()
+                      : ThemeData.dark();
+                  _applyThemeAndPaletteColor(
+                      model, context, value);
+
+                },
+              );
+            })),
+      )
     ]);
   });
 }

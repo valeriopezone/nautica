@@ -31,13 +31,13 @@ class _InputColorPicker extends State<InputColorPicker> {
   void initState() {
     super.initState();
 
-    if(widget.currentController != null){
+    if (widget.currentController != null) {
       widget.currentTextColor = widget.currentController.text;
       widget.currentColor = HexColor(widget.currentTextColor);
     }
   }
-  @override
 
+  @override
   void dispose() {
     print("COLOR DISPOSE");
     super.dispose();
@@ -45,42 +45,54 @@ class _InputColorPicker extends State<InputColorPicker> {
 
   @override
   Widget build(BuildContext context) {
+    return SizedBox(
+      width: 35,
+      child: ElevatedButton(
+        style: ButtonStyle(
+//backgroundColor: MaterialStateProperty.all<Color>(currentColor),
+          backgroundColor: MaterialStateProperty.all<Color>(widget.currentColor),
+          shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.zero)),
+        ),
 
-
-            return AlertDialog(
-              titlePadding: const EdgeInsets.all(0.0),
-              contentPadding: const EdgeInsets.all(0.0),
-              content: SingleChildScrollView(
-                child: FutureBuilder(
-                  builder: (context, snapshot) {
-                    return ColorPicker(
-                      pickerColor: widget.currentColor,
-                      onColorChanged: (Color color) {
-
-                       setState((){
-                         widget.currentColor = color;
-                         widget.currentTextColor = "#" + color.toString().split('(0x')[1].split(')')[0];
-                         widget.onColorChanged(widget.currentTextColor);
-
-
-                       });
-                      },
-                      colorPickerWidth: 300.0,
-                      pickerAreaHeightPercent: 0.7,
-                      enableAlpha: true,
-                      displayThumbColor: true,
-                      showLabel: true,
-                      paletteType: PaletteType.hsv,
-                      pickerAreaBorderRadius: const BorderRadius.only(
-                        topLeft: const Radius.circular(2.0),
-                        topRight: const Radius.circular(2.0),
-                      ),
-                    );
-                  }
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                titlePadding: const EdgeInsets.all(0.0),
+                contentPadding: const EdgeInsets.all(0.0),
+                content: SingleChildScrollView(
+                  child: FutureBuilder(
+                      builder: (context, snapshot) {
+                        return ColorPicker(
+                          pickerColor: widget.currentColor,
+                          onColorChanged: (Color color) {
+                            setState(() {
+                              widget.currentColor = color;
+                              widget.currentTextColor = "#" + color.toString().split('(0x')[1].split(')')[0];
+                              widget.onColorChanged(widget.currentTextColor);
+                            });
+                          },
+                          colorPickerWidth: 300.0,
+                          pickerAreaHeightPercent: 0.7,
+                          enableAlpha: true,
+                          displayThumbColor: true,
+                          showLabel: true,
+                          paletteType: PaletteType.hsv,
+                          pickerAreaBorderRadius: const BorderRadius.only(
+                            topLeft: const Radius.circular(2.0),
+                            topRight: const Radius.circular(2.0),
+                          ),
+                        );
+                      }
+                  ),
                 ),
-              ),
-            );
-
-
+              );
+            },
+          );
+        },
+        child: Text(""), //Icon(Icons.color_lens_outlined),
+      ),
+    );
   }
 }

@@ -86,7 +86,7 @@ class _DateValueAxisChartState extends State<DateValueAxisChart> with Disposable
             lastStreamedValue['value'] = value;
             if(!haveReceivedData){
               if(mounted) setState(() {
-                print("AXIS HAVE DATA $lastStreamedValue");
+                print("AXIS HAVE FIRST DATA $lastStreamedValue");
                 haveReceivedData = true;
                 lastStreamedDate = date;
                 initializeDataPoints();

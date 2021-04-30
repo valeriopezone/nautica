@@ -25,9 +25,10 @@ import '../DraggableCard.dart';
 class MonitorDrag extends StatefulWidget {
   StreamSubscriber StreamObject;
   String currentVessel = "";
-  int once = 0;
+  bool isEditingMode = false;
   final Future<void> Function(String vessel, int gridId, bool hasChanged) onGridStatusChangeCallback;
   final Future<void> Function() onGridListChangedCallback;
+  final Future<void> Function() freezeInputsCallback;
 
   dynamic vesselsDataTable = [];
 
@@ -35,8 +36,10 @@ class MonitorDrag extends StatefulWidget {
       {Key key,
       @required this.StreamObject,
       @required this.currentVessel,
+      @required this.isEditingMode,
       @required this.onGridStatusChangeCallback,
       @required this.onGridListChangedCallback,
+      @required this.freezeInputsCallback,
       @required this.vesselsDataTable})
       : super(key: key);
 
@@ -81,15 +84,18 @@ class _MonitorDragState extends State<MonitorDrag> {
   }
 
   void _setHavingGridChanges() {
-    widget.onGridStatusChangeCallback(vessel, currentGridIndex, haveGridChanges).then((value) {
-      print("CHILD INFORMED PARENT -> $vessel at grid[$currentGridIndex] changes -> $haveGridChanges");
-    });
+    if (widget.isEditingMode) {
+      widget.onGridStatusChangeCallback(vessel, currentGridIndex, haveGridChanges).then((value) {
+        print("CHILD INFORMED PARENT -> $vessel at grid[$currentGridIndex] changes -> $haveGridChanges");
+      });
+    }
   }
 
   Future<void> _persistentDeleteCurrentGridChanges() async {
-    if(mounted) setState(() {
-      isMainGridReady = false;
-    });
+    if (mounted)
+      setState(() {
+        isMainGridReady = false;
+      });
     return Hive.openBox<GridThemeRecord>("grid_schema").then((grid) async {
       GridThemeRecord updatedThemeRecord = GridThemeRecord(id: 2, name: "Temporary Grid", schema: currentJSONGridTheme.schema);
       await grid.put(updatedThemeRecord.id, updatedThemeRecord).then((value) async {
@@ -97,9 +103,10 @@ class _MonitorDragState extends State<MonitorDrag> {
         //reload?
         return await grid.close().then((value) async {
           getMainGrid();
-          if(mounted) setState(() {
-            haveGridChanges = false;
-          });
+          if (mounted)
+            setState(() {
+              haveGridChanges = false;
+            });
           _setHavingGridChanges();
         });
       });
@@ -107,23 +114,25 @@ class _MonitorDragState extends State<MonitorDrag> {
   }
 
   Future<void> _persistentSaveCurrentGridChanges() async {
-    if(mounted) setState(() {
-      isMainGridReady = false;
-    });
+    if (mounted)
+      setState(() {
+        isMainGridReady = false;
+      });
     return await Hive.openBox<GridThemeRecord>("grid_schema").then((grid) async {
       var tempTheme = grid.get(2) ?? GridThemeRecord(id: 2, name: currentJSONGridTheme.name, schema: currentJSONGridTheme.schema);
       GridThemeRecord updatedThemeRecord = GridThemeRecord(id: currentJSONGridTheme.id, name: currentJSONGridTheme.name, schema: tempTheme.schema);
       print("BEF SCHE : ${tempTheme.schema}");
       print("curr SCHE : ${currentJSONGridTheme.schema}");
       await grid.put(updatedThemeRecord.id, updatedThemeRecord).then((value) async {
-        print("JSON : " + convert.jsonEncode(tempTheme.schema));
+        //print("JSON : " + convert.jsonEncode(tempTheme.schema));
 
         await grid.close();
         await widget.onGridListChangedCallback();
 
-        if(mounted) setState(() {
-          isMainGridReady = true;
-        });
+        if (mounted)
+          setState(() {
+            isMainGridReady = true;
+          });
         haveGridChanges = false;
         _setHavingGridChanges();
       });
@@ -174,9 +183,10 @@ class _MonitorDragState extends State<MonitorDrag> {
               print("temporary grid UPDATED");
             });
 
-            if(mounted) setState(() {
-              mainLoadedWidgetList = jsonTheme['widgets'];
-            });
+            if (mounted)
+              setState(() {
+                mainLoadedWidgetList = jsonTheme['widgets'];
+              });
             haveGridChanges = true;
 
             _setHavingGridChanges();
@@ -187,10 +197,11 @@ class _MonitorDragState extends State<MonitorDrag> {
         return Future.error(e.toString());
       }
 
-      if(mounted) setState(() {
-        isMainGridReady = true;
-        haveErrorLoadingGrid = false;
-      });
+      if (mounted)
+        setState(() {
+          isMainGridReady = true;
+          haveErrorLoadingGrid = false;
+        });
       return await grid.close().then((value) async {
         //return await getMainGrid();
       });
@@ -216,31 +227,33 @@ class _MonitorDragState extends State<MonitorDrag> {
             });
 
             //encode and save
-            if(mounted) setState(() {
-              mainLoadedWidgetList = jsonTheme['widgets'];
-              //mainWidgetList[cardId].
-              mainWidgetList[cardId] = DraggableCard(
-                  //key:UniqueKey(),
-                  model: model,
-                  baseHeight: baseHeight,
-                  numCols: numCols,
-                  widgetData: mainLoadedWidgetList[cardId],
-                  StreamObject: widget.StreamObject,
-                  currentVessel: widget.currentVessel,
-                  currentPosition: cardId,
-                  currentWidgetIndex: viewId,
-                  vesselsDataTable: widget.vesselsDataTable,
-                  onCardStatusChangedCallback: (currentPosition, viewId) async {
-                    await _temporaryUpdateWidgetViewStatus(currentPosition, viewId);
-                  },
-                  onGoingToEditCallback: (currentPosition, viewId) async {
-                    await _showEditWidgetDialog(currentPosition);
-                  },
-                  onGoingToDeleteCallback: (currentPosition, viewId) async {
-                    await _temporaryDeleteWidget(currentPosition);
-                  });
-              haveGridChanges = true;
-            });
+            if (mounted)
+              setState(() {
+                mainLoadedWidgetList = jsonTheme['widgets'];
+                //mainWidgetList[cardId].
+                mainWidgetList[cardId] = DraggableCard(
+                    //key:UniqueKey(),
+                    model: model,
+                    isEditingMode: widget.isEditingMode,
+                    baseHeight: baseHeight,
+                    numCols: numCols,
+                    widgetData: mainLoadedWidgetList[cardId],
+                    StreamObject: widget.StreamObject,
+                    currentVessel: widget.currentVessel,
+                    currentPosition: cardId,
+                    currentWidgetIndex: viewId,
+                    vesselsDataTable: widget.vesselsDataTable,
+                    onCardStatusChangedCallback: (currentPosition, viewId) async {
+                      await _temporaryUpdateWidgetViewStatus(currentPosition, viewId);
+                    },
+                    onGoingToEditCallback: (currentPosition, viewId) async {
+                      await _showEditWidgetDialog(currentPosition);
+                    },
+                    onGoingToDeleteCallback: (currentPosition, viewId) async {
+                      await _temporaryDeleteWidget(currentPosition);
+                    });
+                haveGridChanges = true;
+              });
             _setHavingGridChanges();
           }
         }
@@ -289,10 +302,11 @@ class _MonitorDragState extends State<MonitorDrag> {
               print("temporary grid UPDATED");
               haveGridChanges = true;
 
-              if(mounted) setState(() {
-                mainLoadedWidgetList = newGrid.schema['widgets'];
-                //haveErrorLoadingGrid = false;
-              });
+              if (mounted)
+                setState(() {
+                  mainLoadedWidgetList = newGrid.schema['widgets'];
+                  //haveErrorLoadingGrid = false;
+                });
               _setHavingGridChanges();
 
               try {
@@ -314,6 +328,7 @@ class _MonitorDragState extends State<MonitorDrag> {
                     mainWidgetList.add(DraggableCard(
                         //key:UniqueKey(),
                         model: model,
+                        isEditingMode: widget.isEditingMode,
                         baseHeight: baseHeight,
                         numCols: numCols,
                         widgetData: widgets,
@@ -334,20 +349,22 @@ class _MonitorDragState extends State<MonitorDrag> {
                     i++;
                   }
 
-                  if(mounted) setState(() {
-                    // isMainGridReady = true;
-                    // haveErrorLoadingGrid = false;
-                  });
+                  if (mounted)
+                    setState(() {
+                      // isMainGridReady = true;
+                      // haveErrorLoadingGrid = false;
+                    });
                   //insert into ---> mainWidgetList
                 } catch (e) {
                   print("err1 : " + e.toString());
                 }
               } catch (e) {
                 print("unable to decode json " + e.toString());
-                if(mounted) setState(() {
-                  // isMainGridReady = false;
-                  // haveErrorLoadingGrid = false;
-                });
+                if (mounted)
+                  setState(() {
+                    // isMainGridReady = false;
+                    // haveErrorLoadingGrid = false;
+                  });
               }
             });
           }
@@ -357,9 +374,10 @@ class _MonitorDragState extends State<MonitorDrag> {
         return Future.error(e.toString());
       }
 
-      if(mounted) setState(() {
-        isMainGridReady = true;
-      });
+      if (mounted)
+        setState(() {
+          isMainGridReady = true;
+        });
       return await grid.close().then((value) async {
         //return await getMainGrid();
       });
@@ -401,6 +419,7 @@ class _MonitorDragState extends State<MonitorDrag> {
           mainWidgetList.add(DraggableCard(
               //key:UniqueKey(),
               model: model,
+              isEditingMode: widget.isEditingMode,
               baseHeight: baseHeight,
               numCols: numCols,
               widgetData: widgetData,
@@ -419,12 +438,13 @@ class _MonitorDragState extends State<MonitorDrag> {
                 await _temporaryDeleteWidget(currentPosition);
               }));
 
-          if(mounted) setState(() {
-            mainLoadedWidgetList = newGrid.schema['widgets'];
-            haveGridChanges = true;
-            isMainGridReady = true;
-            //haveErrorLoadingGrid = false;
-          });
+          if (mounted)
+            setState(() {
+              mainLoadedWidgetList = newGrid.schema['widgets'];
+              haveGridChanges = true;
+              isMainGridReady = true;
+              //haveErrorLoadingGrid = false;
+            });
           _setHavingGridChanges();
           return true;
         });
@@ -441,15 +461,13 @@ class _MonitorDragState extends State<MonitorDrag> {
     return await Hive.openBox<GridThemeRecord>("grid_schema").then((grid) async {
       GridThemeRecord tempGrid = grid.get(2) ?? GridThemeRecord(id: 2, name: "Temporary Grid", schema: convert.jsonDecode(mainJSONGridTheme));
       // GridThemeRecord newGrid = GridThemeRecord(id: 2, name: "Temporary Gridxxx", schema: convert.jsonDecode(mainJSONGridTheme));
-       GridThemeRecord newGrid = GridThemeRecord(id: 2, name: tempGrid.name, schema: convert.jsonDecode(mainJSONGridTheme));
+      GridThemeRecord newGrid = GridThemeRecord(id: 2, name: tempGrid.name, schema: convert.jsonDecode(mainJSONGridTheme));
 
       newGrid.schema['name'] = tempGrid.schema['name'];
       newGrid.schema['description'] = tempGrid.schema['description'];
       newGrid.schema['author'] = tempGrid.schema['author'];
       newGrid.schema['numCols'] = tempGrid.schema['numCols'];
       newGrid.schema['baseHeight'] = tempGrid.schema['baseHeight'];
-
-
 
       try {
         dynamic jsonTheme = (tempGrid.schema);
@@ -470,13 +488,14 @@ class _MonitorDragState extends State<MonitorDrag> {
           i++;
         }
         temporaryJSONGridTheme = newGrid;
-        print("NEW EDITED: " + temporaryJSONGridTheme.name.toString()+ "__" +  temporaryJSONGridTheme.schema.toString());
+        //print("NEW EDITED: " + temporaryJSONGridTheme.name.toString() + "__" + temporaryJSONGridTheme.schema.toString());
         //return false;
         return await grid.put(newGrid.id, newGrid).then((value) {
           //print("NEW SCHEMA : " + newGrid.schema['widgets'].toString());
           mainWidgetList[positionId] = new DraggableCard(
               //key:UniqueKey(),
               model: model,
+              isEditingMode: widget.isEditingMode,
               baseHeight: baseHeight,
               numCols: numCols,
               widgetData: widgetData,
@@ -497,11 +516,12 @@ class _MonitorDragState extends State<MonitorDrag> {
               });
           haveGridChanges = true;
 
-          if(mounted) setState(() {
-            mainLoadedWidgetList = newGrid.schema['widgets'];
-            isMainGridReady = true;
-            //haveErrorLoadingGrid = false;
-          });
+          if (mounted)
+            setState(() {
+              mainLoadedWidgetList = newGrid.schema['widgets'];
+              isMainGridReady = true;
+              //haveErrorLoadingGrid = false;
+            });
           _setHavingGridChanges();
           return true;
         });
@@ -513,9 +533,10 @@ class _MonitorDragState extends State<MonitorDrag> {
   }
 
   Future<bool> _persistentEditGridOptions(dynamic gridData) async {
-    if(mounted) setState(() {
-      isMainGridReady = false;
-    });
+    if (mounted)
+      setState(() {
+        isMainGridReady = false;
+      });
 
     print("HERE EDIT");
     return await Hive.openBox<GridThemeRecord>("grid_schema").then((grid) async {
@@ -544,9 +565,10 @@ class _MonitorDragState extends State<MonitorDrag> {
         await grid.close();
         haveGridChanges = true;
 
-        if(mounted) setState(() {
-          isMainGridReady = true;
-        });
+        if (mounted)
+          setState(() {
+            isMainGridReady = true;
+          });
         _setHavingGridChanges();
 
         await getMainGrid(useTemp: true);
@@ -560,9 +582,10 @@ class _MonitorDragState extends State<MonitorDrag> {
   }
 
   Future<bool> _insertNewGrid({String jsonGridData = null}) async {
-    if(mounted) setState(() {
-      isMainGridReady = false;
-    });
+    if (mounted)
+      setState(() {
+        isMainGridReady = false;
+      });
     try {
       return await Hive.openBox<GridThemeRecord>("grid_schema").then((grid) async {
         var c = grid.values.where((element) => element.id != 2).last;
@@ -589,23 +612,26 @@ class _MonitorDragState extends State<MonitorDrag> {
             }).onError((error, stackTrace) {
               print("ERROR new grid _> $error $stackTrace");
 
-              if(mounted) setState(() {
-                isMainGridReady = false;
-              });
+              if (mounted)
+                setState(() {
+                  isMainGridReady = false;
+                });
             });
           }).onError((error, stackTrace) {
             print("ERROR new grid _> $error $stackTrace");
 
-            if(mounted) setState(() {
-              isMainGridReady = false;
-            });
+            if (mounted)
+              setState(() {
+                isMainGridReady = false;
+              });
           });
         }).onError((error, stackTrace) {
           print("ERROR new grid _> $error $stackTrace");
 
-          if(mounted) setState(() {
-            isMainGridReady = false;
-          });
+          if (mounted)
+            setState(() {
+              isMainGridReady = false;
+            });
         });
       }).onError((error, stackTrace) {
         print("ERROR new grid _> $error $stackTrace");
@@ -627,8 +653,6 @@ class _MonitorDragState extends State<MonitorDrag> {
         if (grids.length == 0) return false;
         int newCurrentGridId = grids.last.id;
 
-
-
         return await grid.delete(gridId).then((value) async {
           await grid.close();
 
@@ -645,23 +669,26 @@ class _MonitorDragState extends State<MonitorDrag> {
             }).onError((error, stackTrace) {
               print("ERROR new grid _> $error $stackTrace");
 
-              if(mounted) setState(() {
-                isMainGridReady = false;
-              });
+              if (mounted)
+                setState(() {
+                  isMainGridReady = false;
+                });
             });
           }).onError((error, stackTrace) {
             print("ERROR new grid _> $error $stackTrace");
 
-            if(mounted) setState(() {
-              isMainGridReady = false;
-            });
+            if (mounted)
+              setState(() {
+                isMainGridReady = false;
+              });
           });
         }).onError((error, stackTrace) {
           print("ERROR new grid _> $error $stackTrace");
 
-          if(mounted) setState(() {
-            isMainGridReady = false;
-          });
+          if (mounted)
+            setState(() {
+              isMainGridReady = false;
+            });
         });
       }).onError((error, stackTrace) {
         print("ERROR new grid _> $error $stackTrace");
@@ -718,12 +745,13 @@ class _MonitorDragState extends State<MonitorDrag> {
   }
 
   void getMainGrid({bool useTemp = false}) async {
-    if(mounted) setState(() {
-      isMainGridReady = false;
-      haveErrorLoadingGrid = false;
-      mainWidgetList.clear();
-      widgetPositions.clear();
-    });
+    if (mounted)
+      setState(() {
+        isMainGridReady = false;
+        haveErrorLoadingGrid = false;
+        mainWidgetList.clear();
+        widgetPositions.clear();
+      });
 
     await _loadMainGrid(useTemp: useTemp).then((value) async {
       try {
@@ -731,7 +759,6 @@ class _MonitorDragState extends State<MonitorDrag> {
         dynamic mainGridTheme = (temporaryJSONGridTheme.schema);
 
         try {
-
           print("try catch vals");
           print("s h : ${temporaryJSONGridTheme.schema['baseHeight']}");
           print("s w : ${temporaryJSONGridTheme.schema['numCols']}");
@@ -759,6 +786,7 @@ class _MonitorDragState extends State<MonitorDrag> {
             mainWidgetList.add(DraggableCard(
                 //key:UniqueKey(),
                 model: model,
+                isEditingMode: widget.isEditingMode,
                 baseHeight: baseHeight,
                 numCols: numCols,
                 widgetData: widgets,
@@ -779,19 +807,21 @@ class _MonitorDragState extends State<MonitorDrag> {
             i++;
           }
 
-          if(mounted) setState(() {
-            isMainGridReady = true;
-            haveErrorLoadingGrid = false;
-          });
+          if (mounted)
+            setState(() {
+              isMainGridReady = true;
+              haveErrorLoadingGrid = false;
+            });
         } catch (e) {
           print("err x: " + e.toString());
         }
       } catch (e) {
         print("unable to decode json " + e.toString());
-        if(mounted) setState(() {
-          isMainGridReady = false;
-          haveErrorLoadingGrid = false;
-        });
+        if (mounted)
+          setState(() {
+            isMainGridReady = false;
+            haveErrorLoadingGrid = false;
+          });
       }
     });
   }
@@ -814,7 +844,7 @@ class _MonitorDragState extends State<MonitorDrag> {
             model: model,
             onGoingToSaveOptionsCallback: (dynamic gridData) async {
               return await _persistentEditGridOptions(gridData);
-              },
+            },
             onGoingToDeleteGridCallback: (int gridId) async {
               return await _deleteGrid(gridId);
             })
@@ -823,7 +853,7 @@ class _MonitorDragState extends State<MonitorDrag> {
     //
   }
 
-  Future<void> _showImportGridPopup() async{
+  Future<void> _showImportGridPopup() async {
     //show popup(widgetPosition)
 
     return await Hive.openBox<GridThemeRecord>("grid_schema").then((grid) async {
@@ -845,36 +875,43 @@ class _MonitorDragState extends State<MonitorDrag> {
       );
     });
 
-
     //
   }
 
   @override
   Widget build(BuildContext context) {
     List<StaggeredTile> tileInfo = [];
-  if(mainLoadedWidgetList != null) {
-    try {
-      for (dynamic card in mainLoadedWidgetList) {
-        var wWidth = (!(card['width'] is int))
-            ? 1
-            : (card['width'] > 0)
-            ? card['width']
-            : 1;
-        var wHeight = (!(card['height'] is int))
-            ? 1
-            : (card['height'] > 0)
-            ? card['height']
-            : 1;
+    if (mainLoadedWidgetList != null) {
+      try {
+        for (dynamic card in mainLoadedWidgetList) {
+          var wWidth = (!(card['width'] is int))
+              ? 1
+              : (card['width'] > 0)
+                  ? card['width']
+                  : 1;
+          var wHeight = (!(card['height'] is int))
+              ? 1
+              : (card['height'] > 0)
+                  ? card['height']
+                  : 1;
 
-        tileInfo.add(StaggeredTile.extent(wWidth, wHeight * baseHeight));
+          tileInfo.add(StaggeredTile.extent(wWidth, wHeight * baseHeight));
+        }
+      } catch (e, s) {
+        print("Exception in monitorDrag build -> $e $s");
       }
-    } catch (e, s) {
-      print("Exception in monitorDrag build -> $e $s");
     }
-  }
     return Scaffold(
       backgroundColor: model.webBackgroundColor,
-      floatingActionButton: _buildWidgetMenuDial(),
+      floatingActionButton: widget.isEditingMode
+          ? Stack(
+              children: [
+                _buildWidgetMenuDial(),
+                _showStackedSaveButton(),
+                _showStackedUndoButton()
+              ],
+            )
+          : Text(""),
       body: Stack(
         children: [
           (!isMainGridReady)
@@ -884,63 +921,75 @@ class _MonitorDragState extends State<MonitorDrag> {
                       ? (haveErrorLoadingGrid ? model.getErrorPage("Unable to load monitor", "check JSON status") : Text(""))
                       : Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: (ReorderableWrap(
-                            numCols: numCols,
-                            tileInfo: tileInfo,
-                            onReorder: (oldIndex, newIndex) {
-                              if (oldIndex == newIndex) return; //if same object no action
+                          child: ((!widget.isEditingMode)
+                              ? StaggeredGridView.count(
+                                  crossAxisCount: numCols,
+                                  staggeredTiles: tileInfo,
+                                  children: mainWidgetList.map((singleCard) {
+                                    return singleCard;
+                                  }).toList(),
+                                  mainAxisSpacing: 0.0,
+                                  crossAxisSpacing: 0.0,
+                                )
+                              : ReorderableWrap(
+                                  numCols: numCols,
+                                  tileInfo: tileInfo,
+                                  onReorder: (oldIndex, newIndex) {
+                                    if (oldIndex == newIndex) return; //if same object no action
 
-                              if(mounted) setState(() {
+                                    if (mounted)
+                                      setState(() {
+                                        mainWidgetList[oldIndex] = DraggableCard(
+                                            //key:UniqueKey(),
+                                            model: model,
+                                            isEditingMode: widget.isEditingMode,
+                                            baseHeight: baseHeight,
+                                            numCols: numCols,
+                                            widgetData: mainLoadedWidgetList[newIndex],
+                                            StreamObject: widget.StreamObject,
+                                            currentVessel: widget.currentVessel,
+                                            currentPosition: oldIndex,
+                                            currentWidgetIndex: mainLoadedWidgetList[newIndex]['current'],
+                                            vesselsDataTable: widget.vesselsDataTable,
+                                            onCardStatusChangedCallback: (currentPosition, viewId) async {
+                                              await _temporaryUpdateWidgetViewStatus(currentPosition, viewId);
+                                            },
+                                            onGoingToEditCallback: (currentPosition, viewId) async {
+                                              await _showEditWidgetDialog(currentPosition);
+                                            },
+                                            onGoingToDeleteCallback: (currentPosition, viewId) async {
+                                              await _temporaryDeleteWidget(currentPosition);
+                                            });
 
-                                mainWidgetList[oldIndex] = DraggableCard(
-                                    //key:UniqueKey(),
-                                    model: model,
-                                    baseHeight: baseHeight,
-                                    numCols: numCols,
-                                    widgetData: mainLoadedWidgetList[newIndex],
-                                    StreamObject: widget.StreamObject,
-                                    currentVessel: widget.currentVessel,
-                                    currentPosition: oldIndex,
-                                    currentWidgetIndex: mainLoadedWidgetList[newIndex]['current'],
-                                    vesselsDataTable: widget.vesselsDataTable,
-                                    onCardStatusChangedCallback: (currentPosition, viewId) async {
-                                      await _temporaryUpdateWidgetViewStatus(currentPosition, viewId);
-                                    },
-                                    onGoingToEditCallback: (currentPosition, viewId) async {
-                                      await _showEditWidgetDialog(currentPosition);
-                                    },
-                                    onGoingToDeleteCallback: (currentPosition, viewId) async {
-                                      await _temporaryDeleteWidget(currentPosition);
-                                    });
+                                        mainWidgetList[newIndex] = DraggableCard(
+                                            //key:UniqueKey(),
+                                            model: model,
+                                            isEditingMode: widget.isEditingMode,
+                                            baseHeight: baseHeight,
+                                            numCols: numCols,
+                                            widgetData: mainLoadedWidgetList[oldIndex],
+                                            StreamObject: widget.StreamObject,
+                                            currentVessel: widget.currentVessel,
+                                            currentPosition: newIndex,
+                                            currentWidgetIndex: mainLoadedWidgetList[newIndex]['current'],
+                                            vesselsDataTable: widget.vesselsDataTable,
+                                            onCardStatusChangedCallback: (currentPosition, viewId) async {
+                                              await _temporaryUpdateWidgetViewStatus(currentPosition, viewId);
+                                            },
+                                            onGoingToEditCallback: (currentPosition, viewId) async {
+                                              await _showEditWidgetDialog(currentPosition);
+                                            },
+                                            onGoingToDeleteCallback: (currentPosition, viewId) async {
+                                              await _temporaryDeleteWidget(currentPosition);
+                                            });
 
-                                mainWidgetList[newIndex] = DraggableCard(
-                                    //key:UniqueKey(),
-                                    model: model,
-                                    baseHeight: baseHeight,
-                                    numCols: numCols,
-                                    widgetData: mainLoadedWidgetList[oldIndex],
-                                    StreamObject: widget.StreamObject,
-                                    currentVessel: widget.currentVessel,
-                                    currentPosition: newIndex,
-                                    currentWidgetIndex: mainLoadedWidgetList[newIndex]['current'],
-                                    vesselsDataTable: widget.vesselsDataTable,
-                                    onCardStatusChangedCallback: (currentPosition, viewId) async {
-                                      await _temporaryUpdateWidgetViewStatus(currentPosition, viewId);
-                                    },
-                                    onGoingToEditCallback: (currentPosition, viewId) async {
-                                      await _showEditWidgetDialog(currentPosition);
-                                    },
-                                    onGoingToDeleteCallback: (currentPosition, viewId) async {
-                                      await _temporaryDeleteWidget(currentPosition);
-                                    });
-
-                                _temporarySaveGridState(oldIndex, newIndex);
-                              });
-                            },
-                            children: mainWidgetList.map((singleCard) {
-                              return ReorderableWrapItem(key: ValueKey(singleCard), child: singleCard);
-                            }).toList(),
-                          )),
+                                        _temporarySaveGridState(oldIndex, newIndex);
+                                      });
+                                  },
+                                  children: mainWidgetList.map((singleCard) {
+                                    return ReorderableWrapItem(key: ValueKey(singleCard), child: singleCard);
+                                  }).toList(),
+                                )),
                         );
                 }),
         ],
@@ -953,8 +1002,8 @@ class _MonitorDragState extends State<MonitorDrag> {
       /// both default to 16
       marginEnd: 18,
       marginBottom: 20,
-      icon: Icons.grid_on_rounded,
-      activeIcon: Icons.grid_on_rounded,
+      icon: Icons.menu_rounded,
+      activeIcon: Icons.menu_rounded,
       buttonSize: 56.0,
       visible: true,
       closeManually: false,
@@ -967,33 +1016,33 @@ class _MonitorDragState extends State<MonitorDrag> {
       foregroundColor: Colors.white,
       elevation: 8.0,
       children: [
-        SpeedDialChild(
-            child: Icon(Icons.undo_outlined),
-            backgroundColor: Colors.red,
-            foregroundColor: Colors.white,
-            label: 'cancel changes',
-            labelStyle: TextStyle(fontSize: 18.0),
-            onTap: () async {
-              //rebuild current space
-              print("saving grid ${currentGridIndex}");
-              return await _persistentDeleteCurrentGridChanges();
-            }),
-        SpeedDialChild(
-            child: Icon(Icons.save_outlined),
-            foregroundColor: Colors.white,
-            backgroundColor: model.paletteColor,
-            label: 'save current configuration',
-            labelStyle: TextStyle(fontSize: 18.0),
-            onTap: () async {
-              //save current space
-              print("saving grid $currentGridIndex");
-              return await _persistentSaveCurrentGridChanges();
-            }),
+     // SpeedDialChild(
+     //     child: Icon(Icons.undo_outlined),
+     //     backgroundColor: Colors.red,
+     //     foregroundColor: Colors.white,
+     //     label: 'Undo changes',
+     //     labelStyle: TextStyle(fontSize: 18.0),
+     //     onTap: () async {
+     //       //rebuild current space
+     //       print("saving grid ${currentGridIndex}");
+     //       return await _persistentDeleteCurrentGridChanges();
+     //     }),
+     // SpeedDialChild(
+     //     child: Icon(Icons.save_outlined),
+     //     foregroundColor: Colors.white,
+     //     backgroundColor: model.paletteColor,
+     //     label: 'Save grid',
+     //     labelStyle: TextStyle(fontSize: 18.0),
+     //     onTap: () async {
+     //       //save current space
+     //       print("saving grid $currentGridIndex");
+     //       return await _persistentSaveCurrentGridChanges();
+     //     }),
         SpeedDialChild(
           child: Icon(Icons.widgets_outlined),
           foregroundColor: Colors.white,
           backgroundColor: model.paletteColor,
-          label: 'add widget',
+          label: 'Add widget',
           labelStyle: TextStyle(fontSize: 18.0),
           onTap: () async {
             //save current space
@@ -1002,55 +1051,104 @@ class _MonitorDragState extends State<MonitorDrag> {
           },
         ),
         SpeedDialChild(
+            child: Icon(Icons.grid_on_rounded),
+            foregroundColor: Colors.white,
+            backgroundColor: model.paletteColor,
+            label: 'New grid',
+            labelStyle: TextStyle(fontSize: 18.0),
+            onTap: () async {
+              (haveGridChanges) ? widget.freezeInputsCallback() : await _insertNewGrid();
+            }),
+        SpeedDialChild(
           child: Icon(Icons.import_export),
           foregroundColor: Colors.white,
           backgroundColor: model.paletteColor,
-          label: 'import grid',
+          label: 'Import/Export',
           labelStyle: TextStyle(fontSize: 18.0),
-          onTap: () => _showImportGridPopup(),
+          onTap: () => (haveGridChanges) ? widget.freezeInputsCallback() : _showImportGridPopup(),
         ),
         SpeedDialChild(
-            child: Icon(Icons.archive_outlined),
+            child: Icon(Icons.settings),
             foregroundColor: Colors.white,
             backgroundColor: model.paletteColor,
-            label: 'grid options',
+            label: 'Options',
             labelStyle: TextStyle(fontSize: 18.0),
             onTap: () {
               _showGridOptionsPopup();
             }),
-        SpeedDialChild(
-            child: Icon(Icons.archive_outlined),
-            foregroundColor: Colors.white,
-            backgroundColor: model.paletteColor,
-            label: 'new grid',
-            labelStyle: TextStyle(fontSize: 18.0),
-            onTap: () async {
-              await _insertNewGrid();
-            }),
+
       ],
     );
   }
 
-  Widget SimpleCard(String title, List<Widget> children) {
-    return Container(
-        padding: const EdgeInsets.only(bottom: 1),
-        decoration: BoxDecoration(
-            color: model.cardColor, border: Border.all(color: const Color.fromRGBO(0, 0, 0, 0.12), width: 1.1), borderRadius: const BorderRadius.all(Radius.circular(12))),
-        width: _cardWidth,
-        child: Column(children: <Widget>[
-          Container(
-            padding: const EdgeInsets.only(top: 5, bottom: 2),
-            child: Text(
-              title,
-              style: TextStyle(color: model.paletteColor, fontSize: 16, fontFamily: 'Roboto-Bold'),
-            ),
-          ),
-          Divider(
-            color: model.themeData != null && model.themeData.brightness == Brightness.dark ? const Color.fromRGBO(61, 61, 61, 1) : const Color.fromRGBO(238, 238, 238, 1),
-            thickness: 1,
-          ),
-          Padding(padding: EdgeInsets.only(bottom: 0, top: 0)),
-          Column(children: children)
-        ]));
+  Widget _showStackedSaveButton() {
+    return Positioned(
+        bottom: 3,
+        right: 70.0,
+        child: Container(
+            height: 57,
+            width: 57,
+            child: ElevatedButton(
+              child: Icon(Icons.save_outlined),
+              style: ElevatedButton.styleFrom(
+                  elevation: 8.0,
+                  primary: model.paletteColor,
+                  shape: new RoundedRectangleBorder(
+                    borderRadius: new BorderRadius.circular(30.0),
+                  )),
+              onPressed: () async {
+                //save current space
+                return await _persistentSaveCurrentGridChanges();
+              },
+            )));
   }
+
+
+  Widget _showStackedUndoButton() {
+    return Positioned(
+        bottom: 3,
+        right: 140.0,
+        child: Container(
+            height: 57,
+            width: 57,
+            child: ElevatedButton(
+              child: Icon(Icons.undo_outlined),
+              style: ElevatedButton.styleFrom(
+                  elevation: 8.0,
+                    primary: Colors.red,
+                  shape: new RoundedRectangleBorder(
+                    borderRadius: new BorderRadius.circular(30.0),
+                  )),
+              onPressed: () async {
+                //save current space
+                return await _persistentDeleteCurrentGridChanges();
+              },
+            )));
+  }
+
+
+
+
+// Widget SimpleCard(String title, List<Widget> children) {
+//   return Container(
+//       padding: const EdgeInsets.only(bottom: 1),
+//       decoration: BoxDecoration(
+//           color: model.cardColor, border: Border.all(color: const Color.fromRGBO(0, 0, 0, 0.12), width: 1.1), borderRadius: const BorderRadius.all(Radius.circular(12))),
+//       width: _cardWidth,
+//       child: Column(children: <Widget>[
+//         Container(
+//           padding: const EdgeInsets.only(top: 5, bottom: 2),
+//           child: Text(
+//             title,
+//             style: TextStyle(color: model.paletteColor, fontSize: 16, fontFamily: 'Roboto-Bold'),
+//           ),
+//         ),
+//         Divider(
+//           color: model.themeData != null && model.themeData.brightness == Brightness.dark ? const Color.fromRGBO(61, 61, 61, 1) : const Color.fromRGBO(238, 238, 238, 1),
+//           thickness: 1,
+//         ),
+//         Padding(padding: EdgeInsets.only(bottom: 0, top: 0)),
+//         Column(children: children)
+//       ]));
+// }
 }

@@ -135,6 +135,19 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
       } catch (e) {
         print("Unable to parse width|height of object");
       }
+        //preload subscriptions
+      try {
+        var subscriptions = editingW['widgetSubscriptions'];
+        subscriptions.entries.forEach((sub) {
+          selectedSubscriptions[sub.key] = sub.value;
+        });
+
+        print("!!!!!!HAVE -> $selectedSubscriptions");
+
+
+      } catch (e) {
+        print("Unable to parse width|height of object");
+      }
 
       int j = 0, l = 0;
       widgetToAvoid = widget.currentPositionId.toString() + "_" + currentToEdit.toString();
@@ -184,6 +197,7 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
     }
 
     if (selectedSubscriptions.length > 0) {
+      print("SELECTED SUBS : $selectedSubscriptions");
       selectedSubscriptions.entries.forEach((sub) {
         composed['elements'][0]['widgetSubscriptions'][sub.key] = sub.value;
       });
@@ -253,12 +267,28 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
     });
   }
 
+
   Widget _displayColorPicker(TextEditingController controller) {
     Color currentColor = (controller.text.isNotEmpty) ? HexColor(controller.text) : Colors.black;
     //todo fix color change
 
+    return InputColorPicker(
+        key: UniqueKey(),
+        currentColor: currentColor,
+        currentController: controller,
+        onColorChanged: (String newColor) {
+          controller.text = newColor;
+          currentColor = HexColor(newColor);
+
+        });
 
 
+  }
+
+
+  Widget _displayColorPickerOLD(TextEditingController controller) {
+    Color currentColor = (controller.text.isNotEmpty) ? HexColor(controller.text) : Colors.black;
+    //todo fix color change
 
     return SizedBox(
       width: 35,
@@ -701,6 +731,7 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
                                                               iconSize: 24,
                                                               style: TextStyle(height: 0.85, fontSize: 14.0, color: widget.model.formInputTextColor),
                                                               onChanged: (String value) {
+                                                                print("SET SUB [$subscription] -> $value");
                                                                 selectedSubscriptions[subscription] = value;
                                                               },
                                                               dropdownColor: widget.model.backgroundForm,

@@ -23,7 +23,7 @@ class DraggableCard extends StatefulWidget {
   StreamSubscriber StreamObject;
   String currentVessel = ""; //
   dynamic vesselsDataTable = [];
-
+  bool isEditingMode = false;
   BaseModel model;
   dynamic widgetData;
   int currentPosition;
@@ -41,6 +41,7 @@ class DraggableCard extends StatefulWidget {
   DraggableCard(
       {Key key,
       @required this.model,
+      @required this.isEditingMode,
       @required this.currentPosition,
       @required this.currentWidgetIndex,
       @required this.widgetData,
@@ -82,34 +83,44 @@ class _DraggableCardState extends State<DraggableCard> {
 
   @override
   void initState() {
+    widget.isEditingMode = (widget.isEditingMode == null) ? false : widget.isEditingMode;
 
     gridNumCols = widget.numCols;
     gridBaseHeight = widget.baseHeight;
 
-
     widget.model = BaseModel.instance;
     widget.model.addListener(() {
-        if(mounted) setState(()  {
+      if (mounted)
+        setState(() {
           currentCardColor = widget.model.cardColor;
         });
-
-
     });
 
     super.initState();
 
     currentCardColor = widget.model.cardColor;
 
-    if(mounted) setState(()  {
-      isLoadingWidget = true;
-    });
+    initCard();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    //should call subwidget?
+  }
+
+  void initCard({currentId = null}) {
+    if (mounted)
+      setState(() {
+        isLoadingWidget = true;
+      });
     widgetTitles = {};
 
     //init widget data, indexes, .....
     try {
       //loop
       dynamic w = widget.widgetData;
-      var current = w['current']; //current index
+      var current = (currentId == null) ? w['current'] : currentId; //current index
       dynamic elements = w['elements'];
 
       currentWidgetWidth = (w['width'] > 0) ? w['width'] + .0 : 1;
@@ -136,32 +147,28 @@ class _DraggableCardState extends State<DraggableCard> {
           }
         }
 
-        if(mounted) setState(()  {
-          widget.currentWidgetIndex = current;
-          //print("Hi i'm " + widgetTitles[widget.currentWidgetIndex] + " --- position is " + widget.currentPosition.toString());
-          errorOccurred = false;
-          isLoadingWidget = false;
-        });
+        if (mounted)
+          setState(() {
+            widget.currentWidgetIndex = current;
+            //print("Hi i'm " + widgetTitles[widget.currentWidgetIndex] + " --- position is " + widget.currentPosition.toString());
+            errorOccurred = false;
+            isLoadingWidget = false;
+          });
       }
     } catch (e, s) {
       print("error loading widget " + e.toString() + s.toString());
-      if(mounted) setState(()  {
-        errorOccurred = true;
-        isLoadingWidget = false;
-      });
+      if (mounted)
+        setState(() {
+          errorOccurred = true;
+          isLoadingWidget = false;
+        });
     }
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    //should call subwidget?
   }
 
   @override
   Widget build(BuildContext context) {
     final double deviceWidth = MediaQuery.of(context).size.width;
-    var padding = (deviceWidth * 0.05) / gridNumCols;
+    //var padding = (deviceWidth * 0.05) / gridNumCols;
     final double _cardWidth = (currentWidgetWidth != 0) ? (currentWidgetWidth) * (deviceWidth * 0.95) / gridNumCols : (deviceWidth * 0.95) / gridNumCols; //(deviceWidth * 0.9) / 2;
 
     return GestureDetector(
@@ -188,13 +195,12 @@ class _DraggableCardState extends State<DraggableCard> {
                         child: SimpleCard(widgetTitles[widget.currentWidgetIndex], _cardWidth, [
                           //height: gridBaseHeight * currentWidgetHeight,
                           (loadedWidgetData != null)
-                              ? Container(height :  gridBaseHeight * currentWidgetHeight - 48, child: Center(child: loadWidget(currentClass, currentSubscriptions)))
+                              ? Container(height: gridBaseHeight * currentWidgetHeight - 48, child: Center(child: loadWidget(currentClass, currentSubscriptions)))
                               : Center(
                                   child: Text(
                                   "Unable to load widget",
                                   style: TextStyle(color: widget.model.textColor, fontSize: 14, fontFamily: 'Roboto-Bold'),
                                 )),
-                          //Text("bubu " + rng.nextInt(200).toString()),
                         ]),
                       ),
           ),
@@ -204,9 +210,10 @@ class _DraggableCardState extends State<DraggableCard> {
   }
 
   void setCurrentWidget(int widget) {
-    if(mounted) setState(()  {
-      isLoadingWidget = true;
-    });
+    if (mounted)
+      setState(() {
+        isLoadingWidget = true;
+      });
   }
 
   Stream<dynamic> _subscribeToStream(String path) {
@@ -242,7 +249,7 @@ class _DraggableCardState extends State<DraggableCard> {
             child:
                 CompassIndicator(key: UniqueKey(), Value_Stream: _subscribeToStream(subscriptions['Value_Stream']), model: widget.model, widgetGraphics: widgetOptions['graphics']),
           );
-          ;
+
           break;
 
         case "SpeedIndicator":
@@ -304,10 +311,10 @@ class _DraggableCardState extends State<DraggableCard> {
 
         case "RealTimeMap":
           //res = new MapSample(key: UniqueKey(), StreamObject: widget.StreamObject, currentVessel: widget.currentVessel);
-           res = Padding(
-             padding: const EdgeInsets.all(0.0),
-             child: new LeafLetMap(key: UniqueKey(), StreamObject: widget.StreamObject, currentVessel: widget.currentVessel),
-           );
+          res = Padding(
+            padding: const EdgeInsets.all(0.0),
+            child: new LeafLetMap(key: UniqueKey(), StreamObject: widget.StreamObject, currentVessel: widget.currentVessel),
+          );
           break;
 
         case "TextIndicator":
@@ -333,78 +340,93 @@ class _DraggableCardState extends State<DraggableCard> {
 
   Widget SimpleCard(String title, double _cardWidth, List<Widget> children) {
     return Container(
-          height: gridBaseHeight * currentWidgetHeight,
-          padding: const EdgeInsets.only(bottom: 1),
-          decoration: BoxDecoration(
-            color: currentCardColor,
-            //border: Border.all(color: const Color.fromRGBO(0, 0, 0, 0.12), width: 1.1), borderRadius: const BorderRadius.all(Radius.circular(0))
-          ),
-          width: _cardWidth,
-          child: Container(
-            child: Material(
-              type: MaterialType.transparency,
-              child: Column(children: <Widget>[
-                  Expanded(
-                     flex:1,
-                     child: Row(
-                       mainAxisAlignment: MainAxisAlignment.start,
-                       mainAxisSize: MainAxisSize.max,
-                       children: [
-                        Expanded(
-                          child: Container(
-                              padding: const EdgeInsets.only(left: 8, top: 5, bottom: 2),
-                                child:Text(
-                                title,
-                                  overflow: TextOverflow.ellipsis,
-                                style: TextStyle(color: widget.model.paletteColor, fontSize: 14, fontFamily: 'Roboto-Bold'),
+        height: gridBaseHeight * currentWidgetHeight,
+        padding: const EdgeInsets.only(bottom: 1),
+        decoration: BoxDecoration(
+          color: currentCardColor,
+          //border: Border.all(color: const Color.fromRGBO(0, 0, 0, 0.12), width: 1.1), borderRadius: const BorderRadius.all(Radius.circular(0))
+        ),
+        width: _cardWidth,
+        child: Container(
+          child: Material(
+            type: MaterialType.transparency,
+            child: Column(children: <Widget>[
+              Expanded(
+                flex: 1,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.only(left: 8, top: 5, bottom: 2),
+                        child: Text(
+                          title,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(color: widget.model.paletteColor, fontSize: 14, fontFamily: 'Roboto-Bold'),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 1.0),
+                        child: Row(
+                          children: [
+                            Material(
+                              child: SizedBox(
+                                width: 30,
+                                height: 25,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: widget.model.cardColor, width: 0),
+                                    color: widget.model.cardColor,
+                                  ),
+                                  child: PopupMenuButton<int>(
+                                    icon: Icon(Icons.add, color: widget.model.textColor),
+                                    iconSize: 13,
+                                    shape: RoundedRectangleBorder(
+                                      side: BorderSide.none,
+                                    ),
+                                    tooltip: "Display sub-widgets",
+                                    onSelected: (int selectedWidget) {
+                                      if (selectedWidget != widget.currentWidgetIndex) {
+                                        if (widget.isEditingMode) {
+                                          if (mounted)
+                                            setState(() {
+                                              isLoadingWidget = true;
+                                            });
+                                          widget.onCardStatusChangedCallback(widget.currentPosition, selectedWidget).then((value) {
+                                            //print("Hi i changed state and i'm [${widget.currentPosition}][${selectedWidget}]");
+                                            isLoadingWidget = false;
+                                          });
+
+                                          if (mounted)
+                                            setState(() {
+                                              widget.currentWidgetIndex = selectedWidget;
+                                            });
+                                        } else {
+                                          if (mounted)
+                                            setState(() {
+                                              widget.currentWidgetIndex = selectedWidget;
+                                            });
+                                          initCard(currentId: selectedWidget);
+                                        }
+
+                                        //notify parent
+
+                                      }
+                                    },
+                                    initialValue: widget.currentWidgetIndex,
+                                    itemBuilder: (BuildContext context) => widgetTitles.entries.map<PopupMenuEntry<int>>((w) {
+                                      return PopupMenuItem<int>(value: w.key, child: Text(w.value));
+                                    }).toList(),
+                                  ),
+                                ),
                               ),
                             ),
-                        ),
-                           Container(
-                            child: Padding(
-                              padding: const EdgeInsets.only(top: 1.0),
-                              child: Row(
-                                children: [
-                                  Material(
-                                    child: SizedBox(
-                                      width: 30,
-                                      height: 25,
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          border: Border.all(color: widget.model.cardColor, width: 0),
-                                          color: widget.model.cardColor,
-                                        ),
-                                        child: PopupMenuButton<int>(
-                                          icon: Icon(Icons.add, color: widget.model.textColor),
-                                          iconSize: 13,
-                                          shape: RoundedRectangleBorder(
-                                            side: BorderSide.none,
-                                          ),
-                                          tooltip: "Display sub-widgets",
-                                          onSelected: (int selectedWidget) {
-                                            if (selectedWidget != widget.currentWidgetIndex) {
-                                              if(mounted) setState(()  {
-                                                isLoadingWidget = true;
-                                              });
-                                              widget.onCardStatusChangedCallback(widget.currentPosition, selectedWidget).then((value) {
-                                                //print("Hi i changed state and i'm [${widget.currentPosition}][${selectedWidget}]");
-                                                isLoadingWidget = false;
-                                              }); //notify parent
-                                              if(mounted) setState(()  {
-                                                widget.currentWidgetIndex = selectedWidget;
-                                              });
-                                            }
-                                          },
-                                          initialValue: widget.currentWidgetIndex,
-                                          itemBuilder: (BuildContext context) => widgetTitles.entries.map<PopupMenuEntry<int>>((w) {
-                                            return PopupMenuItem<int>(value: w.key, child: Text(w.value));
-                                          }).toList(),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Material(
-                                    child: SizedBox(
+                            Material(
+                              child: widget.isEditingMode
+                                  ? SizedBox(
                                       width: 30,
                                       height: 25,
                                       child: Container(
@@ -420,50 +442,52 @@ class _DraggableCardState extends State<DraggableCard> {
                                             ),
                                             tooltip: "Display settings for current widget",
                                             onSelected: (String option) {
-                                              if(mounted) setState(()  {
-                                                //  widget.currentWidgetIndex = widgetTitles.indexOf(vessel);
+                                              if (mounted)
+                                                setState(() {
+                                                  //  widget.currentWidgetIndex = widgetTitles.indexOf(vessel);
 
-                                                if (option == "edit") {
-                                                  widget.onGoingToEditCallback(widget.currentPosition, widget.currentWidgetIndex).then((value) {
-                                                  }); //n
-                                                } else if (option == "delete") {
-                                                  widget.onGoingToDeleteCallback(widget.currentPosition, widget.currentWidgetIndex).then((value) {
-                                                  }); //n
-                                                }
-                                              });
+                                                  if (option == "edit") {
+                                                    widget.onGoingToEditCallback(widget.currentPosition, widget.currentWidgetIndex).then((value) {}); //n
+                                                  } else if (option == "delete") {
+                                                    widget.onGoingToDeleteCallback(widget.currentPosition, widget.currentWidgetIndex).then((value) {}); //n
+                                                  }
+                                                });
                                             },
                                             itemBuilder: (context) => [
                                                   PopupMenuItem<String>(value: "edit", child: Text("Edit widget")),
                                                   PopupMenuItem<String>(value: "delete", child: Text("Delete widget")),
                                                 ]),
                                       ),
-                                    ),
-                                  ),
-                                ],
-                              ),
+                                    )
+                                  : Container(),
                             ),
-                          ),
-                      ],
-                  ),
-                   ),
-                Divider(
-                  color: widget.model.themeData != null && widget.model.themeData.brightness == Brightness.dark
-                      ? const Color.fromRGBO(61, 61, 61, 1)
-                      : const Color.fromRGBO(238, 238, 238, 1),
-                  thickness: 1,
-                ),
-                Padding(padding: EdgeInsets.only(bottom: 0, top: 0)),
-                Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Expanded(
-                        flex: 1,
-                        child: Container(color: Colors.transparent,child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center, children: children))),
+                          ],
+                        ),
+                      ),
+                    ),
                   ],
-                )
-              ]),
-            ),
-          ));
+                ),
+              ),
+              Divider(
+                color: widget.model.themeData != null && widget.model.themeData.brightness == Brightness.dark
+                    ? const Color.fromRGBO(61, 61, 61, 1)
+                    : const Color.fromRGBO(238, 238, 238, 1),
+                thickness: 1,
+              ),
+              Padding(padding: EdgeInsets.only(bottom: 0, top: 0)),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                      flex: 1,
+                      child: Container(
+                          color: Colors.transparent,
+                          child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center, children: children))),
+                ],
+              )
+            ]),
+          ),
+        ));
   }
 }
