@@ -140,7 +140,7 @@ class _GridOptionsFormState extends State<GridOptionsForm> {
     return !formLoaded
         ? CupertinoActivityIndicator()
         : GestureDetector(onTap: () {
-            FocusScope.of(context).requestFocus(new FocusNode());
+            //FocusScope.of(context).requestFocus(new FocusNode());
           }, child: FutureBuilder(builder: (context, snapshot) {
             return Center(
                 child: Material(

@@ -68,12 +68,17 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
   List<int> availableWidgetWidths = [1, 2, 3, 4];
   List<int> availableWidgetHeights = [1, 2, 3, 4, 5, 6];
 
+
+  List<Widget> subscriptionFormList = [];
+
   @override
   void initState() {
     super.initState();
 
     //preload all static data for widget form
     _preloadWidgetsList();
+
+    _preloadSubscriptions();
 
     //check if is new or editing mode
     _preloadFormIfEditing();
@@ -137,13 +142,67 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
       }
         //preload subscriptions
       try {
+
+        if (widget.currentPositionId != null && widget.currentPositionId != -1) {
+         var currentGrid = widget.mainLoadedWidgetList[widget.currentPositionId];
+
+
+        selectedSubscriptions.clear();
+        subscriptionFormList.clear();
         var subscriptions = editingW['widgetSubscriptions'];
         subscriptions.entries.forEach((sub) {
           selectedSubscriptions[sub.key] = sub.value;
+          selectedSubscriptions[sub.key] = currentGrid['elements'][currentToEdit]['widgetSubscriptions'][sub.key];
+          subscriptionFormList.add(Padding(
+              padding: EdgeInsets.only(top: 0, left: 0, right: 0, bottom: 15.0),
+              child: DropdownButtonFormField<String>(
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please select a subscription';
+                    }
+                    return null;
+                  },
+                  isExpanded: true,
+                  decoration: InputDecoration(
+                      labelText: sub.value.replaceAll("_", " "),
+                      filled: true,
+                      fillColor: widget.model.backgroundForm,
+                      hintStyle: TextStyle(
+                        color: widget.model.formInputTextColor,
+                      ),
+                      labelStyle: TextStyle(
+                        color: widget.model.formLabelTextColor,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(4.0),
+                          borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid)),
+                      focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(4.0),
+                          borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid)),
+                      hintText: "Select a type"),
+                  value: (selectedSubscriptions[sub.key] != null &&
+                      allSubscriptionsList.indexOf(selectedSubscriptions[sub.key]) != -1)
+                      ? selectedSubscriptions[sub.key]
+                      : allSubscriptionsList.first,
+                  icon: const Icon(Icons.arrow_downward),
+                  iconSize: 24,
+                  style: TextStyle(height: 0.85, fontSize: 14.0, color: widget.model.formInputTextColor),
+                  onChanged: (String value) {
+                    print("SET SUB [$sub.value] -> $value");
+                    selectedSubscriptions[sub.key] = value;
+                  },
+                  dropdownColor: widget.model.backgroundForm,
+                  items: allSubscriptionsList.map<DropdownMenuItem<String>>((g) {
+                    return DropdownMenuItem<String>(child: Text(g), value: g);
+                  }).toList())
+
+
+
+          ));
         });
 
         print("!!!!!!HAVE -> $selectedSubscriptions");
-
+        }
 
       } catch (e) {
         print("Unable to parse width|height of object");
@@ -158,6 +217,78 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
         }
         j++;
       }
+    }
+  }
+
+  void _preloadSubscriptions(){
+    //TODO fix subscription saving error (move into initializer) and setstate() keyboard error
+    print("CLEAN SUBS");
+    selectedSubscriptions.clear();
+    subscriptionFormList.clear();
+    dynamic currentGrid = {};
+    if (widget.currentPositionId != null && widget.currentPositionId != -1) {
+      currentGrid = widget.mainLoadedWidgetList[widget.currentPositionId];
+    }
+
+    for (dynamic subscription in IndicatorSpecs[selectedWidget]) {
+      selectedSubscriptions[subscription] = SuggestedIndicatorStreams[subscription];
+
+      if (widget.currentPositionId != null && widget.currentPositionId != -1) {
+        try {
+          if (currentGrid['elements'][currentToEdit]['widgetSubscriptions'][subscription] != null) {
+            selectedSubscriptions[subscription] = currentGrid['elements'][currentToEdit]['widgetSubscriptions'][subscription];
+          }
+        } catch (e) {
+          print("Error while setting current value subscription for  ${widget.currentPositionId} view ${currentToEdit}");
+        }
+      }
+
+      subscriptionFormList.add(Padding(
+          padding: EdgeInsets.only(top: 0, left: 0, right: 0, bottom: 15.0),
+          child: DropdownButtonFormField<String>(
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please select a subscription';
+                }
+                return null;
+              },
+              isExpanded: true,
+              decoration: InputDecoration(
+                  labelText: subscription.replaceAll("_", " "),
+                  filled: true,
+                  fillColor: widget.model.backgroundForm,
+                  hintStyle: TextStyle(
+                    color: widget.model.formInputTextColor,
+                  ),
+                  labelStyle: TextStyle(
+                    color: widget.model.formLabelTextColor,
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(4.0),
+                      borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid)),
+                  focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(4.0),
+                      borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid)),
+                  hintText: "Select a type"),
+              value: (selectedSubscriptions[subscription] != null &&
+                  allSubscriptionsList.indexOf(selectedSubscriptions[subscription]) != -1)
+                  ? selectedSubscriptions[subscription]
+                  : allSubscriptionsList.first,
+              icon: const Icon(Icons.arrow_downward),
+              iconSize: 24,
+              style: TextStyle(height: 0.85, fontSize: 14.0, color: widget.model.formInputTextColor),
+              onChanged: (String value) {
+                print("SET SUB [$subscription] -> $value");
+                selectedSubscriptions[subscription] = value;
+              },
+              dropdownColor: widget.model.backgroundForm,
+              items: allSubscriptionsList.map<DropdownMenuItem<String>>((g) {
+                return DropdownMenuItem<String>(child: Text(g), value: g);
+              }).toList())
+
+
+
+      ));
     }
   }
 
@@ -524,7 +655,7 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
     return !formLoaded
         ? CupertinoActivityIndicator()
         : GestureDetector(onTap: () {
-            FocusScope.of(context).requestFocus(new FocusNode());
+            //FocusScope.of(context).requestFocus(new FocusNode());
           }, child: FutureBuilder(builder: (context, snapshot) {
             return Center(
               child: Material(
@@ -647,6 +778,8 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
                                                       widgetGraphicControllers['lightTheme'] = new Map();
                                                       widgetGraphicControllers['darkTheme'] = new Map();
                                                     });
+                                                    _preloadSubscriptions();
+
                                                   },
                                                   dropdownColor: widget.model.backgroundForm,
                                                   items: IndicatorSpecs.entries.map<DropdownMenuItem<String>>((g) {
@@ -675,7 +808,13 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
                                                   if (selectedWidget == null || IndicatorSpecs[selectedWidget] == null) {
                                                     return Text("");
                                                   } else {
+
+
+
+                                                    /*
+                                                    //TODO fix subscription saving error (move into initializer) and setstate() keyboard error
                                                     List<Widget> subscriptionFormList = [];
+                                                    print("CLEAN SUBS");
                                                     selectedSubscriptions.clear();
 
                                                     dynamic currentGrid = {};
@@ -743,6 +882,11 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
 
                                                           ));
                                                     }
+                                                     */
+
+
+
+
                                                     return Column(
                                                       children: subscriptionFormList,
                                                     );
