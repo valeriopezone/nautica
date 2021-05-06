@@ -8,10 +8,6 @@ import 'package:nautica/models/BaseModel.dart';
 import 'package:nautica/models/Helper.dart';
 import 'package:nautica/utils/HexColor.dart';
 import 'package:nautica/utils/HexColor.dart';
-import 'package:nautica/utils/HexColor.dart';
-import 'package:nautica/utils/HexColor.dart';
-import 'package:nautica/utils/HexColor.dart';
-import 'package:nautica/utils/HexColor.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 
 class WindIndicator extends StatefulWidget {
@@ -70,10 +66,7 @@ class _WindIndicatorState extends State<WindIndicator> with DisposableWidget {
 
     _loadWidgetGraphics();
 
-    print(graphics.toString());
-
     if (widget.Angle_Stream != null) {
-      print("listening 1");
       widget.Angle_Stream.listen((data) {
         widget.haveData = (data == null) ? false : true;
         widget.Angle_Value = (data == null || data == 0) ? 0.0 : (data.toDouble() * 180 / pi);
@@ -81,7 +74,6 @@ class _WindIndicatorState extends State<WindIndicator> with DisposableWidget {
     }
 
     if (widget.Intensity_Stream != null) {
-      print("listening 2");
       widget.Intensity_Stream.listen((data) {
         widget.Intensity_Value = (data == null || data == 0) ? 0.0 : data.toDouble();
       }).canceledBy(this);

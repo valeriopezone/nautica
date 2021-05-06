@@ -513,7 +513,7 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
                             focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.zero, borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid))),
                     inputFormatters: (type == "double")
-                        ? <TextInputFormatter>[FilteringTextInputFormatter.allow(RegExp(r'^(\d+)?\.?\d{0,2}'))]
+                        ? <TextInputFormatter>[FilteringTextInputFormatter.allow(RegExp(r'^\-?(\d+)?\.?\d{0,2}'))]
                         : (type == "color")
                             ? <TextInputFormatter>[LengthLimitingTextInputFormatter(9), FilteringTextInputFormatter.allow(RegExp("[#a-fA-F0-9]"))]
                             : <TextInputFormatter>[],

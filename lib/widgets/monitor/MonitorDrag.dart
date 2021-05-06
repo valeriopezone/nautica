@@ -124,7 +124,7 @@ class _MonitorDragState extends State<MonitorDrag> {
       print("BEF SCHE : ${tempTheme.schema}");
       print("curr SCHE : ${currentJSONGridTheme.schema}");
       await grid.put(updatedThemeRecord.id, updatedThemeRecord).then((value) async {
-        //print("JSON : " + convert.jsonEncode(tempTheme.schema));
+        print("JSON : " + convert.jsonEncode(tempTheme.schema));
 
         await grid.close();
         await widget.onGridListChangedCallback();
