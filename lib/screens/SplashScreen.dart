@@ -168,6 +168,7 @@ class _SplashScreenState extends State<SplashScreen> {
   );
 
   Widget _buildSignalKInputs() {
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -322,64 +323,81 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
+
+    switch (viewStatus) {
+      case 'ask_for_credentials':
+        currentView = Stack(
+          children: <Widget>[
+            Container(
+              height: double.infinity,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Color(0xFF03AA99),
+                    Color(0xFF018677),
+                    Color(0xFF006C5F),
+                    Color(0xFF005B4F),
+                  ],
+                  stops: [0.1, 0.4, 0.7, 0.9],
+                ),
+              ),
+            ),
+            Container(
+              height: double.infinity,
+              child: SingleChildScrollView(
+                physics: AlwaysScrollableScrollPhysics(),
+                padding: EdgeInsets.symmetric(
+                  horizontal: 40.0,
+                  vertical: 120.0,
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Text(
+                      'Welcome to SKDashboard',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontFamily: 'OpenSans',
+                        fontSize: 30.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 30.0),
+                    _buildSignalKInputs(),
+                    SizedBox(
+                      height: 30.0,
+                    ),
+                    _buildRememberMeCheckbox(),
+                    _buildConnectBtn(),
+                    _buildFormFooter(),
+                  ],
+                ),
+              ),
+            )
+          ],
+        );
+
+        break;
+
+    case 'splashscreen':
+    default:
+    currentView = Container(
+    child: Center(child: Text("splashscreen...")),
+    );
+
+    break;
+  }
+
+
     return Scaffold(
       body: AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle.light,
         child: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
-          child: Stack(
-            children: <Widget>[
-              Container(
-                height: double.infinity,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Color(0xFF03AA99),
-                      Color(0xFF018677),
-                      Color(0xFF006C5F),
-                      Color(0xFF005B4F),
-                    ],
-                    stops: [0.1, 0.4, 0.7, 0.9],
-                  ),
-                ),
-              ),
-              Container(
-                height: double.infinity,
-                child: SingleChildScrollView(
-                  physics: AlwaysScrollableScrollPhysics(),
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 40.0,
-                    vertical: 120.0,
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text(
-                        'Welcome to SKDashboard',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontFamily: 'OpenSans',
-                          fontSize: 30.0,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(height: 30.0),
-                      _buildSignalKInputs(),
-                      SizedBox(
-                        height: 30.0,
-                      ),
-                      _buildRememberMeCheckbox(),
-                      _buildConnectBtn(),
-                      _buildFormFooter(),
-                    ],
-                  ),
-                ),
-              )
-            ],
-          ),
+          child: currentView
         ),
       ),
     );
