@@ -5,7 +5,7 @@ class Authentication {
   String password = "";
 }
 
-const Map NAUTICA = {
+const Map CONF = {
   'application': {'debug': true},
   'signalK': {
     'APIVersion': 'v1',

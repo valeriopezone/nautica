@@ -1,17 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:nautica/models/BaseModel.dart';
-import 'package:nautica/models/Helper.dart';
-import 'package:nautica/utils/HexColor.dart';
-import 'package:syncfusion_flutter_gauges/gauges.dart';
+import 'package:SKDashboard/models/BaseModel.dart';
+import 'package:SKDashboard/models/Helper.dart';
+import 'package:SKDashboard/utils/HexColor.dart';
 
 class TextIndicator extends StatefulWidget {
   String subscriptionPath = "";
   dynamic Text_Value = "";
   Stream<dynamic> Text_Stream = null;
   BaseModel model;
-  final Function(String text, Icon icon) notifyParent;
   dynamic widgetGraphics;
   dynamic vesselsDataTable = [];
   String currentVessel = ""; //
@@ -24,8 +22,8 @@ class TextIndicator extends StatefulWidget {
 
         @required this.Text_Stream,
       @required this.model,
-      @required this.widgetGraphics,
-      this.notifyParent})
+      @required this.widgetGraphics
+      })
       : super(key: key);
 
   @override
@@ -39,7 +37,6 @@ class _TextIndicatorState extends State<TextIndicator> with DisposableWidget {
   @override
   void initState() {
     widget.model.addListener(() {
-      print("THEME WIND CHANGE");
       _loadWidgetGraphics();
     });
 
@@ -82,7 +79,6 @@ class _TextIndicatorState extends State<TextIndicator> with DisposableWidget {
 
   @override
   void dispose() {
-    //   print("CANCEL SPEED INDICATOR SUBSCRIPTION");
     cancelSubscriptions();
     super.dispose();
   }
@@ -100,10 +96,6 @@ class _TextIndicatorState extends State<TextIndicator> with DisposableWidget {
   }
 
   String _formatValue(dynamic data) {
-
-    //get unit
-
-
 
     if (widget.subscriptionPath == "navigation.position") {
       if (data != null && data is Map) {

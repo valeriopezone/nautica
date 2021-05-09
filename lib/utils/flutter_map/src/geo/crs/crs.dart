@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 
-import 'package:nautica/utils/flutter_map/src/core/bounds.dart';
-import 'package:nautica/utils/flutter_map/src/core/point.dart';
+import 'package:SKDashboard/utils/flutter_map/src/core/bounds.dart';
+import 'package:SKDashboard/utils/flutter_map/src/core/point.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:meta/meta.dart';
 import 'package:proj4dart/proj4dart.dart' as proj4;

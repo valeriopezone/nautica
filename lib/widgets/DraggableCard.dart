@@ -1,23 +1,20 @@
-import 'dart:math';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
-import 'package:nautica/network/StreamSubscriber.dart';
-import 'package:nautica/models/BaseModel.dart';
-import 'package:nautica/widgets/monitor/map/LeafLetRealTimeMap.dart';
+import 'package:SKDashboard/network/StreamSubscriber.dart';
+import 'package:SKDashboard/models/BaseModel.dart';
+import 'package:SKDashboard/widgets/monitor/map/LeafLetRealTimeMap.dart';
 
 import 'monitor/graph/DateValueAxisChart.dart';
 import 'monitor/indicators/BoatVectorsIndicator.dart';
 import 'monitor/indicators/CompassIndicator.dart';
 
-import 'package:nautica/Configuration.dart';
+import 'package:SKDashboard/Configuration.dart';
 
 import 'monitor/indicators/SpeedIndicator.dart';
 import 'monitor/indicators/TextIndicator.dart';
 import 'monitor/indicators/WindIndicator.dart';
-import 'monitor/map/RealTimeMap.dart';
 
 class DraggableCard extends StatefulWidget {
   StreamSubscriber StreamObject;
@@ -36,7 +33,6 @@ class DraggableCard extends StatefulWidget {
   final Future<void> Function(int cardId, int viewId) onGoingToEditCallback;
   final Future<void> Function(int cardId, int viewId) onGoingToDeleteCallback;
 
-  final Function(String text, Icon icon) notifyParent;
 
   DraggableCard(
       {Key key,
@@ -52,8 +48,7 @@ class DraggableCard extends StatefulWidget {
       @required this.onGoingToDeleteCallback,
       @required this.vesselsDataTable,
       @required this.baseHeight,
-      @required this.numCols,
-      this.notifyParent})
+      @required this.numCols})
       : super(key: key);
 
   @override
@@ -75,8 +70,8 @@ class _DraggableCardState extends State<DraggableCard> {
   double currentWidgetWidth = 1; // 1/4
   double currentWidgetHeight = 1.0; // 1/1
 
-  int gridNumCols = NAUTICA['configuration']['design']['grid']['numCols']; // 1/4
-  double gridBaseHeight = NAUTICA['configuration']['design']['grid']['baseHeight']; // 1/1
+  int gridNumCols = CONF['configuration']['design']['grid']['numCols']; // 1/4
+  double gridBaseHeight = CONF['configuration']['design']['grid']['baseHeight']; // 1/1
 
   // List<String> widgetTitles = [];
   Map<int, String> widgetTitles = {};
@@ -150,13 +145,12 @@ class _DraggableCardState extends State<DraggableCard> {
         if (mounted)
           setState(() {
             widget.currentWidgetIndex = current;
-            //print("Hi i'm " + widgetTitles[widget.currentWidgetIndex] + " --- position is " + widget.currentPosition.toString());
             errorOccurred = false;
             isLoadingWidget = false;
           });
       }
     } catch (e, s) {
-      print("error loading widget " + e.toString() + s.toString());
+      print("[DraggableCard] error loading widget $e $s");
       if (mounted)
         setState(() {
           errorOccurred = true;
@@ -168,16 +162,11 @@ class _DraggableCardState extends State<DraggableCard> {
   @override
   Widget build(BuildContext context) {
     final double deviceWidth = MediaQuery.of(context).size.width;
-    //var padding = (deviceWidth * 0.05) / gridNumCols;
-    final double _cardWidth = (currentWidgetWidth != 0) ? (currentWidgetWidth) * (deviceWidth * 0.95) / gridNumCols : (deviceWidth * 0.95) / gridNumCols; //(deviceWidth * 0.9) / 2;
+    final double _cardWidth = (currentWidgetWidth != 0) ? (currentWidgetWidth) * (deviceWidth * 0.95) / gridNumCols : (deviceWidth * 0.95) / gridNumCols;
 
     return GestureDetector(
-      onTap: () {
-        // notifyParent(text, icon);
-      },
-      child: FutureBuilder(builder: (context, snap) {
+            child: FutureBuilder(builder: (context, snap) {
         return Container(
-          //  padding: EdgeInsets.only(left: padding, right: 0, top: 5, bottom: 5),
           child: SizedBox(
             height: gridBaseHeight * currentWidgetHeight,
             width: _cardWidth,
@@ -188,12 +177,9 @@ class _DraggableCardState extends State<DraggableCard> {
                     : Container(
                         decoration: BoxDecoration(
                           color: currentCardColor,
-
                           border: Border.all(color: const Color.fromRGBO(0, 0, 0, 0.12), width: 1.1),
-                          //borderRadius: const BorderRadius.all(Radius.circular(0))
                         ),
                         child: SimpleCard(widgetTitles[widget.currentWidgetIndex], _cardWidth, [
-                          //height: gridBaseHeight * currentWidgetHeight,
                           (loadedWidgetData != null)
                               ? Container(height: gridBaseHeight * currentWidgetHeight - 48, child: Center(child: loadWidget(currentClass, currentSubscriptions)))
                               : Center(
@@ -217,13 +203,11 @@ class _DraggableCardState extends State<DraggableCard> {
   }
 
   Stream<dynamic> _subscribeToStream(String path) {
-//    print("TRY SUBS TO STREAM WITH $path");
-    return widget.StreamObject.getVesselStream(widget.currentVessel, path, Duration(microseconds: NAUTICA['configuration']['widget']['refreshRate'])).asBroadcastStream();
+    return widget.StreamObject.getVesselStream(widget.currentVessel, path, Duration(microseconds: CONF['configuration']['widget']['refreshRate'])).asBroadcastStream();
   }
 
   Stream<dynamic> _subscribeToDataValueStream(String path) {
-//    print("TRY SUBS TO STREAM WITH $path");
-    return widget.StreamObject.getTimedVesselStream(widget.currentVessel, path, Duration(microseconds: NAUTICA['configuration']['widget']['refreshRate'])).asBroadcastStream();
+    return widget.StreamObject.getTimedVesselStream(widget.currentVessel, path, Duration(microseconds: CONF['configuration']['widget']['refreshRate'])).asBroadcastStream();
   }
 
   Widget loadWidget(String className, dynamic subscriptions) {
@@ -310,7 +294,6 @@ class _DraggableCardState extends State<DraggableCard> {
           break;
 
         case "RealTimeMap":
-          //res = new MapSample(key: UniqueKey(), StreamObject: widget.StreamObject, currentVessel: widget.currentVessel);
           res = Padding(
             padding: const EdgeInsets.all(0.0),
             child: new LeafLetMap(key: UniqueKey(), StreamObject: widget.StreamObject, currentVessel: widget.currentVessel),
@@ -332,7 +315,7 @@ class _DraggableCardState extends State<DraggableCard> {
           break;
       }
     } catch (e) {
-      print("Cannot load widget in grid - " + e.toString());
+      print("[DraggableCard] Cannot load widget in grid - " + e.toString());
     }
 
     return res;
@@ -344,7 +327,6 @@ class _DraggableCardState extends State<DraggableCard> {
         padding: const EdgeInsets.only(bottom: 1),
         decoration: BoxDecoration(
           color: currentCardColor,
-          //border: Border.all(color: const Color.fromRGBO(0, 0, 0, 0.12), width: 1.1), borderRadius: const BorderRadius.all(Radius.circular(0))
         ),
         width: _cardWidth,
         child: Container(
@@ -396,7 +378,6 @@ class _DraggableCardState extends State<DraggableCard> {
                                               isLoadingWidget = true;
                                             });
                                           widget.onCardStatusChangedCallback(widget.currentPosition, selectedWidget).then((value) {
-                                            //print("Hi i changed state and i'm [${widget.currentPosition}][${selectedWidget}]");
                                             isLoadingWidget = false;
                                           });
 
@@ -449,7 +430,32 @@ class _DraggableCardState extends State<DraggableCard> {
                                                   if (option == "edit") {
                                                     widget.onGoingToEditCallback(widget.currentPosition, widget.currentWidgetIndex).then((value) {}); //n
                                                   } else if (option == "delete") {
-                                                    widget.onGoingToDeleteCallback(widget.currentPosition, widget.currentWidgetIndex).then((value) {}); //n
+                                                    AlertDialog alert = AlertDialog(
+                                                      title: Text("Are you sure?"),
+                                                      content: Text("You cannot undo this operation, if you want to continue press Yes"),
+                                                      actions: [
+                                                        TextButton(
+                                                          child: Text("No"),
+                                                          onPressed: () {
+                                                            Navigator.pop(context);
+                                                          },
+                                                        ),
+                                                        TextButton(
+                                                          child: Text("Yes"),
+                                                          onPressed: () async {
+                                                            widget.onGoingToDeleteCallback(widget.currentPosition, widget.currentWidgetIndex).then((value) {}); //n
+                                                            Navigator.pop(context);
+                                                          },
+                                                        )
+                                                      ],
+                                                    );
+
+                                                    showDialog(
+                                                      context: context,
+                                                      builder: (BuildContext context) {
+                                                        return alert;
+                                                      },
+                                                    );
                                                   }
                                                 });
                                             },

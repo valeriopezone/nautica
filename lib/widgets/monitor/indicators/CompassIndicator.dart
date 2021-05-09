@@ -1,29 +1,19 @@
 import 'dart:math';
-
-/// Flutter package imports
 import 'package:flutter/material.dart';
-import 'package:nautica/models/BaseModel.dart';
-import 'package:nautica/models/Helper.dart';
-import 'package:nautica/utils/HexColor.dart';
-
-/// Gauge imports
-
+import 'package:SKDashboard/models/BaseModel.dart';
+import 'package:SKDashboard/models/Helper.dart';
+import 'package:SKDashboard/utils/HexColor.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 
-/// Locals imports
 
-/// Renders the gauge compass sample.
 class CompassIndicator extends StatefulWidget {
-  //should rename
-  /// Creates the gauge compass sample.
   BaseModel model;
   double COG_Value = 0;
   Stream<dynamic> Value_Stream = null;
   dynamic widgetGraphics;
 
-  final Function(String text, Icon icon) notifyParent;
 
-  CompassIndicator({Key key, @required this.model, @required this.Value_Stream, @required this.widgetGraphics, this.notifyParent}) : super(key: key);
+  CompassIndicator({Key key, @required this.model, @required this.Value_Stream, @required this.widgetGraphics}) : super(key: key);
 
   @override
   _CompassIndicatorState createState() => _CompassIndicatorState();
@@ -40,12 +30,9 @@ class _CompassIndicatorState extends State<CompassIndicator> with DisposableWidg
     super.initState();
 
     widget.model.addListener(() {
-      print("THEME WIND CHANGE");
       _loadWidgetGraphics();
     });
 
-   //graphics['intensityUnit'] = "m/s";
-   //graphics['angleUnit'] = "°";
 
     graphics['axisRadiusFactor'] = 1.3;
     graphics['axisLabelFontColor'] = Color(0xFF949494);
@@ -110,14 +97,13 @@ class _CompassIndicatorState extends State<CompassIndicator> with DisposableWidg
             ? widget.widgetGraphics[currentTheme]['gaugeFontSize']
             : double.parse(widget.widgetGraphics[currentTheme]['gaugeFontSize'].toString());
       } catch (e,s) {
-        print("CompassIndicator error while loading graphics -> $e $s");
+        print("[CompassIndicator] error while loading graphics -> $e $s");
       }
     }
   }
 
   @override
   void dispose() {
-    // print("CANCEL COMPASS SUBSCRIPTION");
     cancelSubscriptions();
     super.dispose();
   }
@@ -127,9 +113,6 @@ class _CompassIndicatorState extends State<CompassIndicator> with DisposableWidg
     return StreamBuilder(
             stream: widget.Value_Stream,
             builder: (context, snap) {
-              //if (!snap.hasData) {
-              //return CircularProgressIndicator();
-              //}
               double rotationAngle = (270 + widget.COG_Value) % 360;
               return SfRadialGauge(
                 axes: <RadialAxis>[
@@ -156,11 +139,9 @@ class _CompassIndicatorState extends State<CompassIndicator> with DisposableWidg
                           color: graphics['minorTickColor'], thickness: graphics['minorTickThickness'], length: graphics['minorTickLength'], lengthUnit: GaugeSizeUnit.factor),
                       majorTickStyle: MajorTickStyle(
                           color: const Color(0xFF949494), thickness: graphics['majorTickThickness'], length: graphics['majorTickLength'], lengthUnit: GaugeSizeUnit.factor),
-                      //backgroundImage: const AssetImage('assets/dark_theme_gauge.png'),
                       pointers: <GaugePointer>[
                         MarkerPointer(
                             value: 0,
-                            //widget.COG_Value,
                             color: graphics['majorTickColor'],
                             enableAnimation: true,
                             animationDuration: 1200,
@@ -173,7 +154,7 @@ class _CompassIndicatorState extends State<CompassIndicator> with DisposableWidg
                       annotations: <GaugeAnnotation>[
                         GaugeAnnotation(
                             angle: 270,
-                            positionFactor: _positionFactor,
+                            positionFactor:  0.025,
                             widget: Text(
                               widget.COG_Value.toStringAsFixed(2) + "°",
                               style: TextStyle(color: graphics['gaugeFontColor'], fontWeight: FontWeight.bold, fontSize: graphics['gaugeFontSize']),
@@ -189,26 +170,23 @@ class _CompassIndicatorState extends State<CompassIndicator> with DisposableWidg
   void _handleAxisLabelCreated(AxisLabelCreatedArgs args) {
     if (args.text == '90') {
       args.text = 'E';
+      args.labelStyle = GaugeTextStyle(color: widget.model.paletteColor, fontSize: graphics['axisLabelFontSize']);
+
     } else if (args.text == '360') {
       args.text = '';
     } else {
       if (args.text == '0') {
         args.text = 'N';
-        args.labelStyle = GaugeTextStyle(color: widget.model.paletteColor, fontSize: widget.model.isWebFullView ? 10 : _labelFontSize);
+        args.labelStyle = GaugeTextStyle(color: Colors.red, fontSize: graphics['axisLabelFontSize'] + 1);
       } else if (args.text == '180') {
         args.text = 'S';
       } else if (args.text == '270') {
         args.text = 'W';
       }
 
-      args.labelStyle = GaugeTextStyle(color: widget.model.paletteColor, fontSize: widget.model.isWebFullView ? 12 : _labelFontSize);
+      args.labelStyle = GaugeTextStyle(color: widget.model.paletteColor, fontSize: graphics['axisLabelFontSize']);
     }
   }
 
-  double _annotationTextSize = 22;
-  double _positionFactor = 0.025;
-  double _markerHeight = 10;
-  double _markerWidth = 15;
-  double _markerOffset = 0.71;
-  double _labelFontSize = 10;
+
 }

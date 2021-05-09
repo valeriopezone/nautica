@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
-import 'package:nautica/models/BaseModel.dart';
-import 'package:nautica/utils/HexColor.dart';
+import 'package:SKDashboard/models/BaseModel.dart';
+import 'package:SKDashboard/utils/HexColor.dart';
 
 class InputColorPicker extends StatefulWidget {
   Color currentColor = Colors.black;
@@ -39,7 +39,6 @@ class _InputColorPicker extends State<InputColorPicker> {
 
   @override
   void dispose() {
-    print("COLOR DISPOSE");
     super.dispose();
   }
 
@@ -49,11 +48,9 @@ class _InputColorPicker extends State<InputColorPicker> {
       width: 35,
       child: ElevatedButton(
         style: ButtonStyle(
-//backgroundColor: MaterialStateProperty.all<Color>(currentColor),
           backgroundColor: MaterialStateProperty.all<Color>(widget.currentColor),
           shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.zero)),
         ),
-
         onPressed: () {
           showDialog(
             context: context,

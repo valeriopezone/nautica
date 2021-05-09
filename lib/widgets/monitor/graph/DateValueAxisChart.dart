@@ -1,11 +1,10 @@
 import 'dart:async';
-import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
-import 'package:nautica/models/BaseModel.dart';
-import 'package:nautica/models/Helper.dart';
-import 'package:nautica/utils/HexColor.dart';
+import 'package:SKDashboard/models/BaseModel.dart';
+import 'package:SKDashboard/models/Helper.dart';
+import 'package:SKDashboard/utils/HexColor.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 class _DateValueChartCoords {
@@ -18,7 +17,7 @@ class _DateValueChartCoords {
 class DateValueAxisChart extends StatefulWidget {
   double Time_Value = 0.0;
   double Intensity_Value = 0.0;
-  Stream<dynamic> DataValue_Stream = null;
+  Stream<dynamic> DataValue_Stream;
   String subscriptionPath = "";
   bool isTransposed = false;
   BaseModel model;
@@ -86,7 +85,6 @@ class _DateValueAxisChartState extends State<DateValueAxisChart> with Disposable
             lastStreamedValue['value'] = value;
             if(!haveReceivedData){
               if(mounted) setState(() {
-                print("AXIS HAVE FIRST DATA $lastStreamedValue");
                 haveReceivedData = true;
                 lastStreamedDate = date;
                 initializeDataPoints();
@@ -123,7 +121,7 @@ class _DateValueAxisChartState extends State<DateValueAxisChart> with Disposable
 
         graphics['chartLineColor'] = HexColor(widget.widgetGraphics[currentTheme]['chartLineColor']);
       } catch (e) {
-        print("DateValueAxisChart error while loading graphics -> " + e.toString());
+        print("[DateValueAxisChart] error while loading graphics -> $e");
       }
     }
   }
@@ -140,7 +138,6 @@ class _DateValueAxisChartState extends State<DateValueAxisChart> with Disposable
 
   @override
   void dispose() {
-    print("CANCEL DATEVALUEAXISCHART SUBSCRIPTION");
     cancelSubscriptions();
     super.dispose();
   }

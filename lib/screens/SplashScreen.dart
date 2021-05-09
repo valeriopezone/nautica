@@ -1,11 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:hive/hive.dart';
-import 'package:nautica/Configuration.dart';
-import 'package:nautica/models/BaseModel.dart';
-import 'package:nautica/network/SignalKClient.dart';
+import 'package:SKDashboard/Configuration.dart';
+import 'package:SKDashboard/models/BaseModel.dart';
+import 'package:SKDashboard/network/SignalKClient.dart';
 
 class SplashScreen extends StatefulWidget {
   /// creates the home page layout
@@ -43,49 +42,27 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-
     //display splashscreen
-
     Future.delayed(Duration(seconds: 1), () {
-      // 5s over, navigate to a new page
-
-
-      Hive.openBox("settings").then((settings){
-        signalKServerAddress = settings.get("signalk_address") ?? NAUTICA['signalK']['connection']['address'];
-        signalKServerPort = settings.get("signalk_port") ?? NAUTICA['signalK']['connection']['port'];
+      Hive.openBox("settings").then((settings) {
+        signalKServerAddress = settings.get("signalk_address") ?? CONF['signalK']['connection']['address'];
+        signalKServerPort = settings.get("signalk_port") ?? CONF['signalK']['connection']['port'];
         firstSetupDone = settings.get("first_setup_done") ?? false;
         keepLoggedIn = settings.get("keep_logged_in") ?? false;
-        //settings.close().then((e){
-          if (!firstSetupDone) {
-            initializeTextInputs();
-            //need to ask login data
-            _setViewStatus("ask_for_credentials");
+        if (!firstSetupDone) {
+          initializeTextInputs();
+          _setViewStatus("ask_for_credentials");
+        } else {
+          if (keepLoggedIn) {
+            goToDashBoard();
           } else {
-            if (keepLoggedIn) {
-              //go to dashboard
-              print("GOTODASHBOARDDD");
-              goToDashBoard();
-            } else {
-              initializeTextInputs();
-              _setViewStatus("ask_for_credentials");
-
-            }
+            initializeTextInputs();
+            _setViewStatus("ask_for_credentials");
           }
-        //});
-        //  signalKUser = prefs.getString('signalKUser') ?? "";
-        //  signalKPassword = prefs.getString('signalKPassword') ?? "";
-        //  widgetRefreshRate = prefs.getInt('widgetRefreshRate') ?? 350;
-        //  mapRefreshRate = prefs.getInt('mapRefreshRate') ?? 2;
-
+        }
 
       });
-
-
-
-
-
     });
-
   }
 
   void goToDashBoard() {
@@ -106,26 +83,26 @@ class _SplashScreenState extends State<SplashScreen> {
       await settings.put("keep_logged_in", keepLoggedIn);
       //await settings.close();
     });
-
   }
 
   void _setViewStatus(String status) {
-    setState(() {
-      viewStatus = status;
-    });
+    if (mounted)
+      setState(() {
+        viewStatus = status;
+      });
   }
 
   void tryConnection() async {
-
     String address = addressTextController.text;
     String port = portTextController.text;
 
-    if(address.isEmpty || port.isEmpty) return null;
+    if (address.isEmpty || port.isEmpty) return null;
 
-    setState(() {
-      isConnecting = true;
-      connectionDone = false;
-    });
+    if (mounted)
+      setState(() {
+        isConnecting = true;
+        connectionDone = false;
+      });
 
     //todo - implement username/password access
 
@@ -140,32 +117,25 @@ class _SplashScreenState extends State<SplashScreen> {
     signalK.loadSignalKData().then((x) {
       //connectionn status OK
 
-       updatePreferences().then((res) {
-         setState(() {
-           signalK.disconnect();
-           isConnecting = false;
-           connectionDone = true;
-           couldNotConnect = false;
-           print("connected");
-
-           //save credentials
-
-         });
-         goToDashBoard();
-
-       });
-
-
+      updatePreferences().then((res) {
+        if (mounted)
+          setState(() {
+            signalK.disconnect();
+            isConnecting = false;
+            connectionDone = true;
+            couldNotConnect = false;
+          });
+        goToDashBoard();
+      });
     }).catchError((Object onError) {
       print('[main] Unable to connect -- on error : $onError');
 
-      setState(() {
-        isConnecting = false;
-        couldNotConnect = true;
-
-        print("not connected");
-        //go to dashboard
-      });
+      if (mounted)
+        setState(() {
+          isConnecting = false;
+          couldNotConnect = true;
+          //go to dashboard
+        });
     });
   }
 
@@ -175,7 +145,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   final kHintTextStyle = TextStyle(
-    color: Colors.white54,
+    color: Colors.black,
     fontFamily: 'OpenSans',
   );
 
@@ -186,7 +156,7 @@ class _SplashScreenState extends State<SplashScreen> {
   );
 
   final kBoxDecorationStyle = BoxDecoration(
-    color: Color(0xFF6CA8F1),
+    color: Colors.white,
     borderRadius: BorderRadius.circular(10.0),
     boxShadow: [
       BoxShadow(
@@ -197,13 +167,7 @@ class _SplashScreenState extends State<SplashScreen> {
     ],
   );
 
-
-
-
-
-
-
-  Widget _buildEmailTF() {
+  Widget _buildSignalKInputs() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -221,15 +185,14 @@ class _SplashScreenState extends State<SplashScreen> {
               Expanded(
                 flex: 6,
                 child: TextField(
-                  enabled:
-                  (isConnecting) ? false : true,
+                  enabled: (isConnecting) ? false : true,
                   controller: addressTextController,
                   decoration: InputDecoration(
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.only(top: 14.0),
                     prefixIcon: Icon(
                       Icons.wifi,
-                      color: Colors.white,
+                      color: Color(0xFF005B4F),
                     ),
                     hintText: 'Server address',
                     hintStyle: kHintTextStyle,
@@ -239,58 +202,29 @@ class _SplashScreenState extends State<SplashScreen> {
               Expanded(
                 flex: 3,
                 child: Container(
-                  padding:
-                  EdgeInsets.only(left: 15),
+                  padding: EdgeInsets.only(left: 15),
                   child: TextField(
                     decoration: InputDecoration(
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.only(top: 14.0),
                       prefixIcon: Icon(
                         Icons.workspaces_outline,
-                        color: Colors.white,
+                        color: Color(0xFF005B4F),
                       ),
                       hintText: 'Port',
                       hintStyle: kHintTextStyle,
                     ),
-                    enabled: (isConnecting)
-                        ? false
-                        : true,
+                    enabled: (isConnecting) ? false : true,
                     controller: portTextController,
                   ),
                 ),
               ),
             ],
           ),
-
-
-
-         // TextField(
-         //   keyboardType: TextInputType.emailAddress,
-         //   style: TextStyle(
-         //     color: Colors.white,
-         //     fontFamily: 'OpenSans',
-         //   ),
-         //   decoration: InputDecoration(
-         //     border: InputBorder.none,
-         //     contentPadding: EdgeInsets.only(top: 14.0),
-         //     prefixIcon: Icon(
-         //       Icons.email,
-         //       color: Colors.white,
-         //     ),
-         //     hintText: 'Enter your Email',
-         //     hintStyle: kHintTextStyle,
-         //   ),
-         // ),
-
-
-
-
         ),
       ],
     );
   }
-
-
 
   Widget _buildRememberMeCheckbox() {
     return Container(
@@ -304,12 +238,12 @@ class _SplashScreenState extends State<SplashScreen> {
               checkColor: Colors.green,
               activeColor: Colors.white,
               onChanged: (value) {
-                setState(() {
-                  keepLoggedIn = value;
-                });
+                if (mounted)
+                  setState(() {
+                    keepLoggedIn = value;
+                  });
               },
             ),
-              
           ),
           Text(
             'Keep logged in',
@@ -320,15 +254,16 @@ class _SplashScreenState extends State<SplashScreen> {
     );
   }
 
-  Widget _buildLoginBtn() {
+  Widget _buildConnectBtn() {
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 25.0),
+      margin: EdgeInsets.only(top: 15),
+      padding: EdgeInsets.symmetric(vertical: 5.0),
       width: double.infinity,
       child: RaisedButton(
         elevation: 5.0,
-        padding: EdgeInsets.all(15.0),
+        padding: EdgeInsets.all(25.0),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(30.0),
+          borderRadius: BorderRadius.circular(5.0),
         ),
         color: Colors.white,
         onPressed: () {
@@ -339,24 +274,20 @@ class _SplashScreenState extends State<SplashScreen> {
         child: isConnecting
             ? CupertinoActivityIndicator()
             : Text(
-          'Connect',
-          style: TextStyle(
-            color: Color(0xFF527DAA),
-            letterSpacing: 1.5,
-            fontSize: 18.0,
-            fontWeight: FontWeight.bold,
-            fontFamily: 'OpenSans',
-          ),
-        ),
-
-
-
-
+                'Connect',
+                style: TextStyle(
+                  color: Color(0xFF005B4F),
+                  letterSpacing: 1.5,
+                  fontSize: 18.0,
+                  fontWeight: FontWeight.bold,
+                  fontFamily: 'OpenSans',
+                ),
+              ),
       ),
     );
   }
 
-  Widget _buildSignInWithText() {
+  Widget _buildFormFooter() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisSize: MainAxisSize.max,
@@ -364,120 +295,28 @@ class _SplashScreenState extends State<SplashScreen> {
       children: [
         Padding(padding: EdgeInsets.only(top: 35)),
         isConnecting
-            ? Text(
-            'connecting to ' +
-                addressTextController.text
-                    .toString() +
-                ":" +
-                portTextController.text
-                    .toString(),
-            style: TextStyle(
-                color: model.paletteColor,
-                fontSize: 15,
-                letterSpacing: 0.53,
-                fontWeight: FontWeight.normal,
-                fontFamily: 'Roboto'))
+            ? Text('connecting to ' + addressTextController.text.toString() + ":" + portTextController.text.toString(),
+                style: TextStyle(color: model.paletteColor, fontSize: 15, letterSpacing: 0.53, fontWeight: FontWeight.normal, fontFamily: 'Roboto'))
             : Text(
-            couldNotConnect
-                ? 'unable to connect'
-                : connectionDone
-                ? 'connection estabilished'
-                : 'please provide your server authentication data',
-            style: TextStyle(
-                color: couldNotConnect
-                    ? Colors.redAccent
+                couldNotConnect
+                    ? 'unable to connect'
                     : connectionDone
-                    ? Colors.green
-                    : Colors.black54,
-                fontSize: 15,
-                letterSpacing: 0.53,
-                fontWeight: FontWeight.normal,
-                fontFamily: 'Roboto')),
+                        ? 'connection estabilished'
+                        : 'please provide your server authentication data',
+                style: TextStyle(
+                    color: couldNotConnect
+                        ? Colors.redAccent
+                        : connectionDone
+                            ? Colors.green
+                            : Colors.black54,
+                    fontSize: 15,
+                    letterSpacing: 0.53,
+                    fontWeight: FontWeight.normal,
+                    fontFamily: 'Roboto')),
         Padding(padding: EdgeInsets.only(top: 15)),
         Padding(padding: EdgeInsets.only(top: 35)),
-        Text('Go to GitHub Project',
-            style: TextStyle(
-                color: Colors.black54,
-                fontSize: 15,
-                letterSpacing: 0.53,
-                fontWeight: FontWeight.bold,
-                fontFamily: 'Roboto-Bold')),
+        Text('Go to GitHub Project', style: TextStyle(color: Colors.black54, fontSize: 15, letterSpacing: 0.53, fontWeight: FontWeight.bold, fontFamily: 'Roboto-Bold')),
       ],
-    );
-  }
-
-  Widget _buildSocialBtn(Function onTap, AssetImage logo) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        height: 60.0,
-        width: 60.0,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black26,
-              offset: Offset(0, 2),
-              blurRadius: 6.0,
-            ),
-          ],
-          image: DecorationImage(
-            image: logo,
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSocialBtnRow() {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 30.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: <Widget>[
-          _buildSocialBtn(
-                () => print('Login with Facebook'),
-            AssetImage(
-              'assets/logos/facebook.jpg',
-            ),
-          ),
-          _buildSocialBtn(
-                () => print('Login with Google'),
-            AssetImage(
-              'assets/logos/google.jpg',
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSignupBtn() {
-    return GestureDetector(
-      onTap: () => print('Sign Up Button Pressed'),
-      child: RichText(
-        text: TextSpan(
-          children: [
-            TextSpan(
-              text: 'Don\'t have an Account? ',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18.0,
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-            TextSpan(
-              text: 'Sign Up',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18.0,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -498,10 +337,10 @@ class _SplashScreenState extends State<SplashScreen> {
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      Color(0xFF73AEF5),
-                      Color(0xFF61A4F1),
-                      Color(0xFF478DE0),
-                      Color(0xFF398AE5),
+                      Color(0xFF03AA99),
+                      Color(0xFF018677),
+                      Color(0xFF006C5F),
+                      Color(0xFF005B4F),
                     ],
                     stops: [0.1, 0.4, 0.7, 0.9],
                   ),
@@ -519,7 +358,7 @@ class _SplashScreenState extends State<SplashScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       Text(
-                        'Welcome to Nautica',
+                        'Welcome to SKDashboard',
                         style: TextStyle(
                           color: Colors.white,
                           fontFamily: 'OpenSans',
@@ -528,240 +367,19 @@ class _SplashScreenState extends State<SplashScreen> {
                         ),
                       ),
                       SizedBox(height: 30.0),
-                      _buildEmailTF(),
+                      _buildSignalKInputs(),
                       SizedBox(
                         height: 30.0,
                       ),
                       _buildRememberMeCheckbox(),
-                      _buildLoginBtn(),
-                      _buildSignInWithText(),
+                      _buildConnectBtn(),
+                      _buildFormFooter(),
                     ],
                   ),
                 ),
               )
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-
-
-
-  @override
-  Widget build2(BuildContext context) {
-    print("BUILD SPLASH");
-
-    switch (viewStatus) {
-      case 'ask_for_credentials':
-      // tryConnection();
-        currentView = Container(
-            child: Center(
-          child: Container(
-            decoration: BoxDecoration(color: model.splashScreenBackground),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-
-                Expanded(
-                  flex: 1, // 60%
-                  child: Container(
-                    child: Column(
-                      children: [
-
-                        Expanded(
-                          flex: 1, // 20%
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(12.0),
-                                  topRight: Radius.circular(12.0),
-                                  bottomLeft: Radius.circular(12.0),
-                                  bottomRight: Radius.circular(12.0)),
-                            ),
-                            padding: EdgeInsets.only(left: 15, right: 15),
-                            margin: EdgeInsets.all( 150),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Column(children: [
-                                  Text('Nautica ',
-                                      style: TextStyle(
-                                          color: model.paletteColor,
-                                          fontSize: 48,
-                                          letterSpacing: 0.53,
-                                          fontFamily: 'Roboto-Bold')),
-                                  Padding(padding: EdgeInsets.only(top: 5)),
-                                  Text('welcome!',
-                                      style: TextStyle(
-                                          color: Colors.black54,
-                                          fontSize: 19,
-                                          letterSpacing: 0.53,
-                                          fontFamily: 'Roboto')),
-                                  Padding(padding: EdgeInsets.only(top: 15)),
-                                ]),
-                                Container(
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(5),
-                                      border: Border.all(
-                                          color: model.splashScreenBackground)),
-                                  padding: EdgeInsets.only(
-                                      top: 15, left: 5, right: 5, bottom: 15),
-                                  child: Column(
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Expanded(
-                                            flex: 6,
-                                            child: Container(
-                                              padding:
-                                              EdgeInsets.only(right: 15),
-                                              child: CupertinoTextField(
-                                                enabled:
-                                                    (isConnecting) ? false : true,
-                                                controller: addressTextController,
-                                                placeholder: "Server address",
-                                              ),
-                                            ),
-                                          ),
-                                          Expanded(
-                                            flex: 3,
-                                            child: Container(
-                                              padding:
-                                                  EdgeInsets.only(left: 15),
-                                              child: CupertinoTextField(
-                                                placeholder: "Port",
-                                                enabled: (isConnecting)
-                                                    ? false
-                                                    : true,
-                                                controller: portTextController,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      Padding(
-                                          padding: EdgeInsets.only(top: 15)),
-                                      Container(
-                                        child: CheckboxListTile(
-                                          title: const Text('Keep logged in'),
-                                          value: keepLoggedIn,
-                                          activeColor: model.paletteColor,
-                                          checkColor: Colors.white,
-                                          onChanged: (bool value) {
-                                            setState(() {
-                                              keepLoggedIn = value;
-                                            });
-                                          },
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Padding(padding: EdgeInsets.only(top: 15)),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      flex: 1,
-                                      child: CupertinoButton(
-                                        color: model.paletteColor,
-                                        onPressed: () {
-                                          // Navigate back to first screen when tapped.
-                                          if (isConnecting) return null;
-                                          tryConnection();
-                                        },
-                                        child: isConnecting
-                                            ? CupertinoActivityIndicator()
-                                            : Text('Connect'),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    Padding(padding: EdgeInsets.only(top: 35)),
-                                    isConnecting
-                                        ? Text(
-                                            'connecting to ' +
-                                                addressTextController.text
-                                                    .toString() +
-                                                ":" +
-                                                portTextController.text
-                                                    .toString(),
-                                            style: TextStyle(
-                                                color: model.paletteColor,
-                                                fontSize: 15,
-                                                letterSpacing: 0.53,
-                                                fontWeight: FontWeight.normal,
-                                                fontFamily: 'Roboto'))
-                                        : Text(
-                                            couldNotConnect
-                                                ? 'unable to connect'
-                                                : connectionDone
-                                                    ? 'connection estabilished'
-                                                    : 'please provide your server authentication data',
-                                            style: TextStyle(
-                                                color: couldNotConnect
-                                                    ? Colors.redAccent
-                                                    : connectionDone
-                                                        ? Colors.green
-                                                        : Colors.black54,
-                                                fontSize: 15,
-                                                letterSpacing: 0.53,
-                                                fontWeight: FontWeight.normal,
-                                                fontFamily: 'Roboto')),
-                                    Padding(padding: EdgeInsets.only(top: 15)),
-                                    Padding(padding: EdgeInsets.only(top: 35)),
-                                    Text('Go to GitHub Project',
-                                        style: TextStyle(
-                                            color: Colors.black54,
-                                            fontSize: 15,
-                                            letterSpacing: 0.53,
-                                            fontWeight: FontWeight.bold,
-                                            fontFamily: 'Roboto-Bold')),
-                                  ],
-                                )
-                              ],
-                            ),
-                          ),
-                        ),
-
-                      ],
-                    ),
-                  ),
-                ),
-
-              ],
-            ),
-          ),
-        ));
-
-        break;
-
-      case 'splashscreen':
-      default:
-        currentView = Container(
-          child: Center(child: Text("splashscreen...")),
-        );
-
-        break;
-    }
-
-    return SafeArea(
-      child: Scaffold(
-        resizeToAvoidBottomInset: false,
-        body: Container(
-          child: FutureBuilder(builder: (context, snapshot) {
-            return Container(child: Center(key: UniqueKey(), child: currentView));
-          }),
         ),
       ),
     );

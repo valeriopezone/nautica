@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/widgets.dart';
-import 'package:nautica/utils/flutter_map/flutter_map.dart';
-import 'package:nautica/utils/flutter_map/src/map/map.dart';
+import 'package:SKDashboard/utils/flutter_map/flutter_map.dart';
+import 'package:SKDashboard/utils/flutter_map/src/map/map.dart';
 
 class OverlayImageLayerOptions extends LayerOptions {
   final List<OverlayImage> overlayImages;

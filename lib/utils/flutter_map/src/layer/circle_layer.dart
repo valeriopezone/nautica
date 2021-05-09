@@ -1,8 +1,8 @@
 import 'dart:ui';
 
 import 'package:flutter/widgets.dart';
-import 'package:nautica/utils/flutter_map/flutter_map.dart';
-import 'package:nautica/utils/flutter_map/src/map/map.dart';
+import 'package:SKDashboard/utils/flutter_map/flutter_map.dart';
+import 'package:SKDashboard/utils/flutter_map/src/map/map.dart';
 import 'package:latlong2/latlong.dart' hide Path;
 
 class CircleLayerOptions extends LayerOptions {

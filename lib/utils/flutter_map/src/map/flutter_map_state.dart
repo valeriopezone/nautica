@@ -2,12 +2,12 @@ import 'dart:async';
 
 import 'package:async/async.dart';
 import 'package:flutter/widgets.dart';
-import 'package:nautica/utils/flutter_map/flutter_map.dart';
-import 'package:nautica/utils/flutter_map/src/gestures/gestures.dart';
-import 'package:nautica/utils/flutter_map/src/layer/group_layer.dart';
-import 'package:nautica/utils/flutter_map/src/layer/overlay_image_layer.dart';
-import 'package:nautica/utils/flutter_map/src/map/map.dart';
-import 'package:nautica/utils/flutter_map/src/map/map_state_widget.dart';
+import 'package:SKDashboard/utils/flutter_map/flutter_map.dart';
+import 'package:SKDashboard/utils/flutter_map/src/gestures/gestures.dart';
+import 'package:SKDashboard/utils/flutter_map/src/layer/group_layer.dart';
+import 'package:SKDashboard/utils/flutter_map/src/layer/overlay_image_layer.dart';
+import 'package:SKDashboard/utils/flutter_map/src/map/map.dart';
+import 'package:SKDashboard/utils/flutter_map/src/map/map_state_widget.dart';
 import 'package:positioned_tap_detector_2/positioned_tap_detector_2.dart';
 
 class FlutterMapState extends MapGestureMixin {

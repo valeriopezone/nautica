@@ -1,20 +1,15 @@
-import 'package:dropdownfield/dropdownfield.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:nautica/models/BaseModel.dart';
-import 'package:flutter_colorpicker/flutter_colorpicker.dart';
-import 'package:nautica/utils/HexColor.dart';
-import 'package:nautica/widgets/form/InputColorPicker.dart';
+import 'package:SKDashboard/models/BaseModel.dart';
+import 'package:SKDashboard/utils/HexColor.dart';
+import 'package:SKDashboard/widgets/form/InputColorPicker.dart';
 import 'package:basic_utils/basic_utils.dart';
-import 'dart:convert' as convert;
 
-import '../../Configuration.dart';
-import 'SubWidgetSelectionTile.dart';
+import 'package:SKDashboard/Configuration.dart';
+import 'package:SKDashboard/widgets/form/SubWidgetSelectionTile.dart';
 
-// Define a custom Form widget.
 class WidgetCreationForm extends StatefulWidget {
-  //if adding widgetData and currentPositionId the form is in editing mode
   int currentPositionId = -1;
   dynamic widgetData;
 
@@ -68,7 +63,6 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
   List<int> availableWidgetWidths = [1, 2, 3, 4];
   List<int> availableWidgetHeights = [1, 2, 3, 4, 5, 6];
 
-
   List<Widget> subscriptionFormList = [];
 
   @override
@@ -83,9 +77,10 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
     //check if is new or editing mode
     _preloadFormIfEditing();
 
-    if(mounted) setState(() {
-      formLoaded = true;
-    });
+    if (mounted)
+      setState(() {
+        formLoaded = true;
+      });
   }
 
   void _preloadWidgetsList() {
@@ -140,70 +135,57 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
       } catch (e) {
         print("Unable to parse width|height of object");
       }
-        //preload subscriptions
+      //preload subscriptions
       try {
-
         if (widget.currentPositionId != null && widget.currentPositionId != -1) {
-         var currentGrid = widget.mainLoadedWidgetList[widget.currentPositionId];
+          var currentGrid = widget.mainLoadedWidgetList[widget.currentPositionId];
 
-
-        selectedSubscriptions.clear();
-        subscriptionFormList.clear();
-        var subscriptions = editingW['widgetSubscriptions'];
-        subscriptions.entries.forEach((sub) {
-          selectedSubscriptions[sub.key] = sub.value;
-          selectedSubscriptions[sub.key] = currentGrid['elements'][currentToEdit]['widgetSubscriptions'][sub.key];
-          subscriptionFormList.add(Padding(
-              padding: EdgeInsets.only(top: 0, left: 0, right: 0, bottom: 15.0),
-              child: DropdownButtonFormField<String>(
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please select a subscription';
-                    }
-                    return null;
-                  },
-                  isExpanded: true,
-                  decoration: InputDecoration(
-                      labelText: sub.value.replaceAll("_", " "),
-                      filled: true,
-                      fillColor: widget.model.backgroundForm,
-                      hintStyle: TextStyle(
-                        color: widget.model.formInputTextColor,
-                      ),
-                      labelStyle: TextStyle(
-                        color: widget.model.formLabelTextColor,
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(4.0),
-                          borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid)),
-                      focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(4.0),
-                          borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid)),
-                      hintText: "Select a type"),
-                  value: (selectedSubscriptions[sub.key] != null &&
-                      allSubscriptionsList.indexOf(selectedSubscriptions[sub.key]) != -1)
-                      ? selectedSubscriptions[sub.key]
-                      : allSubscriptionsList.first,
-                  icon: const Icon(Icons.arrow_downward),
-                  iconSize: 24,
-                  style: TextStyle(height: 0.85, fontSize: 14.0, color: widget.model.formInputTextColor),
-                  onChanged: (String value) {
-                    print("SET SUB [$sub.value] -> $value");
-                    selectedSubscriptions[sub.key] = value;
-                  },
-                  dropdownColor: widget.model.backgroundForm,
-                  items: allSubscriptionsList.map<DropdownMenuItem<String>>((g) {
-                    return DropdownMenuItem<String>(child: Text(g), value: g);
-                  }).toList())
-
-
-
-          ));
-        });
-
-        print("!!!!!!HAVE -> $selectedSubscriptions");
+          selectedSubscriptions.clear();
+          subscriptionFormList.clear();
+          var subscriptions = editingW['widgetSubscriptions'];
+          subscriptions.entries.forEach((sub) {
+            selectedSubscriptions[sub.key] = sub.value;
+            selectedSubscriptions[sub.key] = currentGrid['elements'][currentToEdit]['widgetSubscriptions'][sub.key];
+            subscriptionFormList.add(Padding(
+                padding: EdgeInsets.only(top: 0, left: 0, right: 0, bottom: 15.0),
+                child: DropdownButtonFormField<String>(
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please select a subscription';
+                      }
+                      return null;
+                    },
+                    isExpanded: true,
+                    decoration: InputDecoration(
+                        labelText: sub.value.replaceAll("_", " "),
+                        filled: true,
+                        fillColor: widget.model.backgroundForm,
+                        hintStyle: TextStyle(
+                          color: widget.model.formInputTextColor,
+                        ),
+                        labelStyle: TextStyle(
+                          color: widget.model.formLabelTextColor,
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(4.0), borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid)),
+                        focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(4.0), borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid)),
+                        hintText: "Select a type"),
+                    value: (selectedSubscriptions[sub.key] != null && allSubscriptionsList.indexOf(selectedSubscriptions[sub.key]) != -1)
+                        ? selectedSubscriptions[sub.key]
+                        : allSubscriptionsList.first,
+                    icon: const Icon(Icons.arrow_downward),
+                    iconSize: 24,
+                    style: TextStyle(height: 0.85, fontSize: 14.0, color: widget.model.formInputTextColor),
+                    onChanged: (String value) {
+                      selectedSubscriptions[sub.key] = value;
+                    },
+                    dropdownColor: widget.model.backgroundForm,
+                    items: allSubscriptionsList.map<DropdownMenuItem<String>>((g) {
+                      return DropdownMenuItem<String>(child: Text(g), value: g);
+                    }).toList())));
+          });
         }
-
       } catch (e) {
         print("Unable to parse width|height of object");
       }
@@ -220,9 +202,7 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
     }
   }
 
-  void _preloadSubscriptions(){
-    //TODO fix subscription saving error (move into initializer) and setstate() keyboard error
-    print("CLEAN SUBS");
+  void _preloadSubscriptions() {
     selectedSubscriptions.clear();
     subscriptionFormList.clear();
     dynamic currentGrid = {};
@@ -239,7 +219,7 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
             selectedSubscriptions[subscription] = currentGrid['elements'][currentToEdit]['widgetSubscriptions'][subscription];
           }
         } catch (e) {
-          print("Error while setting current value subscription for  ${widget.currentPositionId} view ${currentToEdit}");
+          print("Error while setting current value subscription for  ${widget.currentPositionId} view $currentToEdit");
         }
       }
 
@@ -264,40 +244,32 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
                     color: widget.model.formLabelTextColor,
                   ),
                   enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(4.0),
-                      borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid)),
+                      borderRadius: BorderRadius.circular(4.0), borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid)),
                   focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(4.0),
-                      borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid)),
+                      borderRadius: BorderRadius.circular(4.0), borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid)),
                   hintText: "Select a type"),
-              value: (selectedSubscriptions[subscription] != null &&
-                  allSubscriptionsList.indexOf(selectedSubscriptions[subscription]) != -1)
+              value: (selectedSubscriptions[subscription] != null && allSubscriptionsList.indexOf(selectedSubscriptions[subscription]) != -1)
                   ? selectedSubscriptions[subscription]
                   : allSubscriptionsList.first,
               icon: const Icon(Icons.arrow_downward),
               iconSize: 24,
               style: TextStyle(height: 0.85, fontSize: 14.0, color: widget.model.formInputTextColor),
               onChanged: (String value) {
-                print("SET SUB [$subscription] -> $value");
                 selectedSubscriptions[subscription] = value;
               },
               dropdownColor: widget.model.backgroundForm,
               items: allSubscriptionsList.map<DropdownMenuItem<String>>((g) {
                 return DropdownMenuItem<String>(child: Text(g), value: g);
-              }).toList())
-
-
-
-      ));
+              }).toList())));
     }
   }
 
   Future<bool> _saveWidget() async {
     //disable input, buttons, ...
-    if(mounted) setState(() {
-      isLoadingForSaving = true;
-    });
-
+    if (mounted)
+      setState(() {
+        isLoadingForSaving = true;
+      });
 
     dynamic composed = {};
     composed['current'] = 0; //(widget.currentPositionId == null || widget.currentPositionId == -1) ? 0 : widget.currentPositionId;
@@ -328,7 +300,6 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
     }
 
     if (selectedSubscriptions.length > 0) {
-      print("SELECTED SUBS : $selectedSubscriptions");
       selectedSubscriptions.entries.forEach((sub) {
         composed['elements'][0]['widgetSubscriptions'][sub.key] = sub.value;
       });
@@ -350,9 +321,10 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
 
     if (res == false) {
       //enable inputs again
-      if(mounted) setState(() {
-        isLoadingForSaving = false;
-      });
+      if (mounted)
+        setState(() {
+          isLoadingForSaving = false;
+        });
     }
 
     return Future.value(res);
@@ -370,34 +342,34 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
 
     selectedSubWidgets.add(currentSelectedWidget);
 
-    if(mounted) setState(() {
-      subWidgets.add(SubWidgetSelectionTile(
-        key: UniqueKey(),
-        model: widget.model,
-        currentPositionIndex: currentPositionIndex,
-        avoidWidget: avoidWidgetInList,
-        currentWidgetSelectedIndex: currentSelectedWidget,
-        subWidgetsNames: cleanedWidgetList,
-        onGoingToEditCallback: (currentPositionIndex, currentSelectedWidget) {
-          selectedSubWidgets[currentPositionIndex] = currentSelectedWidget;
-        },
-        onGoingToDeleteCallback: (currentPositionIndex) {
-          subWidgets.removeAt(currentPositionIndex);
-          selectedSubWidgets.removeAt(currentPositionIndex);
+    if (mounted)
+      setState(() {
+        subWidgets.add(SubWidgetSelectionTile(
+          key: UniqueKey(),
+          model: widget.model,
+          currentPositionIndex: currentPositionIndex,
+          avoidWidget: avoidWidgetInList,
+          currentWidgetSelectedIndex: currentSelectedWidget,
+          subWidgetsNames: cleanedWidgetList,
+          onGoingToEditCallback: (currentPositionIndex, currentSelectedWidget) {
+            selectedSubWidgets[currentPositionIndex] = currentSelectedWidget;
+          },
+          onGoingToDeleteCallback: (currentPositionIndex) {
+            subWidgets.removeAt(currentPositionIndex);
+            selectedSubWidgets.removeAt(currentPositionIndex);
 
-          //notify other tiles about their id
-          if (subWidgets.length > 0) {
-            subWidgets.asMap().forEach((i, element) {
-              subWidgets[i].changeCurrentPosition(i);
-            });
-          }
+            //notify other tiles about their id
+            if (subWidgets.length > 0) {
+              subWidgets.asMap().forEach((i, element) {
+                subWidgets[i].changeCurrentPosition(i);
+              });
+            }
 
-          if(mounted) setState(() {});
-        },
-      ));
-    });
+            if (mounted) setState(() {});
+          },
+        ));
+      });
   }
-
 
   Widget _displayColorPicker(TextEditingController controller) {
     Color currentColor = (controller.text.isNotEmpty) ? HexColor(controller.text) : Colors.black;
@@ -410,48 +382,7 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
         onColorChanged: (String newColor) {
           controller.text = newColor;
           currentColor = HexColor(newColor);
-
         });
-
-
-  }
-
-
-  Widget _displayColorPickerOLD(TextEditingController controller) {
-    Color currentColor = (controller.text.isNotEmpty) ? HexColor(controller.text) : Colors.black;
-    //todo fix color change
-
-    return SizedBox(
-      width: 35,
-      child: ElevatedButton(
-        style: ButtonStyle(
-          //backgroundColor: MaterialStateProperty.all<Color>(currentColor),
-          backgroundColor: MaterialStateProperty.all<Color>(currentColor),
-          shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.zero)),
-        ),
-
-        onPressed: () {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-
-
-              Widget colorPicker = InputColorPicker(
-                  key: UniqueKey(),
-                  currentColor: currentColor,
-                  currentController: controller,
-                  onColorChanged: (String newColor) {
-                    controller.text = newColor;
-                    currentColor = HexColor(newColor);
-
-                  });
-              return colorPicker;
-            },
-          );
-        },
-        child: Text(""), //Icon(Icons.color_lens_outlined),
-      ),
-    );
   }
 
   Widget _getSingleOptionField(String title, String type, dynamic defaultValue, TextEditingController controller) {
@@ -773,13 +704,13 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
                                                   iconSize: 24,
                                                   style: TextStyle(height: 0.85, fontSize: 14.0, color: widget.model.formInputTextColor),
                                                   onChanged: (String _selectedWidget) {
-                                                    if(mounted) setState(() {
-                                                      selectedWidget = _selectedWidget;
-                                                      widgetGraphicControllers['lightTheme'] = new Map();
-                                                      widgetGraphicControllers['darkTheme'] = new Map();
-                                                    });
+                                                    if (mounted)
+                                                      setState(() {
+                                                        selectedWidget = _selectedWidget;
+                                                        widgetGraphicControllers['lightTheme'] = new Map();
+                                                        widgetGraphicControllers['darkTheme'] = new Map();
+                                                      });
                                                     _preloadSubscriptions();
-
                                                   },
                                                   dropdownColor: widget.model.backgroundForm,
                                                   items: IndicatorSpecs.entries.map<DropdownMenuItem<String>>((g) {
@@ -800,93 +731,10 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
                                             Padding(
                                               padding: const EdgeInsets.all(8.0),
                                               child: Container(
-                                                // decoration: BoxDecoration(
-                                                //     border: Border.all(color: Colors.red, width: 1.1),
-                                                //     borderRadius: const BorderRadius.all(Radius.circular(12.0)),
-                                                //     boxShadow: <BoxShadow>[]),
                                                 child: Builder(builder: (BuildContext context) {
                                                   if (selectedWidget == null || IndicatorSpecs[selectedWidget] == null) {
                                                     return Text("");
                                                   } else {
-
-
-
-                                                    /*
-                                                    //TODO fix subscription saving error (move into initializer) and setstate() keyboard error
-                                                    List<Widget> subscriptionFormList = [];
-                                                    print("CLEAN SUBS");
-                                                    selectedSubscriptions.clear();
-
-                                                    dynamic currentGrid = {};
-                                                    if (widget.currentPositionId != null && widget.currentPositionId != -1) {
-                                                      currentGrid = widget.mainLoadedWidgetList[widget.currentPositionId];
-                                                    }
-
-                                                    for (dynamic subscription in IndicatorSpecs[selectedWidget]) {
-                                                      selectedSubscriptions[subscription] = SuggestedIndicatorStreams[subscription];
-
-                                                      if (widget.currentPositionId != null && widget.currentPositionId != -1) {
-                                                        try {
-                                                          if (currentGrid['elements'][currentToEdit]['widgetSubscriptions'][subscription] != null) {
-                                                            selectedSubscriptions[subscription] = currentGrid['elements'][currentToEdit]['widgetSubscriptions'][subscription];
-                                                          }
-                                                        } catch (e) {
-                                                          print("Error while setting current value subscription for  ${widget.currentPositionId} view ${currentToEdit}");
-                                                        }
-                                                      }
-
-                                                      subscriptionFormList.add(Padding(
-                                                          padding: EdgeInsets.only(top: 0, left: 0, right: 0, bottom: 15.0),
-                                                          child: DropdownButtonFormField<String>(
-                                                              validator: (value) {
-                                                                if (value == null || value.isEmpty) {
-                                                                  return 'Please select a subscription';
-                                                                }
-                                                                return null;
-                                                              },
-                                                              isExpanded: true,
-                                                              decoration: InputDecoration(
-                                                                  labelText: subscription.replaceAll("_", " "),
-                                                                  filled: true,
-                                                                  fillColor: widget.model.backgroundForm,
-                                                                  hintStyle: TextStyle(
-                                                                    color: widget.model.formInputTextColor,
-                                                                  ),
-                                                                  labelStyle: TextStyle(
-                                                                    color: widget.model.formLabelTextColor,
-                                                                  ),
-                                                                  enabledBorder: OutlineInputBorder(
-                                                                      borderRadius: BorderRadius.circular(4.0),
-                                                                      borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid)),
-                                                                  focusedBorder: OutlineInputBorder(
-                                                                      borderRadius: BorderRadius.circular(4.0),
-                                                                      borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid)),
-                                                                  hintText: "Select a type"),
-                                                              value: (selectedSubscriptions[subscription] != null &&
-                                                                      allSubscriptionsList.indexOf(selectedSubscriptions[subscription]) != -1)
-                                                                  ? selectedSubscriptions[subscription]
-                                                                  : allSubscriptionsList.first,
-                                                              icon: const Icon(Icons.arrow_downward),
-                                                              iconSize: 24,
-                                                              style: TextStyle(height: 0.85, fontSize: 14.0, color: widget.model.formInputTextColor),
-                                                              onChanged: (String value) {
-                                                                print("SET SUB [$subscription] -> $value");
-                                                                selectedSubscriptions[subscription] = value;
-                                                              },
-                                                              dropdownColor: widget.model.backgroundForm,
-                                                              items: allSubscriptionsList.map<DropdownMenuItem<String>>((g) {
-                                                                return DropdownMenuItem<String>(child: Text(g), value: g);
-                                                              }).toList())
-
-
-
-                                                          ));
-                                                    }
-                                                     */
-
-
-
-
                                                     return Column(
                                                       children: subscriptionFormList,
                                                     );
@@ -1014,10 +862,6 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
                                             Padding(
                                               padding: const EdgeInsets.all(8.0),
                                               child: Container(
-                                                //  decoration: BoxDecoration(
-                                                //      border: Border.all(color: Colors.red, width: 1.1),
-                                                //      borderRadius: const BorderRadius.all(Radius.circular(12.0)),
-                                                //      boxShadow: <BoxShadow>[]),
                                                 child: Builder(builder: (BuildContext context) {
                                                   if (selectedWidget == null || IndicatorGraphicSpecs[selectedWidget] == null) {
                                                     return Text("This widget have no settings");
@@ -1032,7 +876,7 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
                                                         return _getGraphicOptionsForm(selectedWidget, options);
                                                       }
                                                     } catch (e) {
-                                                      print("Error while loading settings (editing mode) position ${widget.currentPositionId} view ${currentToEdit}");
+                                                      print("Error while loading settings (editing mode) position ${widget.currentPositionId} view $currentToEdit");
                                                     }
                                                   }
                                                   return _getGraphicOptionsForm(selectedWidget, null);
@@ -1074,31 +918,28 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
                                             : Container(
                                                 width: screenWidth * 0.7,
                                                 height: (subWidgets.length > 0) ? subWidgets.length * 70.0 : 0.0,
-                                                //decoration: BoxDecoration(
-                                                //    border: Border.all(color: Colors.red, width: 1.1),
-                                                //    borderRadius: const BorderRadius.all(Radius.circular(12.0)),
-                                                //    boxShadow: <BoxShadow>[]),
                                                 child: FutureBuilder(builder: (context, snapshot) {
                                                   return ReorderableListView(
                                                     children: <Widget>[
                                                       for (int index = 0; index < subWidgets.length; index++) subWidgets[index],
                                                     ],
                                                     onReorder: (int oldIndex, int newIndex) {
-                                                      if(mounted) setState(() {
-                                                        if (oldIndex < newIndex) {
-                                                          newIndex -= 1;
-                                                        }
+                                                      if (mounted)
+                                                        setState(() {
+                                                          if (oldIndex < newIndex) {
+                                                            newIndex -= 1;
+                                                          }
 
-                                                        SubWidgetSelectionTile oldSubW = subWidgets.removeAt(oldIndex);
-                                                        subWidgets.insert(newIndex, oldSubW);
-                                                        subWidgets.asMap().forEach((i, element) {
-                                                          //notify all tiles that position changed
-                                                          subWidgets[i].changeCurrentPosition(i);
+                                                          SubWidgetSelectionTile oldSubW = subWidgets.removeAt(oldIndex);
+                                                          subWidgets.insert(newIndex, oldSubW);
+                                                          subWidgets.asMap().forEach((i, element) {
+                                                            //notify all tiles that position changed
+                                                            subWidgets[i].changeCurrentPosition(i);
+                                                          });
+
+                                                          dynamic selW = selectedSubWidgets.removeAt(oldIndex);
+                                                          selectedSubWidgets.insert(newIndex, selW);
                                                         });
-
-                                                        dynamic selW = selectedSubWidgets.removeAt(oldIndex);
-                                                        selectedSubWidgets.insert(newIndex, selW);
-                                                      });
                                                     },
                                                   );
                                                 }),
@@ -1147,13 +988,6 @@ class _WidgetCreationFormState extends State<WidgetCreationForm> {
                                       });
                                     }
                                   },
-
-                                  //onPressed: () async {
-                                  //  // Navigate back to first screen when tapped.
-                                  //
-                                  //  await _saveWidget();
-                                  //  return null;
-                                  //},
                                   child: isLoadingForSaving ? CupertinoActivityIndicator() : Text('Save'),
                                 ),
                               ),

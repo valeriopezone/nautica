@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nautica/utils/flutter_map/src/layer/tile_layer.dart';
+import 'package:SKDashboard/utils/flutter_map/src/layer/tile_layer.dart';
 
 typedef TileBuilder = Widget Function(
     BuildContext context, Widget tileWidget, Tile tile);

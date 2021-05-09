@@ -2,10 +2,10 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:nautica/utils/flutter_map/flutter_map.dart';
-import 'package:nautica/utils/flutter_map/src/gestures/interactive_flag.dart';
-import 'package:nautica/utils/flutter_map/src/gestures/latlng_tween.dart';
-import 'package:nautica/utils/flutter_map/src/map/map.dart';
+import 'package:SKDashboard/utils/flutter_map/flutter_map.dart';
+import 'package:SKDashboard/utils/flutter_map/src/gestures/interactive_flag.dart';
+import 'package:SKDashboard/utils/flutter_map/src/gestures/latlng_tween.dart';
+import 'package:SKDashboard/utils/flutter_map/src/map/map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:positioned_tap_detector_2/positioned_tap_detector_2.dart';
 

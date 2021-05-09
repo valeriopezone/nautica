@@ -2,10 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:nautica/models/BaseModel.dart';
+import 'package:SKDashboard/models/BaseModel.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 
-import '../../Configuration.dart';
+import 'package:SKDashboard/Configuration.dart';
 
 class GridOptionsForm extends StatefulWidget {
   BaseModel model;
@@ -58,44 +58,41 @@ class _GridOptionsFormState extends State<GridOptionsForm> {
   double numColsDoubleSliderValue;
   double baseHeightSliderValue;
 
-  double minBaseHeight = NAUTICA['configuration']['design']['grid']['minBaseHeight'];
-  double maxBaseHeight = NAUTICA['configuration']['design']['grid']['maxBaseHeight'];
-  int minNumCols = NAUTICA['configuration']['design']['grid']['minNumCols'];
-  int maxNumCols = NAUTICA['configuration']['design']['grid']['maxNumCols'];
+  double minBaseHeight = CONF['configuration']['design']['grid']['minBaseHeight'];
+  double maxBaseHeight = CONF['configuration']['design']['grid']['maxBaseHeight'];
+  int minNumCols = CONF['configuration']['design']['grid']['minNumCols'];
+  int maxNumCols = CONF['configuration']['design']['grid']['maxNumCols'];
 
   void setupValues() {
-    if(mounted) setState(() {
-      numColsSliderValue = widget.numCols ?? NAUTICA['configuration']['design']['grid']['numCols'];
-      numColsDoubleSliderValue = numColsSliderValue.toDouble();
-      baseHeightSliderValue = widget.baseHeight ?? NAUTICA['configuration']['design']['grid']['baseHeight'];
-      numColsTextController.text = numColsSliderValue.toString();
-      baseHeightTextController.text = baseHeightSliderValue.toString();
-      titleTextController.text = widget.currentGridName ?? NAUTICA['configuration']['design']['grid']['defaultGridName'];
-      authorTextController.text = widget.currentAuthorName ?? NAUTICA['configuration']['design']['grid']['defaultGridAuthorName'];
-      descriptionTextController.text = widget.currentGridDescription ?? NAUTICA['configuration']['design']['grid']['defaultGridDescription'];
-    });
+    if (mounted)
+      setState(() {
+        numColsSliderValue = widget.numCols ?? CONF['configuration']['design']['grid']['numCols'];
+        numColsDoubleSliderValue = numColsSliderValue.toDouble();
+        baseHeightSliderValue = widget.baseHeight ?? CONF['configuration']['design']['grid']['baseHeight'];
+        numColsTextController.text = numColsSliderValue.toString();
+        baseHeightTextController.text = baseHeightSliderValue.toString();
+        titleTextController.text = widget.currentGridName ?? CONF['configuration']['design']['grid']['defaultGridName'];
+        authorTextController.text = widget.currentAuthorName ?? CONF['configuration']['design']['grid']['defaultGridAuthorName'];
+        descriptionTextController.text = widget.currentGridDescription ?? CONF['configuration']['design']['grid']['defaultGridDescription'];
+      });
   }
 
   @override
   void initState() {
     super.initState();
 
-    print("ID : ${widget.gridId}");
-    print("baseHeight : ${widget.baseHeight}");
-    print("numCols : ${widget.numCols}");
-    print("currentGridName : ${widget.currentGridName}");
-    print("currentAuthorName : ${widget.currentAuthorName}");
-    print("currentGridDescription : ${widget.currentGridDescription}");
     setupValues();
-    if(mounted) setState(() {
-      formLoaded = true;
-    });
+    if (mounted)
+      setState(() {
+        formLoaded = true;
+      });
   }
 
   Future<bool> _saveGridData() async {
-    if(mounted) setState(() {
-      isLoadingForSaving = true;
-    });
+    if (mounted)
+      setState(() {
+        isLoadingForSaving = true;
+      });
 
     dynamic gridData = Map();
     gridData['name'] = titleTextController.text;
@@ -108,25 +105,28 @@ class _GridOptionsFormState extends State<GridOptionsForm> {
 
     if (res == false) {
       //enable inputs again
-      if(mounted) setState(() {
-        isLoadingForSaving = false;
-        isLoadingForDeleting = false;
-      });
+      if (mounted)
+        setState(() {
+          isLoadingForSaving = false;
+          isLoadingForDeleting = false;
+        });
     }
 
     return Future.value(res);
   }
 
   Future<bool> _deleteGrid() async {
-    if(mounted) setState(() {
-      isLoadingForDeleting = true;
-    });
+    if (mounted)
+      setState(() {
+        isLoadingForDeleting = true;
+      });
 
     bool res = await widget.onGoingToDeleteGridCallback(widget.gridId);
     if (res == false) {
-      if(mounted) setState(() {
-        isLoadingForDeleting = false;
-      });
+      if (mounted)
+        setState(() {
+          isLoadingForDeleting = false;
+        });
     }
 
     return Future.value(res);
@@ -139,15 +139,12 @@ class _GridOptionsFormState extends State<GridOptionsForm> {
 
     return !formLoaded
         ? CupertinoActivityIndicator()
-        : GestureDetector(onTap: () {
-            //FocusScope.of(context).requestFocus(new FocusNode());
-          }, child: FutureBuilder(builder: (context, snapshot) {
+        : GestureDetector(child: FutureBuilder(builder: (context, snapshot) {
             return Center(
                 child: Material(
                     child: Container(
                         decoration: BoxDecoration(
                           border: Border.all(color: const Color.fromRGBO(0, 0, 0, 0.12), width: 1.1),
-                          //borderRadius: const BorderRadius.all(Radius.circular(12))
                         ),
                         child: Column(children: [
                           Container(
@@ -168,7 +165,7 @@ class _GridOptionsFormState extends State<GridOptionsForm> {
                                   floating: true,
                                   expandedHeight: 30.0,
                                   flexibleSpace: const FlexibleSpaceBar(
-                                    title: Text('Import grid'),
+                                    title: Text('Grid Options'),
                                     //background: FlutterLogo(),
                                   ),
                                 ),
@@ -226,7 +223,7 @@ class _GridOptionsFormState extends State<GridOptionsForm> {
                                                                 focusedBorder: OutlineInputBorder(
                                                                     borderRadius: BorderRadius.circular(4.0),
                                                                     borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid)),
-                                                                hintText: "Title")),
+                                                                labelText: "Title")),
                                                       ),
                                                     ),
                                                     Expanded(
@@ -259,7 +256,7 @@ class _GridOptionsFormState extends State<GridOptionsForm> {
                                                                 focusedBorder: OutlineInputBorder(
                                                                     borderRadius: BorderRadius.circular(4.0),
                                                                     borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid)),
-                                                                hintText: "Author")),
+                                                                labelText: "Author")),
                                                       ),
                                                     ),
                                                   ],
@@ -296,10 +293,21 @@ class _GridOptionsFormState extends State<GridOptionsForm> {
                                                                 focusedBorder: OutlineInputBorder(
                                                                     borderRadius: BorderRadius.circular(4.0),
                                                                     borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid)),
-                                                                hintText: "Description")),
+                                                                labelText: "Description")),
                                                       ),
                                                     )
                                                   ],
+                                                ),
+                                                Padding(
+                                                  padding: const EdgeInsets.only(left: 8.0, top: 5, right: 8, bottom: 3),
+                                                  child: Row(
+                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                    children: <Widget>[
+                                                      Text(' Number of columns',
+                                                          style: TextStyle(
+                                                              color: widget.model.formSectionLabelColor, fontSize: 15, fontWeight: FontWeight.bold, fontFamily: 'Roboto-Medium')),
+                                                    ],
+                                                  ),
                                                 ),
                                                 Row(
                                                   children: [
@@ -310,21 +318,25 @@ class _GridOptionsFormState extends State<GridOptionsForm> {
                                                           Expanded(
                                                             flex: 3,
                                                             child: Padding(
-                                                                padding: const EdgeInsets.all(8.0),
+                                                                padding: const EdgeInsets.all(0.0),
                                                                 child: SfSlider(
+                                                                  showLabels: true,
                                                                   interval: 1,
                                                                   showTicks: true,
                                                                   stepSize: 1,
                                                                   showDivisors: false,
+                                                                  activeColor: widget.model.formLabelTextColor,
+
                                                                   min: minNumCols.toDouble(),
                                                                   max: maxNumCols.toDouble(),
                                                                   value: numColsDoubleSliderValue,
                                                                   onChanged: (dynamic values) {
-                                                                    if(mounted) setState(() {
-                                                                      numColsDoubleSliderValue = values;
-                                                                      numColsSliderValue = numColsDoubleSliderValue.toInt();
-                                                                      numColsTextController.text = numColsSliderValue.toStringAsFixed(0);
-                                                                    });
+                                                                    if (mounted)
+                                                                      setState(() {
+                                                                        numColsDoubleSliderValue = values;
+                                                                        numColsSliderValue = numColsDoubleSliderValue.toInt();
+                                                                        numColsTextController.text = numColsSliderValue.toStringAsFixed(0);
+                                                                      });
                                                                   },
                                                                   enableTooltip: true,
                                                                   //numberFormat: NumberFormat('#'),
@@ -346,12 +358,13 @@ class _GridOptionsFormState extends State<GridOptionsForm> {
                                                                     var numCols = int.parse(value);
                                                                     if (numCols < minNumCols) numCols = minNumCols;
                                                                     if (numCols > maxNumCols) numCols = maxNumCols;
-                                                                    if(mounted) setState(() {
-                                                                      numColsTextController.text = numCols.toString();
-                                                                      numColsDoubleSliderValue = numCols.toDouble();
-                                                                      numColsSliderValue = numCols;
-                                                                      numColsTextController.text = numColsSliderValue.toStringAsFixed(0);
-                                                                    });
+                                                                    if (mounted)
+                                                                      setState(() {
+                                                                        numColsTextController.text = numCols.toString();
+                                                                        numColsDoubleSliderValue = numCols.toDouble();
+                                                                        numColsSliderValue = numCols;
+                                                                        numColsTextController.text = numColsSliderValue.toStringAsFixed(0);
+                                                                      });
 
                                                                     return null;
                                                                   },
@@ -385,6 +398,17 @@ class _GridOptionsFormState extends State<GridOptionsForm> {
                                                     ),
                                                   ],
                                                 ),
+                                                Padding(
+                                                  padding: const EdgeInsets.only(left: 8.0, top: 10, right: 8, bottom: 3),
+                                                  child: Row(
+                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                    children: <Widget>[
+                                                      Text(' Row base height',
+                                                          style: TextStyle(
+                                                              color: widget.model.formSectionLabelColor, fontSize: 15, fontWeight: FontWeight.bold, fontFamily: 'Roboto-Medium')),
+                                                    ],
+                                                  ),
+                                                ),
                                                 Row(
                                                   children: [
                                                     Expanded(
@@ -394,21 +418,24 @@ class _GridOptionsFormState extends State<GridOptionsForm> {
                                                           Expanded(
                                                             flex: 3,
                                                             child: Padding(
-                                                                padding: const EdgeInsets.all(8.0),
+                                                                padding: const EdgeInsets.all(0.0),
                                                                 child: SfSlider(
                                                                   interval: 100,
                                                                   showTicks: true,
-                                                                  stepSize: 1,
+                                                                  stepSize: 15,
+                                                                  showLabels: true,
+                                                                  activeColor: widget.model.formLabelTextColor,
 
                                                                   showDivisors: false,
                                                                   min: minBaseHeight,
                                                                   max: maxBaseHeight,
                                                                   value: baseHeightSliderValue,
                                                                   onChanged: (dynamic values) {
-                                                                    if(mounted) setState(() {
-                                                                      baseHeightSliderValue = values;
-                                                                      baseHeightTextController.text = values.toStringAsFixed(2);
-                                                                    });
+                                                                    if (mounted)
+                                                                      setState(() {
+                                                                        baseHeightSliderValue = values;
+                                                                        baseHeightTextController.text = values.toStringAsFixed(2);
+                                                                      });
                                                                   },
                                                                   enableTooltip: true,
                                                                   //numberFormat: NumberFormat('#'),
@@ -430,10 +457,11 @@ class _GridOptionsFormState extends State<GridOptionsForm> {
                                                                     var height = double.parse(value);
                                                                     if (height < minBaseHeight) height = minBaseHeight;
                                                                     if (height > maxBaseHeight) height = minBaseHeight;
-                                                                    if(mounted) setState(() {
-                                                                      baseHeightTextController.text = height.toString();
-                                                                      baseHeightSliderValue = height;
-                                                                    });
+                                                                    if (mounted)
+                                                                      setState(() {
+                                                                        baseHeightTextController.text = height.toString();
+                                                                        baseHeightSliderValue = height;
+                                                                      });
 
                                                                     return null;
                                                                   },
@@ -467,55 +495,6 @@ class _GridOptionsFormState extends State<GridOptionsForm> {
                                                     ),
                                                   ],
                                                 ),
-                                                Container(
-                                                  color: Colors.red,
-                                                  child: Row(
-                                                    children: [
-                                                      Expanded(
-                                                        flex: 1,
-                                                        child: Container(
-                                                          padding: EdgeInsets.all(5.0),
-                                                          child: CupertinoButton(
-                                                            color: Colors.green,
-                                                            onPressed: () async {
-                                                              //return data to parent monitor grid
-                                                              await _deleteGrid().then((res) {
-                                                                if (res) {
-                                                                  Navigator.pop(context);
-                                                                } else {
-                                                                  //ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error! Unable to save widget')));
-                                                                }
-                                                              });
-                                                            },
-                                                            child: isLoadingForDeleting ? CupertinoActivityIndicator() : Text('Delete this grid'),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      Expanded(
-                                                        flex: 1,
-                                                        child: Container(
-                                                          padding: EdgeInsets.all(5.0),
-                                                          child: CupertinoButton(
-                                                            color: Colors.green,
-                                                            onPressed: () async {
-                                                              if (_formKey1.currentState.validate()) {
-                                                                //return data to parent monitor grid
-                                                                await _saveGridData().then((res) {
-                                                                  if (res) {
-                                                                    Navigator.pop(context);
-                                                                  } else {
-                                                                    //ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error! Unable to save widget')));
-                                                                  }
-                                                                });
-                                                              }
-                                                            },
-                                                            child: isLoadingForSaving ? CupertinoActivityIndicator() : Text('Save'),
-                                                          ),
-                                                        ),
-                                                      )
-                                                    ],
-                                                  ),
-                                                )
                                               ])),
                                           Padding(
                                             padding: EdgeInsets.all(8.0),
@@ -533,7 +512,102 @@ class _GridOptionsFormState extends State<GridOptionsForm> {
                                     )
                                   ]),
                                 )
-                              ]))
+                              ])),
+                          Container(
+                            width: screenWidth * 0.7,
+                            decoration: BoxDecoration(
+                                color: widget.model.backgroundForm,
+                                border: Border.all(color: Colors.transparent),
+                                borderRadius: const BorderRadius.all(Radius.zero),
+                                boxShadow: <BoxShadow>[]),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  flex: 1,
+                                  child: Container(
+                                    padding: EdgeInsets.all(5.0),
+                                    child: CupertinoButton(
+                                      color: Colors.red,
+                                      onPressed: () async {
+                                        AlertDialog alert;
+
+                                        if (widget.isLastGrid) {
+                                          alert = AlertDialog(
+                                            title: Text("There is only one grid left!"),
+                                            content: Text("You cannot delete your last grid, if you wish to delete this board create a new grid then remove this one"),
+                                            actions: [
+                                              TextButton(
+                                                child: Text("Ok"),
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                },
+                                              )
+                                            ],
+                                          );
+                                        } else {
+                                          alert = AlertDialog(
+                                            title: Text("Are you sure?"),
+                                            content: Text("You cannot undo this operation, if you want to continue press Yes"),
+                                            actions: [
+                                              TextButton(
+                                                child: Text("No"),
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                },
+                                              ),
+                                              TextButton(
+                                                child: Text("Yes"),
+                                                onPressed: () async {
+                                                  await _deleteGrid().then((res) {
+                                                    if (res) {
+                                                      Navigator.pop(context);
+                                                      Navigator.pop(context);
+                                                    } else {
+                                                      //ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error! Unable to save widget')));
+                                                    }
+                                                  });
+                                                },
+                                              )
+                                            ],
+                                          );
+                                        }
+
+                                        showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return alert;
+                                          },
+                                        );
+                                      },
+                                      child: isLoadingForDeleting ? CupertinoActivityIndicator() : Text('Delete this grid'),
+                                    ),
+                                  ),
+                                ),
+                                Expanded(
+                                  flex: 1,
+                                  child: Container(
+                                    padding: EdgeInsets.all(5.0),
+                                    child: CupertinoButton(
+                                      color: Colors.green,
+                                      onPressed: () async {
+                                        if (_formKey1.currentState.validate()) {
+                                          //return data to parent monitor grid
+                                          await _saveGridData().then((res) {
+                                            if (res) {
+                                              Navigator.pop(context);
+                                            } else {
+                                              //ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error! Unable to save widget')));
+                                            }
+                                          });
+                                        }
+                                      },
+                                      child: isLoadingForSaving ? CupertinoActivityIndicator() : Text('Save'),
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
                         ]))));
           }));
   }

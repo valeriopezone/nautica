@@ -1,26 +1,19 @@
-import 'dart:math';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:hive/hive.dart';
-import 'package:nautica/models/database/models.dart';
-
-import 'package:nautica/network/StreamSubscriber.dart';
-import 'package:nautica/models/BaseModel.dart';
-
-import 'package:nautica/Configuration.dart';
-import 'package:nautica/widgets/form/GridImportForm.dart';
-import 'package:nautica/widgets/form/GridOptionsForm.dart';
-import 'package:nautica/widgets/form/WidgetCreationForm.dart';
-import 'package:nautica/widgets/reorderable/reorderable_wrap.dart';
+import 'package:SKDashboard/models/database/models.dart';
+import 'package:SKDashboard/network/StreamSubscriber.dart';
+import 'package:SKDashboard/models/BaseModel.dart';
+import 'package:SKDashboard/Configuration.dart';
+import 'package:SKDashboard/widgets/form/GridImportForm.dart';
+import 'package:SKDashboard/widgets/form/GridOptionsForm.dart';
+import 'package:SKDashboard/widgets/form/WidgetCreationForm.dart';
+import 'package:SKDashboard/widgets/reorderable/reorderable_wrap.dart';
 import 'dart:convert' as convert;
-import 'dart:developer' as dev;
-
-import '../DraggableCard.dart';
+import 'package:SKDashboard/widgets/DraggableCard.dart';
 
 class MonitorDrag extends StatefulWidget {
   StreamSubscriber StreamObject;
@@ -49,8 +42,6 @@ class MonitorDrag extends StatefulWidget {
 
 class _MonitorDragState extends State<MonitorDrag> {
   BaseModel model = BaseModel.instance;
-  double _cardWidth;
-
   StreamSubscriber mainStreamHandle;
   String vessel;
 
@@ -65,12 +56,12 @@ class _MonitorDragState extends State<MonitorDrag> {
   List<int> widgetPositions = [];
   dynamic mainLoadedWidgetList;
 
-  String currentGridName = NAUTICA['configuration']['design']['grid']['defaultGridName'];
-  String currentAuthorName = NAUTICA['configuration']['design']['grid']['defaultGridAuthorName'];
-  String currentGridDescription = NAUTICA['configuration']['design']['grid']['defaultGridDescription'];
+  String currentGridName = CONF['configuration']['design']['grid']['defaultGridName'];
+  String currentAuthorName = CONF['configuration']['design']['grid']['defaultGridAuthorName'];
+  String currentGridDescription = CONF['configuration']['design']['grid']['defaultGridDescription'];
 
-  int numCols = NAUTICA['configuration']['design']['grid']['numCols'];
-  double baseHeight = NAUTICA['configuration']['design']['grid']['baseHeight'];
+  int numCols = CONF['configuration']['design']['grid']['numCols'];
+  double baseHeight = CONF['configuration']['design']['grid']['baseHeight'];
 
   @override
   void dispose() {
@@ -85,9 +76,7 @@ class _MonitorDragState extends State<MonitorDrag> {
 
   void _setHavingGridChanges() {
     if (widget.isEditingMode) {
-      widget.onGridStatusChangeCallback(vessel, currentGridIndex, haveGridChanges).then((value) {
-        print("CHILD INFORMED PARENT -> $vessel at grid[$currentGridIndex] changes -> $haveGridChanges");
-      });
+      widget.onGridStatusChangeCallback(vessel, currentGridIndex, haveGridChanges).then((value) {});
     }
   }
 
@@ -99,10 +88,8 @@ class _MonitorDragState extends State<MonitorDrag> {
     return Hive.openBox<GridThemeRecord>("grid_schema").then((grid) async {
       GridThemeRecord updatedThemeRecord = GridThemeRecord(id: 2, name: "Temporary Grid", schema: currentJSONGridTheme.schema);
       await grid.put(updatedThemeRecord.id, updatedThemeRecord).then((value) async {
-        print("CURRENT GRID UPDATED (${currentJSONGridTheme.name})   (${updatedThemeRecord.id})  ");
-        //reload?
         return await grid.close().then((value) async {
-          getMainGrid();
+          await getMainGrid();
           if (mounted)
             setState(() {
               haveGridChanges = false;
@@ -121,11 +108,8 @@ class _MonitorDragState extends State<MonitorDrag> {
     return await Hive.openBox<GridThemeRecord>("grid_schema").then((grid) async {
       var tempTheme = grid.get(2) ?? GridThemeRecord(id: 2, name: currentJSONGridTheme.name, schema: currentJSONGridTheme.schema);
       GridThemeRecord updatedThemeRecord = GridThemeRecord(id: currentJSONGridTheme.id, name: currentJSONGridTheme.name, schema: tempTheme.schema);
-      print("BEF SCHE : ${tempTheme.schema}");
-      print("curr SCHE : ${currentJSONGridTheme.schema}");
       await grid.put(updatedThemeRecord.id, updatedThemeRecord).then((value) async {
         print("JSON : " + convert.jsonEncode(tempTheme.schema));
-
         await grid.close();
         await widget.onGridListChangedCallback();
 
@@ -150,14 +134,11 @@ class _MonitorDragState extends State<MonitorDrag> {
           currentJSONGridTheme = grid.get(currentGridIndex) ?? GridThemeRecord(id: 1, name: "Nautica", schema: convert.jsonDecode(mainJSONGridTheme));
 
           await grid.put(2, GridThemeRecord(id: 2, name: "Temporary Grid", schema: currentJSONGridTheme.schema)).then((value) {
-            print("inserted new temp in db");
+            print("[_loadMainGrid] inserted in temp table");
           });
 
           //move current schema in temporary
           temporaryJSONGridTheme = grid.get(2) ?? GridThemeRecord(id: 2, name: "Temporary Grid", schema: convert.jsonDecode(mainJSONGridTheme)); // load temporary grid
-          //print("SETTING curr  > " + currentJSONGridTheme.name + " " + currentJSONGridTheme.id.toString() + " " +  currentJSONGridTheme.schema.toString());
-          //print("SETTING temp  > " + temporaryJSONGridTheme.name + " " + temporaryJSONGridTheme.id.toString() + " " +  temporaryJSONGridTheme.schema.toString());
-
           return await grid.close();
         });
       });
@@ -169,7 +150,6 @@ class _MonitorDragState extends State<MonitorDrag> {
       var tempGrid = grid.get(2) ?? GridThemeRecord(id: 2, name: "Temporary Grid", schema: convert.jsonDecode(mainJSONGridTheme));
 
       try {
-        //var jsonTheme = convert.jsonDecode(tempGrid.schema);
         var jsonTheme = (tempGrid.schema);
         if (jsonTheme != null) {
           if (jsonTheme['widgets'][oldIndex] != null && jsonTheme['widgets'][newIndex] != null) {
@@ -177,10 +157,9 @@ class _MonitorDragState extends State<MonitorDrag> {
             jsonTheme['widgets'][oldIndex] = jsonTheme['widgets'][newIndex];
             jsonTheme['widgets'][newIndex] = tmp;
 
-            //GridThemeRecord newTemporaryThemeRecord = GridThemeRecord(id: 2, name: "Temporary Grid", schema: convert.jsonEncode(jsonTheme));
             GridThemeRecord newTemporaryThemeRecord = GridThemeRecord(id: 2, name: "Temporary Grid", schema: (jsonTheme));
             await grid.put(newTemporaryThemeRecord.id, newTemporaryThemeRecord).then((value) {
-              print("temporary grid UPDATED");
+              print("[_temporarySaveGridState] temporary grid UPDATED");
             });
 
             if (mounted)
@@ -212,25 +191,20 @@ class _MonitorDragState extends State<MonitorDrag> {
     return await Hive.openBox<GridThemeRecord>("grid_schema").then((grid) async {
       var tempGrid = grid.get(2) ?? GridThemeRecord(id: 2, name: "Temporary Grid", schema: convert.jsonDecode(mainJSONGridTheme));
       try {
-        //var jsonTheme = convert.jsonDecode(tempGrid.schema);
         var jsonTheme = (tempGrid.schema);
-        print("retr on update : " + jsonTheme.toString());
-        print("wanna take $cardId ans $viewId");
         if (jsonTheme != null) {
           if (jsonTheme['widgets'][cardId] != null && jsonTheme['widgets'][cardId]['elements'][viewId] != null) {
             jsonTheme['widgets'][cardId]['current'] = viewId;
-            //GridThemeRecord newTemporaryThemeRecord = GridThemeRecord(id: 2, name: "Temporary Grid", schema: convert.jsonEncode(jsonTheme));
             GridThemeRecord newTemporaryThemeRecord = GridThemeRecord(id: 2, name: "Temporary Grid", schema: (jsonTheme));
 
             await grid.put(newTemporaryThemeRecord.id, newTemporaryThemeRecord).then((value) {
-              print("temporary grid UPDATED set current = $viewId");
+              //print("temporary grid UPDATED set current = $viewId");
             });
 
             //encode and save
             if (mounted)
               setState(() {
                 mainLoadedWidgetList = jsonTheme['widgets'];
-                //mainWidgetList[cardId].
                 mainWidgetList[cardId] = DraggableCard(
                     //key:UniqueKey(),
                     model: model,
@@ -299,7 +273,6 @@ class _MonitorDragState extends State<MonitorDrag> {
             temporaryJSONGridTheme = newGrid;
 
             await grid.put(newGrid.id, newGrid).then((value) {
-              print("temporary grid UPDATED");
               haveGridChanges = true;
 
               if (mounted)
@@ -323,7 +296,7 @@ class _MonitorDragState extends State<MonitorDrag> {
                     try {
                       widgetPositions.add(i);
                     } catch (e) {
-                      print("Error while reading main grid positions -> " + e.toString());
+                      print("[_temporaryDeleteWidget] Error while reading main grid positions -> " + e.toString());
                     }
                     mainWidgetList.add(DraggableCard(
                         //key:UniqueKey(),
@@ -354,7 +327,6 @@ class _MonitorDragState extends State<MonitorDrag> {
                       // isMainGridReady = true;
                       // haveErrorLoadingGrid = false;
                     });
-                  //insert into ---> mainWidgetList
                 } catch (e) {
                   print("err1 : " + e.toString());
                 }
@@ -409,9 +381,7 @@ class _MonitorDragState extends State<MonitorDrag> {
           i++;
         }
         temporaryJSONGridTheme = newGrid;
-        print("LE : " + newGrid.schema['widgets'].length.toString());
         newGrid.schema['widgets'].insert(i, widgetData);
-        print("LE2 : " + newGrid.schema['widgets'].length.toString());
 
         return await grid.put(newGrid.id, newGrid).then((value) {
           print("temporary grid UPDATED");
@@ -456,11 +426,8 @@ class _MonitorDragState extends State<MonitorDrag> {
   }
 
   Future<bool> _temporaryEditWidget(int positionId, dynamic widgetData) async {
-    //remove from db
-    print("GOING TO INSERT EDIT ($positionId) current ${widgetData['current']} -.> " + widgetData.toString());
     return await Hive.openBox<GridThemeRecord>("grid_schema").then((grid) async {
       GridThemeRecord tempGrid = grid.get(2) ?? GridThemeRecord(id: 2, name: "Temporary Grid", schema: convert.jsonDecode(mainJSONGridTheme));
-      // GridThemeRecord newGrid = GridThemeRecord(id: 2, name: "Temporary Gridxxx", schema: convert.jsonDecode(mainJSONGridTheme));
       GridThemeRecord newGrid = GridThemeRecord(id: 2, name: tempGrid.name, schema: convert.jsonDecode(mainJSONGridTheme));
 
       newGrid.schema['name'] = tempGrid.schema['name'];
@@ -474,7 +441,6 @@ class _MonitorDragState extends State<MonitorDrag> {
 
         if (jsonTheme == null) return false;
         if (jsonTheme['widgets'] == null) return false;
-        //newGrid.schema['widgets'] = [];
         if (jsonTheme['widgets'][positionId] == null) return false;
         int i = 0;
         newGrid.schema['widgets'] = [];
@@ -488,10 +454,7 @@ class _MonitorDragState extends State<MonitorDrag> {
           i++;
         }
         temporaryJSONGridTheme = newGrid;
-        //print("NEW EDITED: " + temporaryJSONGridTheme.name.toString() + "__" + temporaryJSONGridTheme.schema.toString());
-        //return false;
         return await grid.put(newGrid.id, newGrid).then((value) {
-          //print("NEW SCHEMA : " + newGrid.schema['widgets'].toString());
           mainWidgetList[positionId] = new DraggableCard(
               //key:UniqueKey(),
               model: model,
@@ -538,11 +501,9 @@ class _MonitorDragState extends State<MonitorDrag> {
         isMainGridReady = false;
       });
 
-    print("HERE EDIT");
     return await Hive.openBox<GridThemeRecord>("grid_schema").then((grid) async {
       var tempTheme = grid.get(2) ?? GridThemeRecord(id: 2, name: currentJSONGridTheme.name, schema: currentJSONGridTheme.schema);
       GridThemeRecord updatedThemeRecord = GridThemeRecord(id: 2, name: currentJSONGridTheme.name, schema: tempTheme.schema);
-      print("HERE EDIT2");
 
       currentJSONGridTheme.name = gridData['name'];
       updatedThemeRecord.name = gridData['name'];
@@ -559,9 +520,6 @@ class _MonitorDragState extends State<MonitorDrag> {
       temporaryJSONGridTheme.schema['numCols'] = gridData['numCols'];
       temporaryJSONGridTheme.schema['baseHeight'] = gridData['baseHeight'];
       return await grid.put(2, updatedThemeRecord).then((value) async {
-        print("CURRENT GRID UPDATED opt (${currentJSONGridTheme.id})  -  (${currentJSONGridTheme.name})");
-        print("ADDED IN TEMP SCHE : ${updatedThemeRecord.schema}");
-
         await grid.close();
         haveGridChanges = true;
 
@@ -576,7 +534,7 @@ class _MonitorDragState extends State<MonitorDrag> {
         return true;
       });
     }).onError((error, stackTrace) {
-      print("ERROR EDIT OPTIONS _> $error $stackTrace");
+      print("[_persistentEditGridOptions] ERROR EDIT OPTIONS _> $error $stackTrace");
       return false;
     });
   }
@@ -595,8 +553,6 @@ class _MonitorDragState extends State<MonitorDrag> {
         var themeRecord = new GridThemeRecord(id: newId, name: schema['name'], schema: schema);
 
         return await grid.put(themeRecord.id, themeRecord).then((value) async {
-          print("CURRENT GRID UPDATED (${schema['id']})  -  (${schema['name']})");
-
           await grid.close();
 
           return await Hive.openBox("settings").then((settings) async {
@@ -610,7 +566,7 @@ class _MonitorDragState extends State<MonitorDrag> {
 
               return true;
             }).onError((error, stackTrace) {
-              print("ERROR new grid _> $error $stackTrace");
+              print("[_insertNewGrid] error : $error $stackTrace");
 
               if (mounted)
                 setState(() {
@@ -618,7 +574,7 @@ class _MonitorDragState extends State<MonitorDrag> {
                 });
             });
           }).onError((error, stackTrace) {
-            print("ERROR new grid _> $error $stackTrace");
+            print("[_insertNewGrid] error : $error $stackTrace");
 
             if (mounted)
               setState(() {
@@ -626,7 +582,7 @@ class _MonitorDragState extends State<MonitorDrag> {
               });
           });
         }).onError((error, stackTrace) {
-          print("ERROR new grid _> $error $stackTrace");
+          print("[_insertNewGrid] error : $error $stackTrace");
 
           if (mounted)
             setState(() {
@@ -634,11 +590,11 @@ class _MonitorDragState extends State<MonitorDrag> {
             });
         });
       }).onError((error, stackTrace) {
-        print("ERROR new grid _> $error $stackTrace");
+        print("[_insertNewGrid] error : $error $stackTrace");
         return false;
       });
     } catch (e, s) {
-      print("ERROR new grid _> $e $s");
+      print("[_insertNewGrid] error : $e $s");
 
       return false;
     }
@@ -667,7 +623,7 @@ class _MonitorDragState extends State<MonitorDrag> {
 
               return true;
             }).onError((error, stackTrace) {
-              print("ERROR new grid _> $error $stackTrace");
+              print("[_deleteGrid] error :  $error $stackTrace");
 
               if (mounted)
                 setState(() {
@@ -675,7 +631,7 @@ class _MonitorDragState extends State<MonitorDrag> {
                 });
             });
           }).onError((error, stackTrace) {
-            print("ERROR new grid _> $error $stackTrace");
+            print("[_deleteGrid] error :  $error $stackTrace");
 
             if (mounted)
               setState(() {
@@ -683,7 +639,7 @@ class _MonitorDragState extends State<MonitorDrag> {
               });
           });
         }).onError((error, stackTrace) {
-          print("ERROR new grid _> $error $stackTrace");
+          print("[_deleteGrid] error :  $error $stackTrace");
 
           if (mounted)
             setState(() {
@@ -691,18 +647,17 @@ class _MonitorDragState extends State<MonitorDrag> {
             });
         });
       }).onError((error, stackTrace) {
-        print("ERROR new grid _> $error $stackTrace");
+        print("[_deleteGrid] error :  $error $stackTrace");
         return false;
       });
     } catch (e, s) {
-      print("ERROR new grid _> $e $s");
+      print("[_deleteGrid] error :  $e $s");
 
       return false;
     }
   }
 
   Future<void> _showEditWidgetDialog(int widgetPosition) {
-    //show popup(widgetPosition)
     showDialog(
       context: context,
       builder: (_) => Column(crossAxisAlignment: CrossAxisAlignment.center, mainAxisSize: MainAxisSize.max, mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -744,7 +699,7 @@ class _MonitorDragState extends State<MonitorDrag> {
     //
   }
 
-  void getMainGrid({bool useTemp = false}) async {
+  Future<void> getMainGrid({bool useTemp = false}) async {
     if (mounted)
       setState(() {
         isMainGridReady = false;
@@ -755,15 +710,11 @@ class _MonitorDragState extends State<MonitorDrag> {
 
     await _loadMainGrid(useTemp: useTemp).then((value) async {
       try {
-        //dynamic mainGridTheme = convert.jsonDecode(temporaryJSONGridTheme.schema);
         dynamic mainGridTheme = (temporaryJSONGridTheme.schema);
 
         try {
-          print("try catch vals");
-          print("s h : ${temporaryJSONGridTheme.schema['baseHeight']}");
-          print("s w : ${temporaryJSONGridTheme.schema['numCols']}");
-          var bh = temporaryJSONGridTheme.schema['baseHeight'] ?? NAUTICA['configuration']['design']['grid']['baseHeight'];
-          var nc = temporaryJSONGridTheme.schema['numCols'] ?? NAUTICA['configuration']['design']['grid']['numCols'];
+          var bh = temporaryJSONGridTheme.schema['baseHeight'] ?? CONF['configuration']['design']['grid']['baseHeight'];
+          var nc = temporaryJSONGridTheme.schema['numCols'] ?? CONF['configuration']['design']['grid']['numCols'];
           baseHeight = (bh is double) ? bh : double.parse(bh.toString());
           numCols = (nc is int) ? nc : int.parse(nc.toString());
           currentGridName = temporaryJSONGridTheme.schema['name'] ?? currentGridName;
@@ -813,10 +764,10 @@ class _MonitorDragState extends State<MonitorDrag> {
               haveErrorLoadingGrid = false;
             });
         } catch (e) {
-          print("err x: " + e.toString());
+          print("[_loadMainGrid] error : $e");
         }
       } catch (e) {
-        print("unable to decode json " + e.toString());
+        print("[_loadMainGrid] unable to decode json " + e.toString());
         if (mounted)
           setState(() {
             isMainGridReady = false;
@@ -826,36 +777,36 @@ class _MonitorDragState extends State<MonitorDrag> {
     });
   }
 
-  void _showGridOptionsPopup() {
-    //show popup(widgetPosition)
-    showDialog(
-      context: context,
-      builder: (_) => Column(crossAxisAlignment: CrossAxisAlignment.center, mainAxisSize: MainAxisSize.max, mainAxisAlignment: MainAxisAlignment.center, children: [
-        GridOptionsForm(
-            key: UniqueKey(),
-            isLastGrid: false,
-            gridId: currentJSONGridTheme.id,
-            baseHeight: baseHeight,
-            numCols: numCols,
-            currentGridName: currentGridName,
-            currentAuthorName: currentAuthorName,
-            currentGridDescription: currentGridDescription,
-            monitorContext: context,
-            model: model,
-            onGoingToSaveOptionsCallback: (dynamic gridData) async {
-              return await _persistentEditGridOptions(gridData);
-            },
-            onGoingToDeleteGridCallback: (int gridId) async {
-              return await _deleteGrid(gridId);
-            })
-      ]),
-    );
+  void _showGridOptionsPopup() async {
+    await Hive.openBox<GridThemeRecord>("grid_schema").then((grid) async {
+      var nGrid = grid.values.where((element) => element.id != 2).length;
+      showDialog(
+        context: context,
+        builder: (_) => Column(crossAxisAlignment: CrossAxisAlignment.center, mainAxisSize: MainAxisSize.max, mainAxisAlignment: MainAxisAlignment.center, children: [
+          GridOptionsForm(
+              key: UniqueKey(),
+              isLastGrid: nGrid > 1 ? false : true,
+              gridId: currentJSONGridTheme.id,
+              baseHeight: baseHeight,
+              numCols: numCols,
+              currentGridName: currentGridName,
+              currentAuthorName: currentAuthorName,
+              currentGridDescription: currentGridDescription,
+              monitorContext: context,
+              model: model,
+              onGoingToSaveOptionsCallback: (dynamic gridData) async {
+                return await _persistentEditGridOptions(gridData);
+              },
+              onGoingToDeleteGridCallback: (int gridId) async {
+                return await _deleteGrid(gridId);
+              })
+        ]),
+      );
+    });
     //
   }
 
   Future<void> _showImportGridPopup() async {
-    //show popup(widgetPosition)
-
     return await Hive.openBox<GridThemeRecord>("grid_schema").then((grid) async {
       GridThemeRecord tempGrid = grid.get(2) ?? GridThemeRecord(id: 2, name: "Nautica", schema: convert.jsonDecode(mainJSONGridTheme));
       String schema = convert.jsonEncode(tempGrid.schema);
@@ -905,11 +856,7 @@ class _MonitorDragState extends State<MonitorDrag> {
       backgroundColor: model.webBackgroundColor,
       floatingActionButton: widget.isEditingMode
           ? Stack(
-              children: [
-                _buildWidgetMenuDial(),
-                _showStackedSaveButton(),
-                _showStackedUndoButton()
-              ],
+              children: [_buildWidgetMenuDial(), _showStackedSaveButton(), _showStackedUndoButton()],
             )
           : Text(""),
       body: Stack(
@@ -1010,34 +957,12 @@ class _MonitorDragState extends State<MonitorDrag> {
       curve: Curves.bounceIn,
       overlayColor: Colors.black,
       overlayOpacity: 0.2,
-      onOpen: () => print('OPENING DIAL'),
-      onClose: () => print('DIAL CLOSED'),
+     // onOpen: () => print('OPENING DIAL'),
+     // onClose: () => print('DIAL CLOSED'),
       backgroundColor: model.formSectionLabelColor,
       foregroundColor: Colors.white,
       elevation: 8.0,
       children: [
-     // SpeedDialChild(
-     //     child: Icon(Icons.undo_outlined),
-     //     backgroundColor: Colors.red,
-     //     foregroundColor: Colors.white,
-     //     label: 'Undo changes',
-     //     labelStyle: TextStyle(fontSize: 18.0),
-     //     onTap: () async {
-     //       //rebuild current space
-     //       print("saving grid ${currentGridIndex}");
-     //       return await _persistentDeleteCurrentGridChanges();
-     //     }),
-     // SpeedDialChild(
-     //     child: Icon(Icons.save_outlined),
-     //     foregroundColor: Colors.white,
-     //     backgroundColor: model.paletteColor,
-     //     label: 'Save grid',
-     //     labelStyle: TextStyle(fontSize: 18.0),
-     //     onTap: () async {
-     //       //save current space
-     //       print("saving grid $currentGridIndex");
-     //       return await _persistentSaveCurrentGridChanges();
-     //     }),
         SpeedDialChild(
           child: Icon(Icons.widgets_outlined),
           foregroundColor: Colors.white,
@@ -1046,7 +971,6 @@ class _MonitorDragState extends State<MonitorDrag> {
           labelStyle: TextStyle(fontSize: 18.0),
           onTap: () async {
             //save current space
-            print("adding widget to grid $currentGridIndex");
             return await _showAddWidgetDialog();
           },
         ),
@@ -1076,7 +1000,6 @@ class _MonitorDragState extends State<MonitorDrag> {
             onTap: () {
               _showGridOptionsPopup();
             }),
-
       ],
     );
   }
@@ -1103,7 +1026,6 @@ class _MonitorDragState extends State<MonitorDrag> {
             )));
   }
 
-
   Widget _showStackedUndoButton() {
     return Positioned(
         bottom: 3,
@@ -1115,7 +1037,7 @@ class _MonitorDragState extends State<MonitorDrag> {
               child: Icon(Icons.undo_outlined),
               style: ElevatedButton.styleFrom(
                   elevation: 8.0,
-                    primary: Colors.red,
+                  primary: Colors.red,
                   shape: new RoundedRectangleBorder(
                     borderRadius: new BorderRadius.circular(30.0),
                   )),
@@ -1125,30 +1047,4 @@ class _MonitorDragState extends State<MonitorDrag> {
               },
             )));
   }
-
-
-
-
-// Widget SimpleCard(String title, List<Widget> children) {
-//   return Container(
-//       padding: const EdgeInsets.only(bottom: 1),
-//       decoration: BoxDecoration(
-//           color: model.cardColor, border: Border.all(color: const Color.fromRGBO(0, 0, 0, 0.12), width: 1.1), borderRadius: const BorderRadius.all(Radius.circular(12))),
-//       width: _cardWidth,
-//       child: Column(children: <Widget>[
-//         Container(
-//           padding: const EdgeInsets.only(top: 5, bottom: 2),
-//           child: Text(
-//             title,
-//             style: TextStyle(color: model.paletteColor, fontSize: 16, fontFamily: 'Roboto-Bold'),
-//           ),
-//         ),
-//         Divider(
-//           color: model.themeData != null && model.themeData.brightness == Brightness.dark ? const Color.fromRGBO(61, 61, 61, 1) : const Color.fromRGBO(238, 238, 238, 1),
-//           thickness: 1,
-//         ),
-//         Padding(padding: EdgeInsets.only(bottom: 0, top: 0)),
-//         Column(children: children)
-//       ]));
-// }
 }

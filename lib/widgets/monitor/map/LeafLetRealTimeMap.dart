@@ -2,12 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:nautica/Configuration.dart';
-import 'package:nautica/models/BaseModel.dart';
-import 'package:nautica/models/Helper.dart';
+import 'package:SKDashboard/Configuration.dart';
+import 'package:SKDashboard/models/BaseModel.dart';
+import 'package:SKDashboard/models/Helper.dart';
 
-import 'package:nautica/network/StreamSubscriber.dart';
-import 'package:nautica/utils/flutter_map/flutter_map.dart';
+import 'package:SKDashboard/network/StreamSubscriber.dart';
+import 'package:SKDashboard/utils/flutter_map/flutter_map.dart';
 
 class LeafLetMap extends StatefulWidget {
   StreamSubscriber StreamObject = null;
@@ -81,12 +81,11 @@ class LeafLetMapState extends State<LeafLetMap> with DisposableWidget, TickerPro
   }
 
   Stream<dynamic> _subscribeToStream(String path) {
-    return widget.StreamObject.getVesselStream(widget.currentVessel, path, Duration(seconds: NAUTICA['configuration']['map']['refreshRate'])).asBroadcastStream();
+    return widget.StreamObject.getVesselStream(widget.currentVessel, path, Duration(seconds: CONF['configuration']['map']['refreshRate'])).asBroadcastStream();
   }
 
   @override
   void dispose() {
-    print("CANCEL MAPS SUBSCRIPTION");
     cancelSubscriptions();
   // if (controller != null) {
   //   controller.dispose();

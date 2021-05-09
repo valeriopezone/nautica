@@ -2,17 +2,12 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:nautica/models/BaseModel.dart';
-import 'package:nautica/utils/json_schema/json_schema.dart';
-
+import 'package:SKDashboard/models/BaseModel.dart';
+import 'package:SKDashboard/utils/json_schema/json_schema.dart';
 import 'dart:convert' as convert;
+import 'package:SKDashboard/Configuration.dart';
 
-import '../../Configuration.dart';
-import 'SubWidgetSelectionTile.dart';
-
-// Define a custom Form widget.
 class GridImportForm extends StatefulWidget {
-  //if adding widgetData and currentPositionId the form is in editing mode
 
   BaseModel model;
   BuildContext monitorContext;
@@ -70,7 +65,7 @@ class _GridImportFormState extends State<GridImportForm> {
         return "";
       }
     } catch (e) {
-      print("[GridImportForm] unable to loading -> $e");
+      print("[GridImportForm] unable to load -> $e");
     }
 
     return "";
@@ -85,7 +80,7 @@ class _GridImportFormState extends State<GridImportForm> {
         return schema.validate(decodedSource);
       });
     } catch (e) {
-      print("[GridImportForm] unable to loading -> $e");
+      print("[GridImportForm] unable to load -> $e");
     }
 
     return false;
@@ -298,6 +293,7 @@ class _GridImportFormState extends State<GridImportForm> {
                                                       autofocus: false,
                                                       maxLines: 8,
                                                       //decoration: InputDecoration.collapsed(hintText: "Enter your text here"),
+                                                      readOnly: true,
 
                                                       decoration: InputDecoration(
                                                         //labelText: 'JSON Grid',

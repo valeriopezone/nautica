@@ -8,11 +8,8 @@ import './provider.dart';
 export './item.dart';
 
 class ReorderableWrap extends StatelessWidget {
-
   int numCols = 4;
   List<StaggeredTile> tileInfo = <StaggeredTile>[];
-
-
 
   ReorderableWrap({
     @required this.children,
@@ -27,7 +24,6 @@ class ReorderableWrap extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return ReorderableWrapProvider(
       onReorder: onReorder,
       notifier: ReorderableWrapNotifier<ReorderableWrapItem>(
@@ -37,30 +33,26 @@ class ReorderableWrap extends StatelessWidget {
         builder: (_context) {
           final provider = ReorderableWrapProvider.of(_context);
           return Listener(
-            onPointerMove: (e) {
-              final box = provider.feedbackBox;
-              if (false == provider.state.active || null == box) {
-                return;
-              }
-              final offset = box.localToGlobal(Offset.zero);
-              final newIndex = _findIndex(
-                  offset, provider.state.offsets, provider.state.size);
-              provider.move(provider.state.newIndex, newIndex);
-            },
-           // child: Wrap(
-           //   children: provider.notifier.children,
-           // ),
+              onPointerMove: (e) {
+                final box = provider.feedbackBox;
+                if (false == provider.state.active || null == box) {
+                  return;
+                }
+                final offset = box.localToGlobal(Offset.zero);
+                final newIndex = _findIndex(offset, provider.state.offsets, provider.state.size);
+                provider.move(provider.state.newIndex, newIndex);
+              },
+              // child: Wrap(
+              //   children: provider.notifier.children,
+              // ),
 
-              child :  StaggeredGridView.count(
+              child: StaggeredGridView.count(
                 crossAxisCount: numCols,
                 staggeredTiles: tileInfo,
                 children: provider.notifier.children,
                 mainAxisSpacing: 0.0,
                 crossAxisSpacing: 0.0,
-              )
-
-
-          );
+              ));
         },
       ),
     );
@@ -86,4 +78,3 @@ int _findIndex(Offset offset, List<Offset> offsets, Size size) {
     return 0;
   }
 }
-

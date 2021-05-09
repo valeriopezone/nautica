@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_image/network.dart';
-import 'package:nautica/utils/flutter_map/flutter_map.dart';
+import 'package:SKDashboard/utils/flutter_map/flutter_map.dart';
 
 abstract class TileProvider {
   const TileProvider();

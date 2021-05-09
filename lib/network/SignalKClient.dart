@@ -1,13 +1,10 @@
 import 'package:flutter/foundation.dart';
-import 'package:nautica/utils/APITreeExplorer.dart';
+import 'package:SKDashboard/utils/APITreeExplorer.dart';
 import 'package:websocket_manager/websocket_manager.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
-import 'dart:io' show Platform, WebSocket;
-
-import 'package:web_socket_channel/io.dart';
-import 'package:web_socket_channel/status.dart' as status;
-import '../Configuration.dart';
+import 'dart:io' show Platform;
+import 'package:SKDashboard/Configuration.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 class SignalKClient {
@@ -30,8 +27,8 @@ class SignalKClient {
 
   Map vesselsPaths = new Map();
 
-  SignalKClient(this.ip, this.port, Authentication this.loginData) {
-    this.apiVersion = NAUTICA['signalK']['APIVersion'];
+  SignalKClient(this.ip, this.port, this.loginData) {
+    this.apiVersion = CONF['signalK']['APIVersion'];
     print("[SignalKClient] Launch");
   }
 
@@ -45,7 +42,7 @@ class SignalKClient {
 
   Future<bool> WSconnect(
       Function closeCallback, Function messageCallback) async {
-//login data?
+
     if (this.wsURL.isEmpty) {
       return Future.value(false);
     }
@@ -53,12 +50,11 @@ class SignalKClient {
     if (kIsWeb || Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
       //WebsocketManager not supported, use standard
 
-      print("websocket on browser");
+      print("[SignalKClient] websocket on browser");
 
-      desktopSocket =await WebSocketChannel.connect(Uri.parse(this.wsURL + "?subscribe=all"));
+      desktopSocket = WebSocketChannel.connect(Uri.parse(this.wsURL + "?subscribe=all"));
       if (desktopSocket != null) {
         desktopSocket.stream.listen((message) {
-          //desktopSocket.sink.add('received!');
           messageCallback(message);
         }).onError((e) {
           print('[SignalKClient]Browser - Unable to connect -- on error : ' +
@@ -71,20 +67,20 @@ class SignalKClient {
       }
       return Future.value(false);
     } else {
-      //REMEMBER SUBSCRIBE=ALL
+
       this.socket = WebsocketManager(this.wsURL + "?subscribe=all");
-// Listen to close message
+
 
       this.socket.onClose((dynamic message) {
         print('[SignalKClient] close');
         closeCallback();
       });
-// Listen to server messages
+
       this.socket.onMessage((dynamic message) {
         messageCallback(message);
       });
 
-// Connect to server
+
       return await this.socket.connect().then((v) {
         this.wsConnected = true;
         print("[SignalKClient] connected to websocket");
@@ -128,8 +124,7 @@ class SignalKClient {
 
     if (this.serverId == null || this.serverVersion == null) {
       //error....
-      print(
-          "[loadSignalKData] UNABLE TO READ JSON - PROBABLY WRONG API_VERSION");
+      print("[loadSignalKData] UNABLE TO READ JSON - PROBABLY WRONG API_VERSION");
 
       return Future.error("UNABLE TO READ JSON - PROBABLY WRONG API_VERSION");
     }
@@ -172,17 +167,12 @@ class SignalKClient {
                 response['vessels'][i.replaceAll("vessels.", "")]);
             vesselsPaths[i] = t.retrieveAllRoutes();
 
-            print("RETRIEVED PATHS : $vesselsPaths");
           });
         } on NoSuchMethodError {}
       } else {
-        return Future.error("UNABLE TO GET VESSELS");
+        return Future.error("[loadVesselData] UNABLE TO GET VESSELS");
       }
     }
-
-    //print(vesselsPaths.toString());
-
-    //set current available paths
   }
 
   void loadPaths() {}
@@ -193,11 +183,9 @@ class SignalKClient {
     print("[execHTTPRequest] http request to ${this.ip}:${this.port}");
     var url = Uri.http('${this.ip}:${this.port}', path, data);
 
-    // Await the http get response, then decode the json-formatted response.
     var response = await http.get(url).timeout(
-      Duration(seconds: NAUTICA['configuration']['connection']['http']['timeout']),
+      Duration(seconds: CONF['configuration']['connection']['http']['timeout']),
       onTimeout: () {
-        // time has run out, do what you wanted to do
         return Future.error("Unable to connect http");
       },
     );

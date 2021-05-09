@@ -2,8 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
-import 'package:nautica/models/BaseModel.dart';
-
+import 'package:SKDashboard/models/BaseModel.dart';
 
 class SubWidgetSelectionTile extends StatefulWidget {
   BaseModel model;
@@ -27,7 +26,6 @@ class SubWidgetSelectionTile extends StatefulWidget {
       : super(key: key);
 
   void changeCurrentPosition(int positionId) {
-    print("Hi, i am ${subWidgetsNames[currentWidgetSelectedIndex]} $currentPositionIndex and now i'm $positionId");
     currentPositionIndex = positionId;
   }
 
@@ -44,8 +42,6 @@ class _SubWidgetSelectionTileState extends State<SubWidgetSelectionTile> {
   @override
   void dispose() {
     super.dispose();
-    print("dispose tile");
-    //should call subwidget?
   }
 
   @override
@@ -53,19 +49,15 @@ class _SubWidgetSelectionTileState extends State<SubWidgetSelectionTile> {
     return ListTile(
       dense: true,
       tileColor: widget.model.backgroundForm,
-
-      trailing: Icon(Icons.drag_indicator, color : widget.model.formLabelTextColor),
+      trailing: Icon(Icons.drag_indicator, color: widget.model.formLabelTextColor),
       leading: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
         IconButton(
             icon: Icon(Icons.remove_circle_outline, color: Colors.red),
             onPressed: () {
-              print("going to delete ${widget.subWidgetsNames[widget.currentWidgetSelectedIndex]} at ${widget.currentPositionIndex}");
               widget.onGoingToDeleteCallback(widget.currentPositionIndex);
-              //widget.currentPositionIndex, _selectedWidget);
             }),
       ]),
       key: widget.key,
-      // tileColor: _items[index].isOdd ? oddItemColor : evenItemColor,
       title: Container(
           child: Padding(
         padding: const EdgeInsets.only(right: 0.0),
@@ -77,7 +69,6 @@ class _SubWidgetSelectionTileState extends State<SubWidgetSelectionTile> {
               return null;
             },
             isExpanded: true,
-
             decoration: InputDecoration(
                 labelText: 'Sub-Widget',
                 filled: true,
@@ -89,30 +80,21 @@ class _SubWidgetSelectionTileState extends State<SubWidgetSelectionTile> {
                   color: widget.model.formLabelTextColor,
                 ),
                 enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(4.0),
-                    borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid)),
+                    borderRadius: BorderRadius.circular(4.0), borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid)),
                 focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(4.0),
-                    borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid)),
+                    borderRadius: BorderRadius.circular(4.0), borderSide: BorderSide(color: widget.model.formLabelTextColor, width: 1.0, style: BorderStyle.solid)),
                 hintText: "Select a widget"),
-
             dropdownColor: widget.model.backgroundForm,
-
             value: widget.currentWidgetSelectedIndex,
-            icon:  Icon(Icons.arrow_downward , color: widget.model.formLabelTextColor),
+            icon: Icon(Icons.arrow_downward, color: widget.model.formLabelTextColor),
             iconSize: 24,
-            style: TextStyle(height: 0.85, fontSize: 14.0, fontWeight : FontWeight.normal,color: widget.model.formLabelTextColor),
+            style: TextStyle(height: 0.85, fontSize: 14.0, fontWeight: FontWeight.normal, color: widget.model.formLabelTextColor),
             onChanged: (String _selectedWidget) {
-              print("you chose widget type : " + _selectedWidget.toString());
               widget.currentWidgetSelectedIndex = _selectedWidget;
-              //call edit callback
               widget.onGoingToEditCallback(widget.currentPositionIndex, _selectedWidget);
             },
             items: widget.subWidgetsNames.keys.map<DropdownMenuItem<String>>((String k) {
-              //print("$k != ${widget.avoidWidget} curr : ${widget.currentWidgetSelectedIndex}");
-              //if (k != widget.avoidWidget) {
               return DropdownMenuItem<String>(child: Text(widget.subWidgetsNames[k]), value: k);
-              // }
             }).toList()),
       )),
     );

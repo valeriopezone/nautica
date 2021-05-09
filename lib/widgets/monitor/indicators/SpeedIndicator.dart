@@ -1,9 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:nautica/models/BaseModel.dart';
-import 'package:nautica/models/Helper.dart';
-import 'package:nautica/utils/HexColor.dart';
+import 'package:SKDashboard/models/BaseModel.dart';
+import 'package:SKDashboard/models/Helper.dart';
+import 'package:SKDashboard/utils/HexColor.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 
 
@@ -11,11 +10,10 @@ class SpeedIndicator extends StatefulWidget {
   dynamic Speed_Value = 0.0;
   Stream<dynamic> Speed_Stream = null;
   BaseModel model;
-  final Function(String text, Icon icon) notifyParent;
   dynamic widgetGraphics;
 
   SpeedIndicator(
-      {Key key, @required this.Speed_Stream, @required this.model,@required this.widgetGraphics,this.notifyParent})
+      {Key key, @required this.Speed_Stream, @required this.model,@required this.widgetGraphics})
       : super(key: key);
 
 
@@ -31,7 +29,6 @@ class _SpeedIndicatorState extends State<SpeedIndicator> with DisposableWidget{
   void initState(){
 
     widget.model.addListener((){
-      print("THEME WIND CHANGE");
       _loadWidgetGraphics();
     });
 
@@ -114,7 +111,7 @@ class _SpeedIndicatorState extends State<SpeedIndicator> with DisposableWidget{
 
 
       } catch (e) {
-        print("SpeedIndicator error while loading graphics -> " + e.toString());
+        print("[SpeedIndicator] error while loading graphics -> " + e.toString());
       }
     }
   }
@@ -122,7 +119,6 @@ class _SpeedIndicatorState extends State<SpeedIndicator> with DisposableWidget{
 
   @override
   void dispose() {
- //   print("CANCEL SPEED INDICATOR SUBSCRIPTION");
     cancelSubscriptions();
     super.dispose();
   }
@@ -200,10 +196,6 @@ class _SpeedIndicatorState extends State<SpeedIndicator> with DisposableWidget{
                 ),
               ],
             );
-          //return Text(
-          //    "Speed true: ${(snap.data.toStringAsFixed(2))}",
-          //    style: GoogleFonts.lato(
-          //        textStyle: Theme.of(context).textTheme.headline4));
           });
   }
 

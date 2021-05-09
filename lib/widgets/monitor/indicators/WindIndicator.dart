@@ -3,11 +3,9 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:nautica/models/BaseModel.dart';
-import 'package:nautica/models/Helper.dart';
-import 'package:nautica/utils/HexColor.dart';
-import 'package:nautica/utils/HexColor.dart';
+import 'package:SKDashboard/models/BaseModel.dart';
+import 'package:SKDashboard/models/Helper.dart';
+import 'package:SKDashboard/utils/HexColor.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 
 class WindIndicator extends StatefulWidget {
@@ -19,9 +17,8 @@ class WindIndicator extends StatefulWidget {
 
   BaseModel model;
   bool haveData = false;
-  final Function(String text, Icon icon) notifyParent;
 
-  WindIndicator({Key key, @required this.Angle_Stream, @required this.Intensity_Stream, @required this.model, @required this.widgetGraphics, this.notifyParent}) : super(key: key);
+  WindIndicator({Key key, @required this.Angle_Stream, @required this.Intensity_Stream, @required this.model, @required this.widgetGraphics}) : super(key: key);
 
   void changeTheme(String themeType) {}
 
@@ -38,14 +35,9 @@ class _WindIndicatorState extends State<WindIndicator> with DisposableWidget {
     super.initState();
 
     widget.model.addListener((){
-      print("THEME WIND CHANGE");
       _loadWidgetGraphics();
     });
 
-
-    //if having widget theme use it
-
-    //otherwise leave default
 
     graphics['intensityUnit'] = "m/s";
     graphics['angleUnit'] = "°";
@@ -99,7 +91,7 @@ class _WindIndicatorState extends State<WindIndicator> with DisposableWidget {
         graphics['minorTickSize'] = (widget.widgetGraphics[currentTheme]['minorTickSize'] is double) ? widget.widgetGraphics[currentTheme]['minorTickSize'] : double.parse(widget.widgetGraphics[currentTheme]['minorTickSize'].toString());
         graphics['minorTickLength'] = (widget.widgetGraphics[currentTheme]['minorTickLength'] is double) ? widget.widgetGraphics[currentTheme]['minorTickLength'] : double.parse(widget.widgetGraphics[currentTheme]['minorTickLength'].toString());
       } catch (e) {
-        print("WindIndicator error while loading graphics -> " + e.toString());
+        print("[WindIndicator] error while loading graphics -> " + e.toString());
       }
     }
   }
@@ -108,7 +100,6 @@ class _WindIndicatorState extends State<WindIndicator> with DisposableWidget {
 
   @override
   void dispose() {
-    // print("CANCEL WIND SUBSCRIPTION");
     cancelSubscriptions();
     super.dispose();
   }
@@ -174,10 +165,6 @@ class _WindIndicatorState extends State<WindIndicator> with DisposableWidget {
                         startWidth: 0.10,
                         endWidth: 0.10,
                         color: widget.Angle_Value >= 0 ? graphics['gaugePositiveColor'] : graphics['gaugeNegativeColor'],
-
-                        //gradient: const SweepGradient(
-                        //    colors: <Color>[Color(0xFFD481FF), Color(0xFF06F0E0)],
-                        //    stops: <double>[0.25, 0.75]),
                       ),
                     ],
                     minorTickStyle: MinorTickStyle(length: graphics['minorTickLength'], lengthUnit: GaugeSizeUnit.factor, thickness: graphics['minorTickSize']),
@@ -191,9 +178,5 @@ class _WindIndicatorState extends State<WindIndicator> with DisposableWidget {
     if (args.text == '-180') {
       args.text = '';
     }
-    //args.labelStyle = GaugeTextStyle(
-    //    color: model.paletteColor,
-    //    fontSize: model.isCardView ? 12 : _labelFontSize);
-    //}
   }
 }

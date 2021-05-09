@@ -4,33 +4,33 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/widgets.dart';
-import 'package:nautica/utils/flutter_map/flutter_map.dart';
-import 'package:nautica/utils/flutter_map/src/geo/crs/crs.dart';
-import 'package:nautica/utils/flutter_map/src/gestures/interactive_flag.dart';
-import 'package:nautica/utils/flutter_map/src/gestures/map_events.dart';
-import 'package:nautica/utils/flutter_map/src/gestures/multi_finger_gesture.dart';
-import 'package:nautica/utils/flutter_map/src/map/flutter_map_state.dart';
-import 'package:nautica/utils/flutter_map/src/map/map.dart';
-import 'package:nautica/utils/flutter_map/src/plugins/plugin.dart';
+import 'package:SKDashboard/utils/flutter_map/flutter_map.dart';
+import 'package:SKDashboard/utils/flutter_map/src/geo/crs/crs.dart';
+import 'package:SKDashboard/utils/flutter_map/src/gestures/interactive_flag.dart';
+import 'package:SKDashboard/utils/flutter_map/src/gestures/map_events.dart';
+import 'package:SKDashboard/utils/flutter_map/src/gestures/multi_finger_gesture.dart';
+import 'package:SKDashboard/utils/flutter_map/src/map/flutter_map_state.dart';
+import 'package:SKDashboard/utils/flutter_map/src/map/map.dart';
+import 'package:SKDashboard/utils/flutter_map/src/plugins/plugin.dart';
 import 'package:latlong2/latlong.dart';
 
-export 'package:nautica/utils/flutter_map/src/core/point.dart';
-export 'package:nautica/utils/flutter_map/src/geo/crs/crs.dart';
-export 'package:nautica/utils/flutter_map/src/geo/latlng_bounds.dart';
-export 'package:nautica/utils/flutter_map/src/gestures/interactive_flag.dart';
-export 'package:nautica/utils/flutter_map/src/gestures/map_events.dart';
-export 'package:nautica/utils/flutter_map/src/gestures/multi_finger_gesture.dart';
-export 'package:nautica/utils/flutter_map/src/layer/circle_layer.dart';
-export 'package:nautica/utils/flutter_map/src/layer/group_layer.dart';
-export 'package:nautica/utils/flutter_map/src/layer/layer.dart';
-export 'package:nautica/utils/flutter_map/src/layer/marker_layer.dart';
-export 'package:nautica/utils/flutter_map/src/layer/overlay_image_layer.dart';
-export 'package:nautica/utils/flutter_map/src/layer/polygon_layer.dart';
-export 'package:nautica/utils/flutter_map/src/layer/polyline_layer.dart';
-export 'package:nautica/utils/flutter_map/src/layer/tile_builder/tile_builder.dart';
-export 'package:nautica/utils/flutter_map/src/layer/tile_layer.dart';
-export 'package:nautica/utils/flutter_map/src/layer/tile_provider/tile_provider.dart';
-export 'package:nautica/utils/flutter_map/src/plugins/plugin.dart';
+export 'package:SKDashboard/utils/flutter_map/src/core/point.dart';
+export 'package:SKDashboard/utils/flutter_map/src/geo/crs/crs.dart';
+export 'package:SKDashboard/utils/flutter_map/src/geo/latlng_bounds.dart';
+export 'package:SKDashboard/utils/flutter_map/src/gestures/interactive_flag.dart';
+export 'package:SKDashboard/utils/flutter_map/src/gestures/map_events.dart';
+export 'package:SKDashboard/utils/flutter_map/src/gestures/multi_finger_gesture.dart';
+export 'package:SKDashboard/utils/flutter_map/src/layer/circle_layer.dart';
+export 'package:SKDashboard/utils/flutter_map/src/layer/group_layer.dart';
+export 'package:SKDashboard/utils/flutter_map/src/layer/layer.dart';
+export 'package:SKDashboard/utils/flutter_map/src/layer/marker_layer.dart';
+export 'package:SKDashboard/utils/flutter_map/src/layer/overlay_image_layer.dart';
+export 'package:SKDashboard/utils/flutter_map/src/layer/polygon_layer.dart';
+export 'package:SKDashboard/utils/flutter_map/src/layer/polyline_layer.dart';
+export 'package:SKDashboard/utils/flutter_map/src/layer/tile_builder/tile_builder.dart';
+export 'package:SKDashboard/utils/flutter_map/src/layer/tile_layer.dart';
+export 'package:SKDashboard/utils/flutter_map/src/layer/tile_provider/tile_provider.dart';
+export 'package:SKDashboard/utils/flutter_map/src/plugins/plugin.dart';
 
 /// Renders a map composed of a list of layers powered by [LayerOptions].
 ///

@@ -1,6 +1,6 @@
 {
-    "name": "nautica",
-    "short_name": "nautica",
+    "name": "SKDashboard",
+    "short_name": "SKDashboard",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

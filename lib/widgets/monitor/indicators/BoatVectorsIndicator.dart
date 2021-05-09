@@ -7,8 +7,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'package:nautica/models/BaseModel.dart';
-import 'package:nautica/models/Helper.dart';
+import 'package:SKDashboard/models/BaseModel.dart';
+import 'package:SKDashboard/models/Helper.dart';
 
 class BoatVectorsIndicator extends StatefulWidget {
   BaseModel model;
@@ -40,12 +40,6 @@ class BoatVectorsIndicator extends StatefulWidget {
 
 
 
-
-
-
-
-  final Function(String text, Icon icon) notifyParent;
-
   BoatVectorsIndicator({Key key,
     @required this.model,
     @required this.ST_Stream,
@@ -59,8 +53,8 @@ class BoatVectorsIndicator extends StatefulWidget {
     @required this.DBK_Stream,
     @required this.DBS_Stream,
     @required this.DBT_Stream,
-    @required this.DBST_Stream,
-    this.notifyParent}) : super(key:key);
+    @required this.DBST_Stream
+  }) : super(key:key);
 
 
   @override
@@ -190,10 +184,7 @@ class _BoatVectorsIndicatorState extends State<BoatVectorsIndicator> with Dispos
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        //notifyParent(text, icon);
-      },
-      child: StreamBuilder(
+            child: StreamBuilder(
           stream: widget.ATW_Stream,
           builder: (context, snap) {
             //if (!snap.hasData) {
@@ -405,12 +396,10 @@ class DrawVectors extends CustomPainter {
   }
 
 
-  @override
+
   void paintCopy(Canvas canvas, Size size) {
     this.mainCanvas = canvas;
 
-    //print("${angleTrueWater} - ${speedTrue} - ${angleApparent} - ${speedApparent}");
-    //draw true vector
     double x0 = 50.0;
     double y0 = 100.0;
     Offset base = Offset(x0,y0);
