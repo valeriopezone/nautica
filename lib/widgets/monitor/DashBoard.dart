@@ -13,9 +13,9 @@ import 'package:SKDashboard/widgets/form/GridOptionsForm.dart';
 import 'package:SKDashboard/widgets/form/WidgetCreationForm.dart';
 import 'package:SKDashboard/widgets/reorderable/reorderable_wrap.dart';
 import 'dart:convert' as convert;
-import 'package:SKDashboard/widgets/DraggableCard.dart';
+import 'package:SKDashboard/widgets/Indicator.dart';
 
-class MonitorDrag extends StatefulWidget {
+class DashBoard extends StatefulWidget {
   StreamSubscriber StreamObject;
   String currentVessel = "";
   bool isEditingMode = false;
@@ -25,7 +25,7 @@ class MonitorDrag extends StatefulWidget {
 
   dynamic vesselsDataTable = [];
 
-  MonitorDrag(
+  DashBoard(
       {Key key,
       @required this.StreamObject,
       @required this.currentVessel,
@@ -37,10 +37,10 @@ class MonitorDrag extends StatefulWidget {
       : super(key: key);
 
   @override
-  _MonitorDragState createState() => _MonitorDragState();
+  _DashBoardState createState() => _DashBoardState();
 }
 
-class _MonitorDragState extends State<MonitorDrag> {
+class _DashBoardState extends State<DashBoard> {
   BaseModel model = BaseModel.instance;
   StreamSubscriber mainStreamHandle;
   String vessel;
@@ -205,7 +205,7 @@ class _MonitorDragState extends State<MonitorDrag> {
             if (mounted)
               setState(() {
                 mainLoadedWidgetList = jsonTheme['widgets'];
-                mainWidgetList[cardId] = DraggableCard(
+                mainWidgetList[cardId] = Indicator(
                     //key:UniqueKey(),
                     model: model,
                     isEditingMode: widget.isEditingMode,
@@ -298,7 +298,7 @@ class _MonitorDragState extends State<MonitorDrag> {
                     } catch (e) {
                       print("[_temporaryDeleteWidget] Error while reading main grid positions -> " + e.toString());
                     }
-                    mainWidgetList.add(DraggableCard(
+                    mainWidgetList.add(Indicator(
                         //key:UniqueKey(),
                         model: model,
                         isEditingMode: widget.isEditingMode,
@@ -386,7 +386,7 @@ class _MonitorDragState extends State<MonitorDrag> {
         return await grid.put(newGrid.id, newGrid).then((value) {
           print("temporary grid UPDATED");
           print("NEW SCHEMA : " + newGrid.schema['widgets'].toString());
-          mainWidgetList.add(DraggableCard(
+          mainWidgetList.add(Indicator(
               //key:UniqueKey(),
               model: model,
               isEditingMode: widget.isEditingMode,
@@ -455,7 +455,7 @@ class _MonitorDragState extends State<MonitorDrag> {
         }
         temporaryJSONGridTheme = newGrid;
         return await grid.put(newGrid.id, newGrid).then((value) {
-          mainWidgetList[positionId] = new DraggableCard(
+          mainWidgetList[positionId] = new Indicator(
               //key:UniqueKey(),
               model: model,
               isEditingMode: widget.isEditingMode,
@@ -734,7 +734,7 @@ class _MonitorDragState extends State<MonitorDrag> {
             } catch (e) {
               print("Error while reading main grid positions -> " + e.toString());
             }
-            mainWidgetList.add(DraggableCard(
+            mainWidgetList.add(Indicator(
                 //key:UniqueKey(),
                 model: model,
                 isEditingMode: widget.isEditingMode,
@@ -819,7 +819,7 @@ class _MonitorDragState extends State<MonitorDrag> {
               monitorContext: context,
               model: model,
               jsonSchema: schema,
-              onGoingToExportWidgetCallback: (String jsonGrid) async {
+              onGoingToImportWidgetCallback: (String jsonGrid) async {
                 return await _insertNewGrid(jsonGridData: jsonGrid);
               })
         ]),
@@ -886,7 +886,7 @@ class _MonitorDragState extends State<MonitorDrag> {
 
                                     if (mounted)
                                       setState(() {
-                                        mainWidgetList[oldIndex] = DraggableCard(
+                                        mainWidgetList[oldIndex] = Indicator(
                                             //key:UniqueKey(),
                                             model: model,
                                             isEditingMode: widget.isEditingMode,
@@ -908,7 +908,7 @@ class _MonitorDragState extends State<MonitorDrag> {
                                               await _temporaryDeleteWidget(currentPosition);
                                             });
 
-                                        mainWidgetList[newIndex] = DraggableCard(
+                                        mainWidgetList[newIndex] = Indicator(
                                             //key:UniqueKey(),
                                             model: model,
                                             isEditingMode: widget.isEditingMode,

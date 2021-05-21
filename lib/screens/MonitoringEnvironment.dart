@@ -6,8 +6,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:SKDashboard/models/database/models.dart';
-import 'package:SKDashboard/widgets/monitor/MonitorDrag.dart';
-import 'package:SKDashboard/widgets/monitor/SubscriptionsGrid.dart';
+import 'package:SKDashboard/widgets/monitor/DashBoard.dart';
+import 'package:SKDashboard/widgets/monitor/RealTimeMonitor.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:websocket_manager/websocket_manager.dart';
 
@@ -17,14 +17,14 @@ import 'package:SKDashboard/network/StreamSubscriber.dart';
 import 'package:SKDashboard/models/BaseModel.dart';
 import 'package:SKDashboard/models/Helper.dart';
 
-class DashBoard extends StatefulWidget {
-  const DashBoard();
+class MonitoringEnvironment extends StatefulWidget {
+  const MonitoringEnvironment();
 
   @override
-  _DashBoardState createState() => _DashBoardState();
+  _MonitoringEnvironmentState createState() => _MonitoringEnvironmentState();
 }
 
-class _DashBoardState extends State<DashBoard> {
+class _MonitoringEnvironmentState extends State<MonitoringEnvironment> {
   BaseModel themeModel;
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   final ScrollController controller = ScrollController();
@@ -66,12 +66,12 @@ class _DashBoardState extends State<DashBoard> {
     switch (currentViewState) {
 
       case "subscriptions":
-        return new SubscriptionsGrid(key: UniqueKey(), StreamObject: this.SKFlow, currentVessel: currentVessel, vesselsDataTable: vesselsDataTable);
+        return new RealTimeMonitor(key: UniqueKey(), StreamObject: this.SKFlow, currentVessel: currentVessel, vesselsDataTable: vesselsDataTable);
         break;
 
       case "monitors":
       default:
-        return new MonitorDrag(
+        return new DashBoard(
             key: MonitorDragKey,
             StreamObject: this.SKFlow,
             currentVessel: currentVessel,

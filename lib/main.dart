@@ -6,7 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:SKDashboard/screens/SplashScreen.dart';
-import 'package:SKDashboard/screens/DashBoardPage.dart';
+import 'package:SKDashboard/screens/MonitoringEnvironment.dart';
 import 'Configuration.dart';
 import 'models/BaseModel.dart';
 import 'models/database/models.dart';
@@ -71,7 +71,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
         initialRoute: '/',
         routes: {
-          '/dashboard': (context) => Builder(builder: (BuildContext context) {
+          '/monitoring_environment': (context) => Builder(builder: (BuildContext context) {
                 if (_themeModel != null) {
                   _themeModel.systemTheme = Theme.of(context);
                   _themeModel.currentThemeData =
@@ -82,7 +82,7 @@ class _MyAppState extends State<MyApp> {
                   _themeModel
                       .changeTheme(_themeModel.currentThemeData);
                 }
-                return DashBoard();
+                return MonitoringEnvironment();
               }),
         },
         debugShowCheckedModeBanner: false,

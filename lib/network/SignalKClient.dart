@@ -112,7 +112,6 @@ class SignalKClient {
     return this.loaded;
   }
 
-  void executeHTTPRequest() {}
 
   Future<bool> loadSignalKData() async {
     //launch first request

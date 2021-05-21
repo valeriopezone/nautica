@@ -8,18 +8,18 @@ import 'package:SKDashboard/network/StreamSubscriber.dart';
 
 import 'package:SKDashboard/Configuration.dart';
 
-class SubscriptionsGrid extends StatefulWidget {
+class RealTimeMonitor extends StatefulWidget {
   StreamSubscriber StreamObject = null;
   String currentVessel = "";
   Map vesselsDataTable;
 
-  SubscriptionsGrid({Key key, @required this.StreamObject, @required this.currentVessel, @required this.vesselsDataTable}) : super(key: key);
+  RealTimeMonitor({Key key, @required this.StreamObject, @required this.currentVessel, @required this.vesselsDataTable}) : super(key: key);
 
   @override
-  _SubscriptionsGridState createState() => _SubscriptionsGridState();
+  _RealTimeMonitorState createState() => _RealTimeMonitorState();
 }
 
-class _SubscriptionsGridState extends State<SubscriptionsGrid> {
+class _RealTimeMonitorState extends State<RealTimeMonitor> {
   BaseModel model = BaseModel.instance;
 
   bool isLandscapeInMobileView = false;

@@ -16,7 +16,7 @@ import 'monitor/indicators/SpeedIndicator.dart';
 import 'monitor/indicators/TextIndicator.dart';
 import 'monitor/indicators/WindIndicator.dart';
 
-class DraggableCard extends StatefulWidget {
+class Indicator extends StatefulWidget {
   StreamSubscriber StreamObject;
   String currentVessel = ""; //
   dynamic vesselsDataTable = [];
@@ -34,7 +34,7 @@ class DraggableCard extends StatefulWidget {
   final Future<void> Function(int cardId, int viewId) onGoingToDeleteCallback;
 
 
-  DraggableCard(
+  Indicator(
       {Key key,
       @required this.model,
       @required this.isEditingMode,
@@ -52,10 +52,10 @@ class DraggableCard extends StatefulWidget {
       : super(key: key);
 
   @override
-  _DraggableCardState createState() => _DraggableCardState();
+  _IndicatorState createState() => _IndicatorState();
 }
 
-class _DraggableCardState extends State<DraggableCard> {
+class _IndicatorState extends State<Indicator> {
   bool isLoadingWidget = true;
   bool errorOccurred = false;
   String currentTitle;

@@ -67,7 +67,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   void goToDashBoard() {
     Navigator.pop(context);
-    Navigator.pushNamed(context, '/dashboard');
+    Navigator.pushNamed(context, '/monitoring_environment');
   }
 
   void initializeTextInputs() {

@@ -12,9 +12,10 @@ class GridImportForm extends StatefulWidget {
   BaseModel model;
   BuildContext monitorContext;
   String jsonSchema;
-  final Future<bool> Function(String loadedJSON) onGoingToExportWidgetCallback;
+  final Future<bool> Function(String loadedJSON) onGoingToImportWidgetCallback;
+  //final Future<bool> Function(String loadedJSON) onGoingToImportWidgetCallback;
 
-  GridImportForm({Key key, @required this.model, @required this.monitorContext, @required this.jsonSchema, @required this.onGoingToExportWidgetCallback})
+  GridImportForm({Key key, @required this.model, @required this.monitorContext, @required this.jsonSchema, @required this.onGoingToImportWidgetCallback})
       : super(key: key);
 
   @override
@@ -201,9 +202,9 @@ class _GridImportFormState extends State<GridImportForm> {
                                                                     isLoadingForSaving = true;
                                                                   });
                                                                 }
-                                                                widget.onGoingToExportWidgetCallback(inputJSON);
+                                                                widget.onGoingToImportWidgetCallback(inputJSON);
                                                                 Navigator.pop(context);
-                                                                //  widget.onGoingToExportWidgetCallback(inputJSON).then((response) {
+                                                                //  widget.onGoingToImportWidgetCallback(inputJSON).then((response) {
                                                                 //    if (mounted) {
                                                                 //      setState(() {
                                                                 //        isLoadingForSaving = false;
@@ -235,10 +236,10 @@ class _GridImportFormState extends State<GridImportForm> {
                                                                       isLoadingForSaving = true;
                                                                     });
                                                                   }
-                                                                  widget.onGoingToExportWidgetCallback(inputJSON);
+                                                                  widget.onGoingToImportWidgetCallback(inputJSON);
                                                                   Navigator.pop(context);
 
-                                                               // widget.onGoingToExportWidgetCallback(inputJSON).then((response) {
+                                                               // widget.onGoingToImportWidgetCallback(inputJSON).then((response) {
                                                                //   if (mounted) {
                                                                //     setState(() {
                                                                //       isLoadingForSaving = false;
@@ -334,9 +335,9 @@ class _GridImportFormState extends State<GridImportForm> {
                                                                     isLoadingForSaving = true;
                                                                   });
                                                                 }
-                                                                widget.onGoingToExportWidgetCallback(inputJSON);
+                                                                widget.onGoingToImportWidgetCallback(inputJSON);
                                                                 Navigator.pop(context);
-                                                                //  widget.onGoingToExportWidgetCallback(inputJSON).then((response) {
+                                                                //  widget.onGoingToImportWidgetCallback(inputJSON).then((response) {
                                                                 //    if (mounted) {
                                                                 //      setState(() {
                                                                 //        isLoadingForSaving = false;
@@ -368,10 +369,10 @@ class _GridImportFormState extends State<GridImportForm> {
                                                                       isLoadingForSaving = true;
                                                                     });
                                                                   }
-                                                                  widget.onGoingToExportWidgetCallback(inputJSON);
+                                                                  widget.onGoingToImportWidgetCallback(inputJSON);
                                                                   Navigator.pop(context);
 
-                                                                  // widget.onGoingToExportWidgetCallback(inputJSON).then((response) {
+                                                                  // widget.onGoingToImportWidgetCallback(inputJSON).then((response) {
                                                                   //   if (mounted) {
                                                                   //     setState(() {
                                                                   //       isLoadingForSaving = false;
