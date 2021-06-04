@@ -192,6 +192,11 @@ class _MonitoringEnvironmentState extends State<MonitoringEnvironment> {
   }
 
   void goToSetup() {
+    signalK.disconnect();
+
+    signalK = null;
+    SKFlow = null;
+
     Navigator.pop(context);
     Navigator.pushNamed(context, '/');
   }

@@ -119,6 +119,8 @@ class _SpeedIndicatorState extends State<SpeedIndicator> with DisposableWidget{
 
   @override
   void dispose() {
+    print("[SpeedIndicator] DISPOSING...");
+
     cancelSubscriptions();
     super.dispose();
   }

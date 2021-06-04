@@ -79,6 +79,8 @@ class _TextIndicatorState extends State<TextIndicator> with DisposableWidget {
 
   @override
   void dispose() {
+    print("[TextIndicator] DISPOSING...");
+
     cancelSubscriptions();
     super.dispose();
   }

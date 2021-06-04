@@ -13,7 +13,6 @@ import 'models/database/models.dart';
 import 'dart:convert' as convert;
 import 'package:path_provider/path_provider.dart';
 
-//for web usage disable canvaskit -> flutter run -d chrome --web-renderer html
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

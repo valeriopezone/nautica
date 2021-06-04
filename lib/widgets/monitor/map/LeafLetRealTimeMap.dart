@@ -86,6 +86,8 @@ class LeafLetMapState extends State<LeafLetMap> with DisposableWidget, TickerPro
 
   @override
   void dispose() {
+    print("[LeafLetMap] DISPOSING...");
+
     cancelSubscriptions();
   // if (controller != null) {
   //   controller.dispose();

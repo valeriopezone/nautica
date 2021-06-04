@@ -1,11 +1,16 @@
+import 'dart:async';
+import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:SKDashboard/models/BaseModel.dart';
 import 'package:SKDashboard/utils/json_schema/json_schema.dart';
 import 'dart:convert' as convert;
 import 'package:SKDashboard/Configuration.dart';
+import 'package:path_provider/path_provider.dart';
 
 class GridImportForm extends StatefulWidget {
 
@@ -30,6 +35,7 @@ class _GridImportFormState extends State<GridImportForm> {
 
   bool isLoadingForSaving = false;
   bool formLoaded = false;
+  String mainGridTitle = "unknown_grid";
   TextEditingController gridTextController = TextEditingController();
   TextEditingController exportTextController = TextEditingController();
 
@@ -38,6 +44,14 @@ class _GridImportFormState extends State<GridImportForm> {
     super.initState();
 
     if(widget.jsonSchema != null) exportTextController.text = widget.jsonSchema;//load export json
+    Map<dynamic, dynamic> currentMap = convert.jsonDecode(widget.jsonSchema);
+
+try{
+  mainGridTitle = currentMap['name'];
+}catch (e) {
+  //print("[TextIndicator] error while decoding unit -> $e");
+}
+
 
   if(mounted) {
     setState(() {
@@ -325,28 +339,21 @@ class _GridImportFormState extends State<GridImportForm> {
                                                           child: Text("Export"),
                                                           color: Colors.green,
                                                           onPressed: () async {
-                                                            String inputJSON = await importFromFile();
-                                                            if (inputJSON.isNotEmpty) {
-                                                              bool isSchemaValid = await schemaValidation(inputJSON);
+                                                            print("press exp");
+                                                            if(!kIsWeb) {
+                                                              final directory = await getApplicationDocumentsDirectory();
 
-                                                              if (isSchemaValid) {
-                                                                if (mounted) {
-                                                                  setState(() {
-                                                                    isLoadingForSaving = true;
-                                                                  });
-                                                                }
-                                                                widget.onGoingToImportWidgetCallback(inputJSON);
-                                                                Navigator.pop(context);
-                                                                //  widget.onGoingToImportWidgetCallback(inputJSON).then((response) {
-                                                                //    if (mounted) {
-                                                                //      setState(() {
-                                                                //        isLoadingForSaving = false;
-                                                                //      });
-                                                                //      Navigator.pop(context);
-                                                                //    }
-                                                                //  });
-                                                              }
+                                                              String exportFileName = "${directory.path}/$mainGridTitle.json";
+
+                                                              final file = File(exportFileName);
+                                                              file.writeAsString(exportTextController.text).then((value){
+                                                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('File successfully exported to $exportFileName')));
+                                                              });
+
+                                                            }else{
+                                                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Function not supported in browser.')));
                                                             }
+
                                                           },
                                                         ),
                                                       ),
@@ -358,33 +365,9 @@ class _GridImportFormState extends State<GridImportForm> {
                                                         child: CupertinoButton(
                                                           color: Colors.green,
                                                           onPressed: () async {
-                                                            if (_formKey1.currentState.validate()) {
-                                                              String inputJSON = importFromText();
-                                                              if (inputJSON.isNotEmpty) {
-                                                                bool isSchemaValid = await schemaValidation(inputJSON);
-
-                                                                if (isSchemaValid) {
-                                                                  if (mounted) {
-                                                                    setState(() {
-                                                                      isLoadingForSaving = true;
-                                                                    });
-                                                                  }
-                                                                  widget.onGoingToImportWidgetCallback(inputJSON);
-                                                                  Navigator.pop(context);
-
-                                                                  // widget.onGoingToImportWidgetCallback(inputJSON).then((response) {
-                                                                  //   if (mounted) {
-                                                                  //     setState(() {
-                                                                  //       isLoadingForSaving = false;
-                                                                  //     });
-                                                                  //     Navigator.pop(context);
-                                                                  //   }
-                                                                  // });
-                                                                } else {
-                                                                  //err
-                                                                }
-                                                              }
-                                                            }
+                                                            Clipboard.setData(new ClipboardData(text: exportTextController.text)).then((_){
+                                                              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Current grid copied into clipboard')));
+                                                            });
                                                           },
 
                                                           //onPressed: () async {

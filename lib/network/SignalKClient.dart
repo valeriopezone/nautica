@@ -47,6 +47,8 @@ class SignalKClient {
       return Future.value(false);
     }
 
+    desktopSocket = null;
+
     if (kIsWeb || Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
       //WebsocketManager not supported, use standard
 
@@ -59,6 +61,8 @@ class SignalKClient {
         }).onError((e) {
           print('[SignalKClient]Browser - Unable to connect -- on error : ' +
               e.toString());
+          closeCallback();
+
         });
 
         this.wsConnected = true;

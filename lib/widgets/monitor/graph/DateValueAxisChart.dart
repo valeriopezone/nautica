@@ -138,6 +138,8 @@ class _DateValueAxisChartState extends State<DateValueAxisChart> with Disposable
 
   @override
   void dispose() {
+    print("[DateValueAxisChart] DISPOSING...");
+
     cancelSubscriptions();
     super.dispose();
   }

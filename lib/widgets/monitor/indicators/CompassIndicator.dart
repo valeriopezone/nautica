@@ -105,6 +105,7 @@ class _CompassIndicatorState extends State<CompassIndicator> with DisposableWidg
   @override
   void dispose() {
     cancelSubscriptions();
+    print("[CompassIndicator] DISPOSING...");
     super.dispose();
   }
 

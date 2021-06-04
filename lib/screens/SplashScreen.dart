@@ -43,7 +43,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     //display splashscreen
-    Future.delayed(Duration(seconds: 1), () {
+    Future.delayed(Duration(seconds: 3), () {
       Hive.openBox("settings").then((settings) {
         signalKServerAddress = settings.get("signalk_address") ?? CONF['signalK']['connection']['address'];
         signalKServerPort = settings.get("signalk_port") ?? CONF['signalK']['connection']['port'];
@@ -384,8 +384,56 @@ class _SplashScreenState extends State<SplashScreen> {
 
     case 'splashscreen':
     default:
-    currentView = Container(
-    child: Center(child: Text("splashscreen...")),
+    currentView = Stack(
+      children: [Container(
+      child: Center(child:
+
+      Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+      Padding(
+      padding: EdgeInsets.fromLTRB(24, 0, 0, 0),
+        child:
+        Text('SKDashboard ', style: TextStyle(color: Color.fromRGBO(2, 137, 123, 1.0), fontSize: 50, letterSpacing: 0.53, fontFamily: 'Roboto-Bold'))),
+
+
+          Padding(
+              padding: EdgeInsets.fromLTRB(24, 0, 0, 0),
+              child: Text('Open Source Marine Electronics',
+                  style: TextStyle(
+                      color: Colors.black, fontSize: 14, fontFamily: 'Roboto-Regular', letterSpacing: 0.26, fontWeight: FontWeight.normal))),
+
+
+
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: CupertinoActivityIndicator(),
+          ),
+
+
+        ],
+      )
+
+      ),
+      ),
+
+      Container(
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text("Università degli studi di Napoli \"Parthenope\" - Corso di Laurea in Informatica - Valerio Pezone"),
+                ),
+              ],
+            ),
+          ),
+
+      )
+
+      ],
     );
 
     break;
