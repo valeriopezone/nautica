@@ -5,39 +5,66 @@ An interactive marine dashboard that connects to SignalK and allows users to vis
 Built with Flutter (Dart) and designed for Android devices, tablets, and onboard displays.
 
 ✨ Features
+
 📡 SignalK server connection
+
 📊 Real-time sensor data visualization
+
 🧭 Digital marine instruments
+
 🧩 Modular dashboard layout
+
 📱 Optimized for tablets and touch screens
+
 🚤 Designed for boats, yachts, and ships
+
 ⚙️ Configurable widgets
+
 🔄 Live data updates
+
 📡 Supported Data (via SignalK)
 
 The dashboard can display any data exposed by SignalK, including:
 
 GPS position
+
 Speed (SOG / STW)
+
 Wind speed and direction
+
 Depth
+
 Heading / Compass
+
 Water temperature
+
 Air temperature
+
 Battery voltage
+
 Custom SignalK data paths
+
 🖼️ Screenshots
+
 
 .....
 
 🚀 Getting Started
+
 Prerequisites
+
 Flutter SDK installed
+
 Android Studio
+
 Android device or emulator
+
 SignalK server running
+
 Network access to SignalK server
+
 🔧 Installation
+
 
 Clone the repository:
 
@@ -62,26 +89,49 @@ http://192.168.1.100:3000
 
 The app will connect and start receiving real-time data.
 
+
+
 📱 Target Devices
+
 Android tablets (recommended)
+
 Android phones
+
 Embedded Android displays
+
 Raspberry Pi (Android-based)
+
 Marine cockpit touch displays
+
+
 🧭 Use Cases
+
 Sailboat instrument panel
+
 Motorboat dashboard
+
 Navigation station display
+
 Cockpit tablet display
+
 Dedicated onboard instrument screen
+
+
+
 🛠️ Built With
+
 Flutter
+
 Dart
+
 SignalK API (WebSocket / HTTP)
+
 Real-time data streaming
+
 
 🤝 Contributing
 
 Contributions are welcome!
+
 Feel free to open issues or submit pull requests.
 
