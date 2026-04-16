@@ -6,6 +6,10 @@ Built with **Flutter (Dart)** and designed for **Android devices**, tablets, and
 
 ---
 
+[![PREVIEW](https://img.youtube.com/vi/eygIKlCcSZY/0.jpg)](https://www.youtube.com/watch?v=eygIKlCcSZY)
+
+
+
 ## ✨ Features
 
 - 📡 SignalK server connection  
