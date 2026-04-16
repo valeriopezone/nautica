@@ -2,7 +2,7 @@
 
 An interactive marine dashboard that connects to **SignalK** and allows users to visualize data from multiple onboard sensors, providing a fully digital and customizable instrument panel for boats and ships.
 
-Built with **Flutter (Dart)** and designed for **Android devices**, tablets, and onboard displays.
+Built with **Flutter (Dart)** and designed for **Android/iOS devices**, tablets, and onboard displays.
 
 ---
 
